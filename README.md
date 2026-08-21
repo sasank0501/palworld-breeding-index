@@ -1,6 +1,6 @@
 # Palworld Breeding Index
 
-A breeding planner for Palworld v1.0 that works against **your actual Pal Box**, read
+A breeding planner for Palworld v0.1 that works against **your actual Pal Box**, read
 straight out of your local save file.
 
 Three tools, each a tab in the app:
