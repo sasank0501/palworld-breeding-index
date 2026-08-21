@@ -82,3 +82,11 @@ npm run build   # tsc -b && vite build
 Pal data is extracted from the legacy single-file index in `legacy/`, cross-checked against
 [palworld.wiki.gg](https://palworld.wiki.gg) and op.gg for passive skill ids. Portraits are
 mirrored from a third-party host by `npm run fetch-images` and are not redistributed here.
+
+## License
+
+[MIT](LICENSE).
+
+The license covers the code in this repository. It does not cover Palworld game data or
+artwork, which belong to Pocketpair, Inc. — the portraits are fetched at build time rather
+than redistributed here, and the extracted data is included for interoperability.

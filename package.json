@@ -2,6 +2,7 @@
   "name": "palworld-breeding-index",
   "private": true,
   "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "description": "Palworld v1.0 breeding index — reverse parent lookup, calculator, roster, breeding routes and passive chains.",
   "scripts": {
