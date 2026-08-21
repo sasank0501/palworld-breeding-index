@@ -1,0 +1,33 @@
+{
+  "name": "palworld-breeding-index",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Palworld v1.0 breeding index — reverse parent lookup, calculator, roster, breeding routes and passive chains.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "extract-data": "node scripts/extract-data.mjs",
+    "import-save": "node scripts/import-save.ts",
+    "fetch-images": "node scripts/fetch-images.mjs"
+  },
+  "dependencies": {
+    "@tanstack/react-virtual": "^3.10.8",
+    "ooz-wasm": "^2.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.2",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9",
+    "vitest": "^2.1.3"
+  }
+}

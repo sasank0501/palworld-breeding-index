@@ -1,0 +1,25 @@
+node_modules/
+dist/
+
+# Imported from a local save by `npm run import-save` — personal, and regenerated
+# every time you play. Never commit it.
+public/roster.json
+dist-ssr/
+*.local
+.DS_Store
+.vite/
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Local Claude Code permissions — contains absolute machine paths.
+# `*.local` above does not match this: the file ends in .json.
+.claude/settings.local.json
+
+# tsc -b incremental cache, rewritten on every build
+tsconfig.tsbuildinfo
+
+# Third-party portraits, regenerable with `npm run fetch-images`
+public/pals/

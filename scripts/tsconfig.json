@@ -1,0 +1,10 @@
+{
+  // Node-side tooling: the scripts here run under `node --experimental-strip-types`
+  // and need Node globals, which the app config (src, vite/client) deliberately omits.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"]
+}
