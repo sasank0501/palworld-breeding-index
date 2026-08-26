@@ -3,6 +3,8 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 
 import palsJson from '../data/pals.json';
 import passivesJson from '../data/passives.json';
+import { RankMark } from '../components/RankMark.tsx';
+import { rankClass, rankOf } from '../lib/passiveCategories.ts';
 import type { PalDex, PassiveInfo, Roster, RosterPal } from '../types.ts';
 
 const DEX = palsJson as unknown as Record<string, PalDex>;
@@ -39,20 +41,6 @@ const soulTotal = (p: RosterPal): number => p.souls.hp + p.souls.attack + p.soul
 
 const dexOf = (p: RosterPal): PalDex | undefined => (p.palId ? DEX[p.palId] : undefined);
 const displayName = (p: RosterPal): string => dexOf(p)?.name ?? p.characterId;
-
-/** Tier drives the chip colour; unverified ids stay grey rather than pretending. */
-function tierClass(info: PassiveInfo | undefined): string {
-  if (!info || info.name === null) return 'tier-unknown';
-  const t = info.tier;
-  if (t === 'diamond') return 'tier-diamond';
-  if (typeof t === 'number') {
-    if (t >= 3) return 'tier-3';
-    if (t === 2) return 'tier-2';
-    if (t === 1) return 'tier-1';
-    return 'tier-neg';
-  }
-  return 'tier-unknown';
-}
 
 const passiveLabel = (id: string): string => PASSIVES[id]?.name ?? id;
 
@@ -290,11 +278,15 @@ function PalCard({ pal }: { pal: RosterPal }) {
           instead of stacking down a narrow column. */}
       <div className="passives">
         {pal.passives.length === 0 && <span className="no-passives">no passives</span>}
-        {pal.passives.map((id) => (
-          <span key={id} className={`chip ${tierClass(PASSIVES[id])}`} title={passiveTitle(id)}>
-            {passiveLabel(id)}
-          </span>
-        ))}
+        {pal.passives.map((id) => {
+          const rank = rankOf(id, PASSIVES[id]);
+          return (
+            <span key={id} className={`chip ${rankClass(rank)}`} title={passiveTitle(id)}>
+              <span className="chip-label">{passiveLabel(id)}</span>
+              <RankMark rank={rank} />
+            </span>
+          );
+        })}
       </div>
     </article>
   );

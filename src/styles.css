@@ -25,7 +25,10 @@
   --rose-deep: #8f4055;
   --amber-deep: #7f5a1c;
 
-  /* --- semantic --- */
+  /* --- semantic ------------------------------------------------------------
+     Everything below is redefined for dark mode further down, so any new colour
+     belongs here as a token rather than inline: a literal hex in a rule is a
+     colour that cannot follow the theme. */
   --bg: var(--floral-white);
   --panel: #fffefb;
   --panel-2: #f0edf5;
@@ -33,6 +36,25 @@
   --text: var(--ink);
   --muted: var(--ink-soft);
   --accent: var(--wisteria-deep);
+  --on-accent: #fff;
+
+  /* Small effects that have to invert: a white hover tint over a dark panel is
+     right, but a white halo around a selected chip on a dark page is not. */
+  --hover-tint: #ffffff80;
+  --focus-ring: #80a1d440;
+  --halo: #23212e14;
+  --card-cap: #fffefbe6;
+
+  /* Base of the passive plate. Sunk further in dark mode: the plate must stay
+     clearly darker than the panel it sits on, and the panel rises there. */
+  --tag-plate: #111;
+
+  /* Pale washes behind the status tags (alpha, lucky, awakened, clean). */
+  --wash-violet: #ece8f6;
+  --wash-amber: #f6efdd;
+  --wash-amber-line: #e3cf9a;
+  --wash-aqua: #e0f2f1;
+  --wash-teal: #dff1f1;
 
   --loc-palbox: var(--wisteria-deep);
   --loc-dimension: #96437e;
@@ -40,6 +62,89 @@
   --loc-base: var(--aqua-deep);
   --loc-global: var(--periwinkle-deep);
   --loc-unknown: #6b667a;
+
+  color-scheme: light;
+}
+
+/* --- dark theme ------------------------------------------------------------
+   Two selectors, one token set. The media query covers "system is dark and the
+   user has not overridden it"; the attribute covers an explicit choice, and wins
+   in both directions because App writes data-theme only when the user picks.
+   Values follow paldb's dark page (#1a1a1b body, panels a shade above it) so the
+   passive plates — which are paldb's, near-black — sit on it the way they do
+   there instead of floating on cream. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16161a;
+    --panel: #1f1f24;
+    --panel-2: #26262d;
+    --line: #34343d;
+    --text: #e8e6ef;
+    --muted: #a09bb0;
+    --accent: #8fa9d8;
+    --on-accent: #14141a;
+
+    --hover-tint: #ffffff14;
+    --focus-ring: #80a1d455;
+    --halo: #00000059;
+    --card-cap: #1f1f24e6;
+
+    --tag-plate: #0c0c10;
+
+    --wash-violet: #2b2740;
+    --wash-amber: #38301c;
+    --wash-amber-line: #6a5824;
+    --wash-aqua: #17332f;
+    --wash-teal: #16302f;
+
+    /* The deep accents are text colours; on a dark panel they need to come back
+       up to the pastel end of the palette to clear contrast. */
+    --wisteria-deep: #9db9e6;
+    --aqua-deep: #6fc9c4;
+    --periwinkle-deep: #b1a6e6;
+    --rose-deep: #e0899c;
+    --amber-deep: #ddb264;
+
+    --loc-dimension: #dd8fc6;
+    --loc-unknown: #9d98a9;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #16161a;
+  --panel: #1f1f24;
+  --panel-2: #26262d;
+  --line: #34343d;
+  --text: #e8e6ef;
+  --muted: #a09bb0;
+  --accent: #8fa9d8;
+  --on-accent: #14141a;
+
+  --hover-tint: #ffffff14;
+  --focus-ring: #80a1d455;
+  --halo: #00000059;
+  --card-cap: #1f1f24e6;
+
+  --tag-plate: #0c0c10;
+
+  --wash-violet: #2b2740;
+  --wash-amber: #38301c;
+  --wash-amber-line: #6a5824;
+  --wash-aqua: #17332f;
+  --wash-teal: #16302f;
+
+  --wisteria-deep: #9db9e6;
+  --aqua-deep: #6fc9c4;
+  --periwinkle-deep: #b1a6e6;
+  --rose-deep: #e0899c;
+  --amber-deep: #ddb264;
+
+  --loc-dimension: #dd8fc6;
+  --loc-unknown: #9d98a9;
+
+  color-scheme: dark;
 }
 
 * {
@@ -96,7 +201,7 @@ body {
 
 .tab:hover {
   color: var(--text);
-  background: #ffffff80;
+  background: var(--hover-tint);
 }
 
 .tab.on {
@@ -111,6 +216,26 @@ body {
   margin-left: auto;
   font-size: 12px;
   padding-bottom: 8px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 8px 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--periwinkle);
 }
 
 /* ---------- summary tiles ---------- */
@@ -184,7 +309,7 @@ body {
 .pill.on {
   background: var(--wisteria-deep);
   border-color: var(--wisteria-deep);
-  color: #fff;
+  color: var(--on-accent);
   font-weight: 600;
 }
 
@@ -228,7 +353,7 @@ body {
 
 .gap.open {
   border-color: var(--wisteria-blue);
-  box-shadow: 0 0 0 2px #80a1d433;
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .gap.unreachable {
@@ -304,14 +429,6 @@ body {
   gap: 6px;
   flex-wrap: wrap;
   font-size: 12.5px;
-}
-
-.parent {
-  color: var(--text);
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  padding: 1px 7px;
-  border-radius: 5px;
 }
 
 .times,
@@ -434,7 +551,7 @@ body {
 .controls .search:focus-visible,
 .controls select:focus-visible {
   border-color: var(--wisteria-blue);
-  box-shadow: 0 0 0 3px #80a1d440;
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .controls .search {
@@ -510,7 +627,7 @@ body {
 }
 
 .card.is-lucky {
-  border-color: #e3cf9a;
+  border-color: var(--wash-amber-line);
   box-shadow: inset 3px 0 0 var(--amber-deep);
 }
 
@@ -555,7 +672,7 @@ body {
   font-weight: 600;
   text-align: center;
   padding: 2px 0;
-  background: #fffefbe6;
+  background: var(--card-cap);
   border-top: 1px solid var(--line);
   text-transform: capitalize;
 }
@@ -648,19 +765,19 @@ body {
 
 .tag.alpha {
   color: var(--periwinkle-deep);
-  background: #ece8f6;
+  background: var(--wash-violet);
   border-color: var(--periwinkle);
 }
 
 .tag.lucky {
   color: var(--amber-deep);
-  background: #f6efdd;
-  border-color: #e3cf9a;
+  background: var(--wash-amber);
+  border-color: var(--wash-amber-line);
 }
 
 .tag.awake {
   color: var(--aqua-deep);
-  background: #e0f2f1;
+  background: var(--wash-aqua);
   border-color: var(--pearl-aqua);
 }
 
@@ -747,66 +864,137 @@ body {
   font-style: italic;
 }
 
+/* Passive tags are paldb's plate, values taken from its stylesheet: a near-black
+   panel (#11111188 → #111111ff) under a rank-coloured wash, a 5px rank edge down
+   the left, the name in the rank's own colour, and the chevron stack on the
+   right. paldb runs these on a dark page; on the cream one they read as the
+   game's tags do against the sky, which is the effect we want either way. */
 .chip {
-  font-size: 10.5px;
-  font-weight: 500;
-  padding: 2px 6px;
-  border-radius: 5px;
-  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--tag-edge);
+  border-left-width: 5px;
   max-width: 100%;
+  overflow: hidden;
+  cursor: help;
+  color: var(--tag-text);
+  background-color: var(--tag-plate);
+  background-image: var(--tag-wash), linear-gradient(#11111188, #111111ff);
+  text-shadow: 1px 1px 0 #000;
+  /* Colour at three-quarter strength by default. A hundred tags at full
+     saturation read as noise, and the one you picked has to win against all of
+     them — so the selected and wanted states below take the filter off rather
+     than adding yet another decoration on top. */
+  filter: saturate(0.75);
+}
+
+.chip-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  cursor: help;
 }
 
-/* Tier ramp runs aqua -> wisteria -> periwinkle -> neutral, so the strongest
-   passives read as the most saturated chip on an otherwise pale card. */
-.tier-diamond {
-  color: var(--aqua-deep);
-  background: #dff1f1;
-  border-color: var(--pearl-aqua);
+.rank-mark {
+  flex: 0 0 auto;
+  width: auto;
+  height: 12px;
+  color: var(--tag-mark);
 }
-.tier-3 {
-  color: var(--wisteria-deep);
-  background: #e4ecf8;
-  border-color: var(--wisteria-blue);
+
+/* Each rank supplies the wash, the edge, the label colour and the chevrons.
+   paldb's scheme: mint for the top two ranks — the World Tree implants (5) get
+   a purple wash where rank 4 gets indigo — gold for 3/2/1, and a plain grey
+   edge with neutral text for the debuffs. */
+.rank-5 {
+  --tag-wash: linear-gradient(to right, #59bb653d, #4d09cb7a);
+  --tag-edge: #5cf1e2;
+  --tag-text: #68ffd8;
+  --tag-mark: #68ffd8;
 }
-.tier-2 {
-  color: var(--periwinkle-deep);
-  background: #ece8f6;
-  border-color: var(--periwinkle);
+.rank-4 {
+  --tag-wash: linear-gradient(to right, #59bb653d, #5958cc7a);
+  --tag-edge: #5cf1e2;
+  --tag-text: #68ffd8;
+  --tag-mark: #68ffd8;
 }
-.tier-1 {
-  color: var(--muted);
-  background: var(--panel-2);
-  border-color: var(--line);
+.rank-3,
+.rank-2 {
+  --tag-wash: linear-gradient(#ffdd0020, #ffdd0020);
+  --tag-edge: #ffdd00;
+  --tag-text: #ffd83f;
+  --tag-mark: #ffd83f;
 }
-.tier-neg {
-  color: var(--rose-deep);
-  background: #f7e7ea;
-  border-color: #e0b6bf;
+/* Rank 1 keeps the gold name paldb gives it but drops to a neutral edge, which
+   is the only thing separating it from rank 2 at a glance there too. */
+.rank-1 {
+  --tag-wash: linear-gradient(#ffffff08, #ffffff08);
+  --tag-edge: #6c757d;
+  --tag-text: #ffd83f;
+  --tag-mark: #e0c04a;
 }
-.tier-unknown {
-  color: var(--muted);
-  background: transparent;
-  border-color: var(--periwinkle);
-  border-style: dashed;
+/* Debuffs: no accent at all on paldb, so the plate is bare and the name plain.
+   The down-pointing chevrons carry the warning. */
+.rank-neg {
+  --tag-wash: linear-gradient(#ffffff08, #ffffff08);
+  --tag-edge: #6c757d;
+  --tag-text: #dee2e6;
+  --tag-mark: #e88b8b;
+}
+.rank-unknown {
+  --tag-wash: linear-gradient(#ffffff08, #ffffff08);
+  --tag-edge: #495057;
+  --tag-text: #adb5bd;
+  --tag-mark: #8b8699;
 }
 
 /* ---------- passive planner ---------- */
-.planner {
+/* Planner splits down the middle: everything you set on the left, the plan on
+   the right. The old top/bottom split gave the passive picker a 260px letterbox
+   between two half-empty panels, which is what made it feel cramped. */
+.planner-app {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(360px, 2.2fr) minmax(220px, 1fr);
-  gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--line);
-  align-items: start;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
 }
 
-@media (max-width: 900px) {
-  .planner {
+/* The numbered order runs straight down the column — target, passives, solve —
+   and all three panels span the full half so their edges line up. Only the
+   picker flexes; the other two are as tall as their content. */
+.planner {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 14px 18px;
+  border-right: 1px solid var(--line);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The picker gets every pixel the column has left rather than a fixed strip. */
+.panel-passives {
+  min-height: 0;
+}
+
+.planner-app > .scroll {
+  min-height: 0;
+  container-type: inline-size;
+}
+
+@media (max-width: 1100px) {
+  .planner-app {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .planner {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
   }
 }
 
@@ -851,9 +1039,163 @@ body {
   padding: 3px 5px;
 }
 
-.species-select option:disabled {
+/* ---- 1 · Target Pal: art-led selection ---- */
+
+.target-hero {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+}
+
+.target-hero.empty {
+  border-style: dashed;
+}
+
+.target-hero.empty .portrait {
+  border-style: dashed;
+}
+
+.target-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  align-items: flex-start;
+}
+
+.target-name {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.target-hero.empty .target-name {
   color: var(--muted);
+  font-weight: 600;
+}
+
+.type-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.portrait-lg {
+  width: 92px;
+  height: 92px;
+  flex-basis: 92px;
+}
+
+.portrait-md {
+  width: 64px;
+  height: 64px;
+  flex-basis: 64px;
+}
+
+.portrait-sm {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+  border-radius: 6px;
+}
+
+.combo {
+  position: relative;
+}
+
+.combo-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.combo-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.combo-caret {
+  flex: 0 0 auto;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 6px 9px;
+}
+
+.combo-caret:hover {
+  color: var(--text);
+}
+
+.combo-list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  box-shadow: 0 8px 24px #0000001f;
+}
+
+.combo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.combo-row.active {
+  background: var(--panel-2);
+}
+
+.combo-row.on {
+  background: var(--wisteria-deep);
+  color: var(--on-accent);
+}
+
+.combo-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combo-note {
+  font-size: 10px;
   font-style: italic;
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+.combo-row.on .combo-note {
+  color: var(--on-accent);
+  opacity: 0.8;
+}
+
+.combo-empty {
+  padding: 8px 6px;
 }
 
 .presets {
@@ -870,7 +1212,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 260px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -884,60 +1227,105 @@ body {
   margin: 0 0 5px;
 }
 
+.group-count {
+  font-weight: 500;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Segmented switch for the picker's grouping. Small and quiet: the chips below
+   are the thing to look at, this only says how they are piled up. */
+.group-by {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.group-by-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 2px;
+}
+
+.seg {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.seg:hover {
+  color: var(--text);
+}
+
+.seg.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
 }
 
+/* The plate comes from .chip; only interaction lives here. */
 .chip.pick {
   cursor: pointer;
-  background: var(--panel-2);
-  border-color: var(--line);
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
 }
 
 .chip.pick:hover:not(:disabled) {
-  border-color: var(--periwinkle);
+  filter: saturate(1) brightness(1.2);
 }
 
+/* The picked tag is the only one at full colour, which is what makes it findable
+   in a wall of a hundred. The ring and halo lift it off its neighbours; a fill
+   would bury the tier plate that tells you what rank it is. */
 .chip.pick.on {
-  background: var(--wisteria-deep);
-  border-color: var(--wisteria-deep);
-  color: #fff;
-  font-weight: 600;
+  filter: none;
+  outline: 2px solid var(--tag-edge);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--halo);
 }
 
-.chip.pick.unowned,
 .chip.pick:disabled {
-  opacity: 0.45;
   cursor: not-allowed;
 }
 
+/* Fading a dark plate over a cream page turns it into a pale smudge, so a
+   passive you own none of gets its own dead-grey plate instead of opacity. */
+.chip.pick.unowned {
+  --tag-wash: linear-gradient(#ffffff05, #ffffff05);
+  --tag-edge: #3f434a;
+  --tag-text: #8a8f97;
+  --tag-mark: #6d7178;
+}
+
+/* Disabled only because four are already picked — still owned, so keep the
+   tier plate readable and just knock it back. */
+.chip.pick:disabled:not(.unowned) {
+  opacity: 0.5;
+}
+
 .count-badge {
-  font-size: 9.5px;
-  padding: 0 4px;
+  font-size: 11px;
+  padding: 0 5px;
   border-radius: 999px;
-  background: #0000000f;
+  background: #ffffff2b;
   font-variant-numeric: tabular-nums;
-}
-
-.chip.pick.on .count-badge {
-  background: #ffffff2e;
-}
-
-.neg-dot {
-  color: var(--rose-deep);
-  font-size: 9px;
+  flex: 0 0 auto;
 }
 
 .solve-btn {
   background: var(--wisteria-deep);
-  color: #fff;
+  color: var(--on-accent);
   border: none;
   border-radius: 8px;
   padding: 9px 14px;
@@ -960,8 +1348,8 @@ body {
 .warn-line {
   font-size: 12px;
   color: var(--amber-deep);
-  background: #f6efdd;
-  border: 1px solid #e3cf9a;
+  background: var(--wash-amber);
+  border: 1px solid var(--wash-amber-line);
   border-radius: 7px;
   padding: 7px 10px;
   margin: 0 0 12px;
@@ -1001,14 +1389,14 @@ body {
 
 .badge.clean {
   color: var(--aqua-deep);
-  background: #dff1f1;
+  background: var(--wash-teal);
   border-color: var(--pearl-aqua);
 }
 
 .badge.diluted {
   color: var(--amber-deep);
-  background: #f6efdd;
-  border-color: #e3cf9a;
+  background: var(--wash-amber);
+  border-color: var(--wash-amber-line);
 }
 
 .steps {
@@ -1022,11 +1410,28 @@ body {
 
 .step {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 10px;
+  padding: 12px;
+}
+
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.step-title {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.step-title strong {
+  color: var(--text);
 }
 
 .step-n {
@@ -1035,7 +1440,7 @@ body {
   flex: 0 0 24px;
   border-radius: 999px;
   background: var(--wisteria-deep);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 12px;
   font-weight: 700;
   display: flex;
@@ -1043,28 +1448,96 @@ body {
   justify-content: center;
 }
 
-.step-body {
+/* Parents and child sit on one row and share the width evenly; the × and →
+   stay narrow so the three cards get everything else. */
+.pairing {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: stretch;
+  gap: 8px;
+}
+
+/* Three pal cards abreast need real width; in the half-page results column they
+   stack instead. Keyed to the column, not the viewport — the viewport can be
+   wide while this column is not. Must stay after the .pairing rule above, or
+   the flat grid-template-columns wins on source order. */
+@container (max-width: 900px) {
+  .pairing {
+    grid-template-columns: 1fr;
+  }
+
+  .times,
+  .arrow {
+    text-align: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .pairing {
+    grid-template-columns: 1fr;
+  }
+
+  .times,
+  .arrow {
+    text-align: center;
+  }
+}
+
+.times,
+.arrow {
+  align-self: center;
+  font-size: 15px;
+}
+
+.pal-card {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-2);
+}
+
+.pal-card.bred {
+  border-style: dashed;
+}
+
+.pal-card.is-child {
+  background: var(--panel);
+}
+
+.pal-card.final {
+  border-color: var(--pearl-aqua);
+  box-shadow: inset 3px 0 0 var(--aqua-deep);
+}
+
+.pal-card-body {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  align-items: flex-start;
 }
 
-.pairing {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  font-size: 13px;
+.pal-card .name {
+  font-size: 14px;
 }
 
-.parent.bred {
-  border-style: dashed;
+/* The pool chips are the point of the card, so the wanted ones must not read
+   the same as the passives that merely came along. */
+/* Same rule on the plan cards: the passives this step is actually chasing come
+   back to full colour, the ones just riding along stay muted. */
+.chip.wanted {
+  filter: none;
+  outline: 2px solid var(--tag-edge);
+  outline-offset: 2px;
 }
 
-.child {
-  font-weight: 700;
+.loc-step {
+  color: var(--muted);
+  font-style: italic;
 }
 
 .carries {

@@ -1,5 +1,8 @@
 /**
- * Groups passives by what they are actually for, derived from their effect text.
+ * Two ways to group passives: by rank, the way paldb does it, and by what they
+ * are actually for, derived from their effect text. The picker offers both.
+ *
+ * --- purpose ---
  *
  * passives.json stores effects as prose ("Work Speed +50%", "Max Stamina +25%
  * (rideable only)"), but the phrasing is highly regular — 55 normalised templates
@@ -41,6 +44,54 @@ export function categorise(info: PassiveInfo | undefined): Category | null {
   const text = info.effects.join(' ');
   for (const [re, category] of RULES) if (re.test(text)) return category;
   return null;
+}
+
+/* ---------- rank (paldb's grouping) --------------------------------------
+   paldb lists passives by rank and nothing else: 5 down to 1, then the debuffs
+   -1 to -3, and it colours each plate from that rank alone. We store the same
+   thing, except that passives.json collapses ranks 4 and 5 into "diamond" — the
+   rank-5 set is exactly the World Tree implants, which carry a `WorldTree_`
+   id prefix, so the split is recoverable without a data refresh. */
+
+export type Rank = 5 | 4 | 3 | 2 | 1 | -1 | -2 | -3;
+
+/** Descending, the way paldb orders its list. */
+export const RANK_ORDER: Rank[] = [5, 4, 3, 2, 1, -1, -2, -3];
+
+export const RANK_LABELS: Record<Rank, string> = {
+  5: 'Rank 5 · World Tree',
+  4: 'Rank 4',
+  3: 'Rank 3',
+  2: 'Rank 2',
+  1: 'Rank 1',
+  '-1': 'Rank -1 · debuff',
+  '-2': 'Rank -2 · debuff',
+  '-3': 'Rank -3 · debuff',
+};
+
+const RANKS = new Set<number>([5, 4, 3, 2, 1, -1, -2, -3]);
+
+/** The rank paldb would show, or null when the id is unverified in our data. */
+export function rankOf(id: string, info: PassiveInfo | undefined): Rank | null {
+  if (!info || info.name === null) return null;
+  const t = info.tier;
+  if (t === 'diamond') return id.startsWith('WorldTree_') ? 5 : 4;
+  if (typeof t === 'number' && RANKS.has(t)) return t as Rank;
+  return null;
+}
+
+/** Rank drives the chip colour; unverified ids stay grey rather than pretending. */
+export function rankClass(rank: Rank | null): string {
+  if (rank === null) return 'rank-unknown';
+  return rank < 0 ? 'rank-neg' : `rank-${rank}`;
+}
+
+/**
+ * Sortable rank: 5 down through the debuffs, with unverified ids last since
+ * claiming a rank for them would be a guess.
+ */
+export function rankSort(rank: Rank | null): number {
+  return rank ?? -99;
 }
 
 /** Sign of a passive, for warning when a debuff is picked deliberately. */

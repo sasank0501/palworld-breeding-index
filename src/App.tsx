@@ -7,11 +7,65 @@ import type { Roster } from './types.ts';
 
 type Tab = 'box' | 'gaps' | 'planner';
 
+/** null = follow the OS. Only an explicit choice is written to the document. */
+type Theme = 'light' | 'dark' | null;
+
+const THEME_KEY = 'palworld-theme';
+
+function readStoredTheme(): Theme {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    return v === 'light' || v === 'dark' ? v : null;
+  } catch {
+    return null; // private mode / storage disabled — fall back to the OS
+  }
+}
+
+/**
+ * Theme is a three-state thing pretending to be a switch: light, dark, or
+ * whatever the OS says. Leaving `data-theme` off in the third case is what lets
+ * the CSS media query keep working, so a user who never touches the button
+ * follows their system for the rest of the session too.
+ */
+function useTheme(): { theme: Theme; dark: boolean; setTheme: (next: Theme) => void } {
+  const [theme, setTheme] = useState<Theme>(readStoredTheme);
+  const [systemDark, setSystemDark] = useState(
+    () => typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches,
+  );
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme) root.setAttribute('data-theme', theme);
+    else root.removeAttribute('data-theme');
+    try {
+      if (theme) localStorage.setItem(THEME_KEY, theme);
+      else localStorage.removeItem(THEME_KEY);
+    } catch {
+      /* not worth failing a render over */
+    }
+  }, [theme]);
+
+  // Tracked so the button's label stays honest if the OS flips mid-session; the
+  // CSS follows on its own.
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    const onChange = (e: MediaQueryListEvent): void => setSystemDark(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  return { theme, dark: theme === 'dark' || (theme === null && systemDark), setTheme };
+}
+
 type Load = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ready'; roster: Roster };
 
 export default function App() {
   const [load, setLoad] = useState<Load>({ state: 'loading' });
   const [tab, setTab] = useState<Tab>('box');
+  // Held here, not in the button, so the choice applies to the empty and error
+  // screens too — they render before any nav exists.
+  const { theme, dark, setTheme } = useTheme();
 
   useEffect(() => {
     let cancelled = false;
@@ -79,6 +133,15 @@ export default function App() {
         <span className="tabs-meta muted">
           {load.roster.counts.total} pals · world {load.roster.world.slice(0, 8)}
         </span>
+        <button
+          className="theme-toggle"
+          onClick={() => setTheme(dark ? 'light' : 'dark')}
+          title={theme === null ? 'Following your system theme' : `Using the ${theme} theme`}
+          aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+        >
+          <span aria-hidden="true">{dark ? '☀' : '☾'}</span>
+          {dark ? 'Light' : 'Dark'}
+        </button>
       </nav>
       {tab === 'box' && <PalBox roster={load.roster} />}
       {tab === 'gaps' && <Gaps roster={load.roster} />}
