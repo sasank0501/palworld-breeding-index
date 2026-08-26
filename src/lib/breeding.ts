@@ -2,8 +2,10 @@
  * Breeding reachability over the roster.
  *
  * combos.json is an exhaustive parent-pair -> child matrix (41,617 pairs covering
- * all 288 children), so "what can I breed?" is a plain BFS from the species you
- * already own — no heuristics, no partial recipe table.
+ * all 288 children in the rank ladder), so "what can I breed?" is a plain BFS from
+ * the species you already own — no heuristics, no partial recipe table. Astralym is
+ * the one dex entry outside the matrix; it is marked unbreedable, and the `combos[id]`
+ * lookup below tolerates a missing key regardless.
  *
  * The part a generic breeding calculator cannot do: gender. Owning one Lamball
  * does not let you breed Lamball x Lamball. Because the roster carries per-instance

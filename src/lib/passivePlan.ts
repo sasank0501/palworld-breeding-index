@@ -1,10 +1,11 @@
 /**
  * Plans a breeding chain that lands a chosen passive set on a chosen species.
  *
- * The design rests on one verified fact: `X × X = X` for all 288 species, and
- * `combos.json` is an exhaustive parent-pair -> child matrix. So every step the
- * planner emits is a real pairing, and species never has to be traded against
- * passives — they are independent axes.
+ * The design rests on one verified fact: `X × X = X` for all 288 species in the
+ * matrix, and `combos.json` is an exhaustive parent-pair -> child matrix. So every
+ * step the planner emits is a real pairing, and species never has to be traded
+ * against passives — they are independent axes. Species with no entry at all
+ * (Astralym) fall out of the search rather than breaking it.
  *
  * Inheritance is probabilistic and those rates are not sourced, so this does not
  * model odds. It answers "is this chain possible?" and leaves re-rolling to the
