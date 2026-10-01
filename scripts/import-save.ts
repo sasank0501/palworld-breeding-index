@@ -194,6 +194,16 @@ async function main(): Promise<void> {
     );
     console.log(`distinct passives: ${roster.unknown.passives.length}`);
 
+    const skillTable = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'data', 'skills.json'), 'utf8'));
+    const missingSkills = roster.unknown.skills.filter((s) => !(s in skillTable));
+    console.log(
+      `distinct active skills: ${roster.unknown.skills.length}, ` +
+        `${roster.unknown.skills.length - missingSkills.length} resolved against skills.json`,
+    );
+    if (missingSkills.length) {
+      console.log(`  not in skills.json — shown by code name in the app: ${missingSkills.join(', ')}`);
+    }
+
     if (roster.unknown.characterIds.length) {
       // Captured humans and post-dex content live here. Worth showing, not worth
       // failing on — the pals still appear in the app under their raw id.

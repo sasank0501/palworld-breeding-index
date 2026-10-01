@@ -13,9 +13,15 @@
     "test:watch": "vitest",
     "extract-data": "node scripts/extract-data.mjs",
     "import-save": "node scripts/import-save.ts",
-    "fetch-images": "node scripts/fetch-images.mjs"
+    "fetch-images": "node scripts/fetch-images.mjs",
+    "build-skills": "node scripts/build-skills.mjs",
+    "build-pal-extras": "node scripts/build-pal-extras.mjs",
+    "build-models": "node scripts/build-pal-models.mjs",
+    "render-portraits": "node scripts/render-portraits.mjs",
+    "make-demo-roster": "node scripts/make-demo-roster.mjs"
   },
   "dependencies": {
+    "@google/model-viewer": "^4.3.1",
     "@tanstack/react-virtual": "^3.10.8",
     "ooz-wasm": "^2.0.0",
     "react": "^18.3.1",
@@ -23,10 +29,13 @@
     "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
     "@types/node": "^26.2.0",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.2",
+    "sharp": "^0.35.5",
     "typescript": "^5.6.3",
     "vite": "^5.4.9",
     "vitest": "^2.1.3"

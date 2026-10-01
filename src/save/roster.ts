@@ -38,6 +38,10 @@ export interface RosterPal {
   /** Talent values 0-100. The game tracks three, not four. */
   ivs: { hp: number; attack: number; defense: number };
   passives: string[];
+  /** Active skill code names, `EPalWazaID::` stripped. `equipped` is the (up to)
+   *  three battle slots; `learned` is MasteredWaza, which in practice does *not*
+   *  repeat the equipped ones — the full set is the union of the two. */
+  skills: { equipped: string[]; learned: string[] };
   location: { kind: LocationKind; containerId: string | null; slot: number | null };
   source: 'level' | 'dps' | 'global';
 }
@@ -47,7 +51,7 @@ export interface Roster {
   exportedAt: string;
   counts: Record<string, number>;
   pals: RosterPal[];
-  unknown: { characterIds: Array<{ id: string; count: number }>; passives: string[] };
+  unknown: { characterIds: Array<{ id: string; count: number }>; passives: string[]; skills: string[] };
 }
 
 export interface ContainerRoles {
@@ -63,6 +67,14 @@ function gender(v: unknown): 'male' | 'female' | null {
   if (s.endsWith('::Male')) return 'male';
   if (s.endsWith('::Female')) return 'female';
   return null;
+}
+
+/** `EPalWazaID::AirCanon` -> `AirCanon`; drops the `None` the game pads slots with. */
+function wazaList(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  return v
+    .map((w) => str(w).replace(/^EPalWazaID::/, ''))
+    .filter((w) => w !== '' && w !== 'None');
 }
 
 /** True for real, owned pals — filters out players and empty storage slots. */
@@ -118,6 +130,7 @@ function toPal(
     },
     ivs: { hp: num(sp.Talent_HP), attack: num(sp.Talent_Shot), defense: num(sp.Talent_Defense) },
     passives: Array.isArray(sp.PassiveSkillList) ? (sp.PassiveSkillList as string[]).filter(Boolean) : [],
+    skills: { equipped: wazaList(sp.EquipWaza), learned: wazaList(sp.MasteredWaza) },
     location: { kind, containerId, slot },
     source,
   };
@@ -137,7 +150,18 @@ export interface PlayerInfo {
 }
 
 export function readPlayerSave(bytes: Uint8Array): PlayerInfo {
-  const props = readProperties(open(bytes), { select: new Set(['SaveData']) });
+  // Only three fields are wanted, and they all sit near the top of SaveData. The
+  // rest of it is RecordData — 46 KB of progression maps, some of them keyed by a
+  // native Guid rather than a property list, which the generic map reader cannot
+  // decode. Selecting the branches we need skips all of it by declared size.
+  const props = readProperties(open(bytes), {
+    select: new Set(['SaveData']),
+    nested: {
+      SaveData: {
+        select: new Set(['PlayerUId', 'PalStorageContainerId', 'OtomoCharacterContainerId']),
+      },
+    },
+  });
   const sd = (props.SaveData ?? {}) as Props;
   const idOf = (k: string): string | null => ((sd[k] as Props | undefined)?.ID as string | undefined) ?? null;
   return {
@@ -214,11 +238,13 @@ export function assembleRoster(world: string, groups: RosterPal[][]): Roster {
 
   const unmapped = new Map<string, number>();
   const passives = new Set<string>();
+  const skills = new Set<string>();
   const counts: Record<string, number> = {};
   for (const p of pals) {
     counts[p.location.kind] = (counts[p.location.kind] ?? 0) + 1;
     if (!p.palId) unmapped.set(p.characterId, (unmapped.get(p.characterId) ?? 0) + 1);
     for (const s of p.passives) passives.add(s);
+    for (const s of [...p.skills.equipped, ...p.skills.learned]) skills.add(s);
   }
 
   return {
@@ -229,6 +255,8 @@ export function assembleRoster(world: string, groups: RosterPal[][]): Roster {
     unknown: {
       characterIds: [...unmapped].map(([id, count]) => ({ id, count })).sort((a, b) => b.count - a.count),
       passives: [...passives].sort(),
+      // Every distinct skill seen; import-save diffs this against skills.json.
+      skills: [...skills].sort(),
     },
   };
 }

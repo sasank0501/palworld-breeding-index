@@ -1,0 +1,2562 @@
+{
+  "AcidRain": {
+    "name": "Acid Rain",
+    "element": "water",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "AirBlade": {
+    "name": "Air Blade",
+    "element": "neutral",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "AirCanon": {
+    "name": "Air Cannon",
+    "element": "neutral",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Apocalypse": {
+    "name": "Apocalypse",
+    "element": "dark",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "AquaJet": {
+    "name": "Hydro Jet",
+    "element": "water",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "BeamSlicer": {
+    "name": "Beam Slicer",
+    "element": "dragon",
+    "power": 350,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "BlastCanon": {
+    "name": "Blast Cannon",
+    "element": "dragon",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "BlizzardLance": {
+    "name": "Iceberg",
+    "element": "ice",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "BubbleShot": {
+    "name": "Bubble Blast",
+    "element": "water",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "BubbleShower": {
+    "name": "Poison Shower",
+    "element": "dark",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ChargeCanon": {
+    "name": "Charge Cannon",
+    "element": "dragon",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Commet": {
+    "name": "Comet Strike",
+    "element": "dragon",
+    "power": 180,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "CommetRain": {
+    "name": "Meteorain",
+    "element": "dragon",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": true
+  },
+  "CreepingBubble": {
+    "name": "Creeping Bubbles",
+    "element": "water",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "CrossWind": {
+    "name": "Crosswind",
+    "element": "grass",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DarkArrow": {
+    "name": "Dark Arrow",
+    "element": "dark",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DarkBall": {
+    "name": "Dark Ball",
+    "element": "dark",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": true
+  },
+  "DarkCanon": {
+    "name": "Dark Cannon",
+    "element": "dark",
+    "power": 70,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DarkLaser": {
+    "name": "Dark Laser",
+    "element": "dark",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DarkLegion": {
+    "name": "Dark Whisp",
+    "element": "dark",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DarkPulse": {
+    "name": "Umbral Surge",
+    "element": "dark",
+    "power": 60,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DarkWave": {
+    "name": "Shadow Burst",
+    "element": "dark",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DiamondFall": {
+    "name": "Diamond Rain",
+    "element": "ice",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DiversionLaser": {
+    "name": "Torrential Blast",
+    "element": "water",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DoubleIcicleThrow": {
+    "name": "Double Blizzard Spike",
+    "element": "ice",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": true
+  },
+  "DragonBreath": {
+    "name": "Dragon Breath",
+    "element": "dragon",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DragonCanon": {
+    "name": "Dragon Cannon",
+    "element": "dragon",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DragonMeteor": {
+    "name": "Dragon Meteor",
+    "element": "dragon",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "DragonWave": {
+    "name": "Dragon Burst",
+    "element": "dragon",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ElecWave": {
+    "name": "Shockwave",
+    "element": "electric",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Eruption": {
+    "name": "Volcanic Rain",
+    "element": "fire",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "FireBall": {
+    "name": "Fire Ball",
+    "element": "fire",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "FireBlast": {
+    "name": "Ignis Blast",
+    "element": "fire",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "FireSeed": {
+    "name": "Spirit Fire",
+    "element": "fire",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "FlameFunnel": {
+    "name": "Flame Funnel",
+    "element": "fire",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Flamethrower": {
+    "name": "Ignis Breath",
+    "element": "fire",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "FlameWall": {
+    "name": "Flame Wall",
+    "element": "fire",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "FlareArrow": {
+    "name": "Flare Arrow",
+    "element": "fire",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "FlareTornado": {
+    "name": "Flare Storm",
+    "element": "fire",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "FrostBreath": {
+    "name": "Crystal Breath",
+    "element": "ice",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "GhostFlame": {
+    "name": "Spirit Flame",
+    "element": "dark",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "GrassTornado": {
+    "name": "Grass Tornado",
+    "element": "grass",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "GravityShot": {
+    "name": "Dark Shot",
+    "element": "dark",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "HolyBlast": {
+    "name": "Holy Burst",
+    "element": "neutral",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "HydroPump": {
+    "name": "Hydro Laser",
+    "element": "water",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "HydroSlicer": {
+    "name": "Hydro Slicer",
+    "element": "water",
+    "power": 350,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "HyperBeam": {
+    "name": "Pal Blast",
+    "element": "neutral",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "IceAge": {
+    "name": "Absolute Frost",
+    "element": "ice",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "IceBlade": {
+    "name": "Icicle Cutter",
+    "element": "ice",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "IceMissile": {
+    "name": "Ice Missile",
+    "element": "ice",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "IceWall": {
+    "name": "Freeze Wall",
+    "element": "ice",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "IcicleLine": {
+    "name": "Icicle Line",
+    "element": "ice",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "IciclePierce": {
+    "name": "Icicle Bullet",
+    "element": "ice",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "IcicleThrow": {
+    "name": "Blizzard Spike",
+    "element": "ice",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Inferno": {
+    "name": "Ignis Rage",
+    "element": "fire",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": true,
+    "inheritable": true
+  },
+  "LightningStrike": {
+    "name": "Lightning Strike",
+    "element": "electric",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "LineGeyser": {
+    "name": "Splash",
+    "element": "water",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "LineThunder": {
+    "name": "Lightning Streak",
+    "element": "electric",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "LockonLaser": {
+    "name": "Lock-on Laser",
+    "element": "electric",
+    "power": 140,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "MudShot": {
+    "name": "Bog Blast",
+    "element": "ground",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "PoisonFog": {
+    "name": "Poison Fog",
+    "element": "dark",
+    "power": 0,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": true
+  },
+  "PoisonShot": {
+    "name": "Poison Blast",
+    "element": "dark",
+    "power": 30,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "PowerBall": {
+    "name": "Power Bomb",
+    "element": "neutral",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "PowerShot": {
+    "name": "Power Shot",
+    "element": "neutral",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "PredatorBeam": {
+    "name": "Predator Blast",
+    "element": "neutral",
+    "power": 600,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "PredatorLockon": {
+    "name": "Predator Mark",
+    "element": "neutral",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "PredatorWave": {
+    "name": "Predator Surge",
+    "element": "neutral",
+    "power": 200,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Psychokinesis": {
+    "name": "Psycho Gravity",
+    "element": "dark",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": false
+  },
+  "RadiantBarrage": {
+    "name": "Radiant Barrage",
+    "element": "neutral",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": true
+  },
+  "RaidCutter": {
+    "name": "Raid Cutter",
+    "element": "grass",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": true
+  },
+  "Railbolt": {
+    "name": "Thunder Rail",
+    "element": "electric",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": true
+  },
+  "RangeThunder": {
+    "name": "All Range Thunder",
+    "element": "electric",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ReflectiveShuriken": {
+    "name": "Reflect Leaf",
+    "element": "grass",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "RipTide": {
+    "name": "Aqua Surge",
+    "element": "water",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": true,
+    "inheritable": true
+  },
+  "RockBeat": {
+    "name": "Rocky Impact",
+    "element": "ground",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "RockLance": {
+    "name": "Rock Lance",
+    "element": "ground",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "RootAttack": {
+    "name": "Spine Vine",
+    "element": "grass",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "RootLance": {
+    "name": "Circle Vine",
+    "element": "grass",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SandTornado": {
+    "name": "Sand Tornado",
+    "element": "ground",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SandTwister": {
+    "name": "Sand Twister",
+    "element": "ground",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SeaGush": {
+    "name": "Geyser Gush",
+    "element": "water",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SeedMachinegun": {
+    "name": "Seed Machine Gun",
+    "element": "grass",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SeedMine": {
+    "name": "Seed Mine",
+    "element": "grass",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SelfDestruct": {
+    "name": "Implode",
+    "element": "neutral",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SelfDestruct_Bee": {
+    "name": "Bee Quiet",
+    "element": "grass",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "SelfExplosion": {
+    "name": "Megaton Implode",
+    "element": "neutral",
+    "power": 1200,
+    "cooldown": 60,
+    "fruit": false,
+    "inheritable": true
+  },
+  "ShadowBall": {
+    "name": "Nightmare Ball",
+    "element": "dark",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ShokeiLaser": {
+    "name": "Lethal Laser",
+    "element": "electric",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": true
+  },
+  "SolarBeam": {
+    "name": "Solar Blast",
+    "element": "grass",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SpecialCutter": {
+    "name": "Multicutter",
+    "element": "grass",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "SpreadPulse": {
+    "name": "Spark Blast",
+    "element": "electric",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "StarMine": {
+    "name": "Star Mine",
+    "element": "neutral",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "StoneShotgun": {
+    "name": "Stone Blast",
+    "element": "ground",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ThreeCommet": {
+    "name": "Comet Barrage",
+    "element": "dragon",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": true
+  },
+  "ThreeThunder": {
+    "name": "Tri-Lightning",
+    "element": "electric",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ThrowRock": {
+    "name": "Stone Cannon",
+    "element": "ground",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ThunderBall": {
+    "name": "Electric Ball",
+    "element": "electric",
+    "power": 100,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Thunderbolt": {
+    "name": "Lightning Bolt",
+    "element": "electric",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ThunderFunnel": {
+    "name": "Plasma Funnel",
+    "element": "electric",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ThunderRain": {
+    "name": "Thunder Rain",
+    "element": "electric",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ThunderSpear": {
+    "name": "Thunder Spear",
+    "element": "electric",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "ThunderStorm": {
+    "name": "Thunderstorm",
+    "element": "electric",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Tremor": {
+    "name": "Rockburst",
+    "element": "ground",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "TriSpark": {
+    "name": "TriSpark",
+    "element": "electric",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Unique_Alpaca_Tackle": {
+    "name": "Fluffy Tackle",
+    "element": "neutral",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_AmaterasuWolf_Bite": {
+    "name": "Fierce Fang (Fire)",
+    "element": "fire",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_AmaterasuWolf_BiteV2": {
+    "name": "Double Fang (Fire)",
+    "element": "fire",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_AmaterasuWolf_Dark_Bite": {
+    "name": "Fierce Fang (Dark)",
+    "element": "dark",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_AmaterasuWolf_Dark_BiteV2": {
+    "name": "Double Fang (Dark)",
+    "element": "dark",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_AmaterasuWolf_Dark_DarkCharge": {
+    "name": "Daring Shadowstorm",
+    "element": "dark",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_AmaterasuWolf_FireCharge": {
+    "name": "Daring Flames",
+    "element": "fire",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Anubis_GroundPunch": {
+    "name": "Ground Smash",
+    "element": "ground",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Anubis_LowRoundKick": {
+    "name": "Spinning Roundhouse",
+    "element": "ground",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Anubis_Tackle": {
+    "name": "Forceful Charge",
+    "element": "ground",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Baphomet_Dark_DarkKite": {
+    "name": "Nightmare Claw",
+    "element": "dark",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Baphomet_SwallowKite": {
+    "name": "Hellfire Claw",
+    "element": "fire",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BirdDragon_FireBreath": {
+    "name": "Flame Breath",
+    "element": "fire",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BirdDragon_Ice_IceBreath": {
+    "name": "Tempest Blizzard",
+    "element": "ice",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlackCentaur_TwoSpearRushes": {
+    "name": "Twin Spears",
+    "element": "dark",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlackGriffon_TackleLaser": {
+    "name": "Divine Disaster",
+    "element": "dark",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlackGriffon_TackleLaser2": {
+    "name": "Divine Disaster II",
+    "element": "dark",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlackMetalDragon_FirePunch": {
+    "name": "Firefist Breathstorm",
+    "element": "dragon",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlackPuppy_Bite": {
+    "name": "Fierce Fang (Dark)",
+    "element": "dark",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlackPuppy_BiteV2": {
+    "name": "Double Fang (Dark)",
+    "element": "dark",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlueSkyDragon_DrainStorm": {
+    "name": "Celestial Vortex",
+    "element": "water",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlueSkyDragon_SweepBreath": {
+    "name": "Azure Dracoflare",
+    "element": "dragon",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlueSkyDragon_Tossin": {
+    "name": "Hydra Charge",
+    "element": "water",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlueThunderHorse_FlashDash": {
+    "name": "Bolt Blink",
+    "element": "electric",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_BlueThunderHorse_Tossin": {
+    "name": "Flash Charge",
+    "element": "electric",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Boar_Tackle": {
+    "name": "Reckless Charge",
+    "element": "ground",
+    "power": 60,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_CaptainPenguin_Black_BodySlide_Electric": {
+    "name": "Thunderslide",
+    "element": "electric",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_CaptainPenguin_BodySlide": {
+    "name": "Emperor Slide",
+    "element": "ice",
+    "power": 140,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ChickenPal_ChickenPeck": {
+    "name": "Chicken Rush",
+    "element": "neutral",
+    "power": 30,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ClownRabbit_TrickShow": {
+    "name": "Trickster Show",
+    "element": "fire",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_CubeTurtle_CubePress": {
+    "name": "Cube Press",
+    "element": "ground",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_CubeTurtle_Neutral_HolyPress": {
+    "name": "Holy Press",
+    "element": "neutral",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_CuteMole_DiggingAttack": {
+    "name": "Fuddler Tunneler",
+    "element": "ground",
+    "power": 60,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DarkAlien_JumpScractch": {
+    "name": "Evil Slash",
+    "element": "dark",
+    "power": 350,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DarkCrow_TelePoke": {
+    "name": "Phantom Peck",
+    "element": "dark",
+    "power": 70,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DarkMechaDragon_BeamSlash": {
+    "name": "Beam Slash",
+    "element": "dragon",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DarkMechaDragon_ConvergentBeam": {
+    "name": "Astral Ray",
+    "element": "dark",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DarkMechaDragon_FunnelLaser": {
+    "name": "Omega Laser",
+    "element": "dragon",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DarkMechaDragon_SetFunnel": {
+    "name": "Satellite Bit",
+    "element": "dragon",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DarkMechaDragon_WarpComet": {
+    "name": "Cosmic Meteor",
+    "element": "dragon",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DarkScorpion_Pierce": {
+    "name": "Jumping Stinger",
+    "element": "ground",
+    "power": 350,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Deer_Ground_DirtyHorn": {
+    "name": "Mud Horn",
+    "element": "ground",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Deer_PushupHorn": {
+    "name": "Antler Uppercut",
+    "element": "neutral",
+    "power": 90,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DomeArmorDragon_ExplosiveMissile": {
+    "name": "Missile Burst",
+    "element": "ground",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_DrillGame_ShellAttack": {
+    "name": "Shell Spin",
+    "element": "ground",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Eagle_GlidingNail": {
+    "name": "Gale Claw",
+    "element": "neutral",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ElecPanda_ElecScratch": {
+    "name": "Lightning Claw",
+    "element": "electric",
+    "power": 150,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ElecPanda_GatlingAttack": {
+    "name": "Heavy Thunder Tank",
+    "element": "electric",
+    "power": 550,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ElecPomeranian_Bite": {
+    "name": "Fierce Fang (Electric)",
+    "element": "electric",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ElecPomeranian_BiteV2": {
+    "name": "Double Fang (Electric)",
+    "element": "electric",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ElecSnail_ShellCharge": {
+    "name": "Shell Charge",
+    "element": "electric",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FairyDragon_FairyTornado": {
+    "name": "Mystic Whirlwind",
+    "element": "dragon",
+    "power": 150,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FeatherOstrich_Tossin": {
+    "name": "Earth Dash",
+    "element": "ground",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FengyunDeeper_CloudTempest": {
+    "name": "Cloud Tempest",
+    "element": "neutral",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FengyunDeeper_Electric_ThunderTempest": {
+    "name": "Thunder Tempest",
+    "element": "electric",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FireKirin_Dark_DarkTossin": {
+    "name": "Dark Charge",
+    "element": "dark",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FireKirin_Tackle": {
+    "name": "Ignis Charge",
+    "element": "fire",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FlameBuffalo_FlameHorn": {
+    "name": "Blazing Horn",
+    "element": "fire",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FlowerDinosaur_Electric_ThunderWhip": {
+    "name": "Lightning Smash",
+    "element": "electric",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FlowerDinosaur_Whip": {
+    "name": "Botanical Smash",
+    "element": "grass",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FlowerPrince_PoisonGasDance": {
+    "name": "Toxic Dance",
+    "element": "dark",
+    "power": 800,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_FlowerPrince_PoisonGasTackle": {
+    "name": "Poison Promenade",
+    "element": "dark",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Garm_Bite": {
+    "name": "Fierce Fang",
+    "element": "neutral",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Garm_BiteV2": {
+    "name": "Double Fang",
+    "element": "neutral",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GhostAnglerfish_Fire_SweepBait_Fire": {
+    "name": "Scorching Lantern Sweep",
+    "element": "fire",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GhostAnglerfish_SweepBait": {
+    "name": "Lantern Sweep",
+    "element": "water",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GhostBeast_Tossin": {
+    "name": "Spirit Dash",
+    "element": "dark",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GhostDragon_PhosphorousBeam": {
+    "name": "Blazing Beam",
+    "element": "dragon",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GhostDragon_TailSlash": {
+    "name": "Tail Slash",
+    "element": "dragon",
+    "power": 550,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GoldenHorse_Bite": {
+    "name": "Fierce Fang (Ground)",
+    "element": "ground",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GoldenHorse_BiteV2": {
+    "name": "Double Fang (Ground)",
+    "element": "ground",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GoldenHorse_StoneDash": {
+    "name": "Crash Dash",
+    "element": "ground",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Gorilla_Ground_EarthPunch": {
+    "name": "Rumble Combo",
+    "element": "ground",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Gorilla_GroundPunch": {
+    "name": "Ground Pound",
+    "element": "neutral",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassGolem_ArmCannon": {
+    "name": "Root Cannon",
+    "element": "grass",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassGolem_Dark_DarkArmCannon": {
+    "name": "Dark Root",
+    "element": "dark",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassGolem_RocketPunch": {
+    "name": "Rocket Arm",
+    "element": "ground",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Grassmammoth_Earthquake": {
+    "name": "Earth Impact",
+    "element": "ground",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassMinotaur_BullRush": {
+    "name": "Raging Bull Rush",
+    "element": "grass",
+    "power": 650,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassMinotaur_BullRush_Lower": {
+    "name": "Bull Rush",
+    "element": "grass",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassMinotaur_Ice_BullRush": {
+    "name": "Raging Snow Rush",
+    "element": "ice",
+    "power": 650,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassMinotaur_Ice_BullRush_Lower": {
+    "name": "Snow Rush",
+    "element": "ice",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassPanda_Electric_ElectricPunch": {
+    "name": "Blast Punch",
+    "element": "electric",
+    "power": 180,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassPanda_MusclePunch": {
+    "name": "Crushing Punch",
+    "element": "grass",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrassRabbitMan_GrassRoundKick": {
+    "name": "Leaping Roundhouse",
+    "element": "grass",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GrimGirl_BrutalMachete": {
+    "name": "Grudge Barrage",
+    "element": "dark",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GuardianDog_Bite": {
+    "name": "Fierce Fang",
+    "element": "neutral",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_GuardianDog_BiteV2": {
+    "name": "Double Fang",
+    "element": "neutral",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_HawkBird_Storm": {
+    "name": "Tornado Attack",
+    "element": "neutral",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_HerculesBeetle_BeetleTackle": {
+    "name": "Giga Horn",
+    "element": "ground",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Horus_FlareBird": {
+    "name": "Phoenix Flare",
+    "element": "fire",
+    "power": 320,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Horus_PerfectStorm": {
+    "name": "Raging Flame Wave",
+    "element": "fire",
+    "power": 650,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Horus_Water_AquaStorm": {
+    "name": "Phoenix Tide",
+    "element": "water",
+    "power": 320,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_IceCrocodile_SpitAttack": {
+    "name": "Chaotic Spray",
+    "element": "ice",
+    "power": 180,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_IceDeer_IceHorn": {
+    "name": "Freezing Charge",
+    "element": "ice",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_IceHorse_Dark_DarkBladeAttack": {
+    "name": "Dark Wing",
+    "element": "dark",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_IceHorse_IceBladeAttack": {
+    "name": "Crystal Wing",
+    "element": "ice",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_IceNarwhal_JumpingHorn": {
+    "name": "High Breach",
+    "element": "ice",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_JetDragon_JumpBeam": {
+    "name": "Beam Comet",
+    "element": "dragon",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingAlpaca_BodyPress": {
+    "name": "Kingly Slam",
+    "element": "neutral",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingAlpaca_Ice_IcePress": {
+    "name": "Frozen Press",
+    "element": "ice",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingBahamut_AirCrash": {
+    "name": "Magna Crush",
+    "element": "dragon",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingBahamut_ArmSmash": {
+    "name": "Brawn Impact",
+    "element": "fire",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingWhale_AquaBlade": {
+    "name": "Aqua Blade",
+    "element": "water",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingWhale_AquaTornado": {
+    "name": "Aqua Tornado",
+    "element": "water",
+    "power": 800,
+    "cooldown": 40,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingWhale_Breaching": {
+    "name": "Grand Breach",
+    "element": "water",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingWhale_HomingBubble": {
+    "name": "Bubble Rain",
+    "element": "water",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingWhale_Maelstrom": {
+    "name": "Maelstrom",
+    "element": "water",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_KingWhale_WaveTackle": {
+    "name": "Tidal Charge",
+    "element": "water",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Kirin_Ice_IceTackle": {
+    "name": "Ice Gale Strike",
+    "element": "ice",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Kirin_LightningTackle": {
+    "name": "Lightning Gale",
+    "element": "electric",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_LanternButler_LanternFlame": {
+    "name": "Lantern Flame",
+    "element": "dark",
+    "power": 650,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_LeafMomonga_SomerSault": {
+    "name": "Konoha Flip",
+    "element": "grass",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_LegendDeer_RadiantPurge_Otomo": {
+    "name": "Purifying Light",
+    "element": "neutral",
+    "power": 250,
+    "cooldown": 100,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_LegendDeer_RadiantWingRush": {
+    "name": "Divine Wing",
+    "element": "neutral",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_LegendDeer_WarpPillarBurst": {
+    "name": "Sacred Rain",
+    "element": "neutral",
+    "power": 800,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_LilyQueen_LilyHealing": {
+    "name": "Bountiful Protection",
+    "element": "grass",
+    "power": 0,
+    "cooldown": 240,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_LotusDragon_LotusBloom": {
+    "name": "Lotus Bloom",
+    "element": "grass",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Manticore_InfernoStrike": {
+    "name": "Volcanic Fang",
+    "element": "fire",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_MonochromeQueen_BalletJump": {
+    "name": "Black Quilled Ballet",
+    "element": "dark",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_MoonQueen_IceMoonBlade": {
+    "name": "Seigetsu Flash",
+    "element": "neutral",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_MoonQueen_MoonBeam": {
+    "name": "Moonlight Beam",
+    "element": "neutral",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_MoonQueen_MoonBlade": {
+    "name": "Seigetsu Blade",
+    "element": "neutral",
+    "power": 350,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Mothman_GiantSpore": {
+    "name": "Giant Spore",
+    "element": "grass",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Mothman_SporeScatter": {
+    "name": "Spore Burst",
+    "element": "grass",
+    "power": 800,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_MummyPal_MummyAttack": {
+    "name": "Mummy Rush",
+    "element": "dark",
+    "power": 500,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_MysteryMask_LifeSteal": {
+    "name": "Soul Drain",
+    "element": "dark",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_NaughtyCat_CatPress": {
+    "name": "Cat Press",
+    "element": "neutral",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_NightBlueHorse_DeathStep": {
+    "name": "Lethal Step",
+    "element": "dark",
+    "power": 550,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_NightBlueHorse_Neutral_AirStep": {
+    "name": "Royal Step",
+    "element": "neutral",
+    "power": 800,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_NightBlueHorse_Neutral_Tossin": {
+    "name": "Silver Steed",
+    "element": "neutral",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_NightBlueHorse_Tossin": {
+    "name": "Spectral Steed",
+    "element": "dark",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_NightLady_FlameNightmare": {
+    "name": "Flame Waltz",
+    "element": "dark",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_NightLady_WarpBeam": {
+    "name": "Nightmare Bloom",
+    "element": "dark",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_NightLady_WarpBeam_Straight": {
+    "name": "Nightmare Ray",
+    "element": "dark",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_OctopursGirl_InkJet": {
+    "name": "Smoke Jet",
+    "element": "water",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_PandaGirl_RapidKick": {
+    "name": "Rapid Kick",
+    "element": "grass",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_PinkCat_CatPunch": {
+    "name": "Punch Flurry",
+    "element": "neutral",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Plesiosaur_LongBreath": {
+    "name": "Deep Breath",
+    "element": "grass",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_PoseidonOrca_TorrentLaser": {
+    "name": "Thalassonic Laser",
+    "element": "water",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_PurpleSpider_SpiderRaid": {
+    "name": "Webstrike Impact",
+    "element": "dark",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_QueenBee_SpinLance": {
+    "name": "Spinning Staff",
+    "element": "grass",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_RedArmorBird_TriplePeck": {
+    "name": "Rush Beak",
+    "element": "fire",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_RedFlowerBird_JumpKick": {
+    "name": "Flower Stomp",
+    "element": "grass",
+    "power": 550,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_RobinHood_BowSnipe": {
+    "name": "Focus Shot",
+    "element": "grass",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_RockBeast_Ice_IceHorn": {
+    "name": "Ice Burst",
+    "element": "ice",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_RockBeast_RockHorn": {
+    "name": "Horn Burst",
+    "element": "ground",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Ronin_Iai": {
+    "name": "Iaigiri",
+    "element": "fire",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SaintCentaur_OneSpearRushes": {
+    "name": "Spear Thrust",
+    "element": "neutral",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SakuraSaurus_SideTackle": {
+    "name": "Muscle Slam",
+    "element": "grass",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SakuraSaurus_Water_SplashTackle": {
+    "name": "Splash Tackle",
+    "element": "water",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SamuraiDog_Bite": {
+    "name": "Fierce Fang (Ground)",
+    "element": "ground",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SamuraiDog_BiteV2": {
+    "name": "Double Fang (Ground)",
+    "element": "ground",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SamuraiDog_DashSlash": {
+    "name": "Persistent Slash",
+    "element": "ground",
+    "power": 90,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ScorpionMan_Erectric_UpperThunder": {
+    "name": "Thunder Uppercut",
+    "element": "electric",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ScorpionMan_Uppercut": {
+    "name": "Upper Smash",
+    "element": "dark",
+    "power": 350,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Sekhmet_RollingScratch": {
+    "name": "Rolling Scratch",
+    "element": "ground",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Sekhmet_SomersaultScratch": {
+    "name": "Somersault Scratch",
+    "element": "ground",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SheepBall_Roll": {
+    "name": "Roly Poly",
+    "element": "neutral",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SifuDog_Counter": {
+    "name": "Wholehearted Stance",
+    "element": "neutral",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SnakeGirl_SnakeShot": {
+    "name": "Poison Scatter",
+    "element": "dark",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SnowTigerBeastman_SnowImpact": {
+    "name": "Glacial Impact",
+    "element": "ice",
+    "power": 650,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SnowTigerBeastman_TrampleSlash": {
+    "name": "Frost Talon",
+    "element": "ice",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SoldierBee_NeedleLance": {
+    "name": "Needle Spear",
+    "element": "grass",
+    "power": 120,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_StuffedShark_HiddenWeapon": {
+    "name": "Trigger Happy",
+    "element": "water",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_SumoDog_SumoStomp": {
+    "name": "Sumo Stomp",
+    "element": "ground",
+    "power": 550,
+    "cooldown": 24,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_TentacleTurtle_HydroSpin": {
+    "name": "Hydro Spin",
+    "element": "water",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderBird_Ice_SnowStrom": {
+    "name": "Glacial Plunge",
+    "element": "ice",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderBird_ThunderStorm": {
+    "name": "Lightning Dive",
+    "element": "electric",
+    "power": 180,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderDog_Bite": {
+    "name": "Fierce Fang (Electric)",
+    "element": "electric",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderDog_BiteV2": {
+    "name": "Double Fang (Electric)",
+    "element": "electric",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderDog_Ice_Bite": {
+    "name": "Fierce Fang (Ice)",
+    "element": "ice",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderDog_Ice_BiteV2": {
+    "name": "Double Fang (Ice)",
+    "element": "ice",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderDog_Ice_KoriShorai": {
+    "name": "Frostcall",
+    "element": "ice",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderDog_InazumaShorai": {
+    "name": "Beckon Lightning",
+    "element": "electric",
+    "power": 100,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderDragonMan_NumerousSwordAttack": {
+    "name": "Polykeraunos",
+    "element": "electric",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_ThunderDragonMan_ThunderSwordAttack": {
+    "name": "Kerauno",
+    "element": "electric",
+    "power": 250,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_TropicalOstrich_DashKick": {
+    "name": "Dash Kick",
+    "element": "grass",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Umihebi_Fire_FireWindingTackle": {
+    "name": "Magma Serpent",
+    "element": "fire",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Umihebi_WindingTackle": {
+    "name": "Slither Slam",
+    "element": "water",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_VolcanicMonster_Ice_IceAttack": {
+    "name": "Frost Burst",
+    "element": "ice",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_VolcanicMonster_MagmaAttack": {
+    "name": "Volcanic Burst",
+    "element": "fire",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_VolcanoDragon_Ice_IceLaser": {
+    "name": "Ice Laser",
+    "element": "ice",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_VolcanoDragon_Ice_IcicleSpit": {
+    "name": "Ice Spit",
+    "element": "ice",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_VolcanoDragon_MagmaSpit": {
+    "name": "Magma Spit",
+    "element": "fire",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_VolcanoDragon_VolcanicLaser": {
+    "name": "Magma Laser",
+    "element": "fire",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_WeaselDragon_FlyingTackle": {
+    "name": "Rocket Slam",
+    "element": "dragon",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Werewolf_Ice_SnowScratch": {
+    "name": "Snow Claw",
+    "element": "ice",
+    "power": 160,
+    "cooldown": 8,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Werewolf_Scratch": {
+    "name": "Jumping Claw",
+    "element": "dark",
+    "power": 80,
+    "cooldown": 4,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_WhiteDeer_Dark_DarkPillar": {
+    "name": "Dark Nova",
+    "element": "dark",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_WhiteDeer_HolyPillar": {
+    "name": "Holy Nova",
+    "element": "neutral",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_WhiteShieldDragon_ShieldTackle": {
+    "name": "Aegis Charge",
+    "element": "dragon",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_WhiteTiger_Ground_IronScratch": {
+    "name": "Stone Claw",
+    "element": "ground",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_WhiteTiger_IceScratch": {
+    "name": "Blizzard Claw",
+    "element": "ice",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_WingGolem_Fire_FlameCutter": {
+    "name": "Flame Cutter",
+    "element": "fire",
+    "power": 700,
+    "cooldown": 30,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_WingGolem_RoundCutter": {
+    "name": "Ground Cutter",
+    "element": "ground",
+    "power": 450,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Yakushima_EyeTossin": {
+    "name": "Lock-On Lunge",
+    "element": "dark",
+    "power": 300,
+    "cooldown": 15,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Yakushima_SummonServant": {
+    "name": "Servant Call",
+    "element": "dark",
+    "power": 300,
+    "cooldown": 10,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaBoss001_Small_DemonEyeCharge": {
+    "name": "Ocular Rush",
+    "element": "dark",
+    "power": 60,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaMonster001_SlimePress_Dark": {
+    "name": "Slime Press (Dark)",
+    "element": "dark",
+    "power": 50,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaMonster001_SlimePress_Fire": {
+    "name": "Slime Press (Fire)",
+    "element": "fire",
+    "power": 50,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaMonster001_SlimePress_Leaf": {
+    "name": "Slime Press (Grass)",
+    "element": "grass",
+    "power": 50,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaMonster001_SlimePress_Normal": {
+    "name": "Slime Press (Neutral)",
+    "element": "neutral",
+    "power": 50,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaMonster001_SlimePress_Rainbow": {
+    "name": "Slime Press (Rainbow)",
+    "element": "neutral",
+    "power": 100,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaMonster001_SlimePress_Water": {
+    "name": "Slime Press (Water)",
+    "element": "water",
+    "power": 50,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaMonster002_SwordCharge": {
+    "name": "Sword Charge",
+    "element": "neutral",
+    "power": 80,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_YakushimaMonster003_BatCharge": {
+    "name": "Winged Assault",
+    "element": "neutral",
+    "power": 70,
+    "cooldown": 1,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Yeti_Grass_GrassBall": {
+    "name": "Lawn Bowling",
+    "element": "grass",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "Unique_Yeti_SnowBall": {
+    "name": "Snow Bowling",
+    "element": "ice",
+    "power": 400,
+    "cooldown": 20,
+    "fruit": false,
+    "inheritable": false
+  },
+  "WallSplash": {
+    "name": "Curtain Splash",
+    "element": "water",
+    "power": 300,
+    "cooldown": 16,
+    "fruit": true,
+    "inheritable": true
+  },
+  "WaterBall": {
+    "name": "Aqua Burst",
+    "element": "water",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": true,
+    "inheritable": true
+  },
+  "WaterGun": {
+    "name": "Aqua Gun",
+    "element": "water",
+    "power": 50,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "Weapon_Use": {
+    "name": "Use Weapon",
+    "element": "neutral",
+    "power": 50,
+    "cooldown": 5,
+    "fruit": false,
+    "inheritable": false
+  },
+  "WindBurst": {
+    "name": "Wind Burst",
+    "element": "grass",
+    "power": 600,
+    "cooldown": 30,
+    "fruit": true,
+    "inheritable": true
+  },
+  "WindCutter": {
+    "name": "Wind Cutter",
+    "element": "grass",
+    "power": 40,
+    "cooldown": 2,
+    "fruit": true,
+    "inheritable": true
+  },
+  "WindEdge": {
+    "name": "Wind Edge",
+    "element": "grass",
+    "power": 200,
+    "cooldown": 12,
+    "fruit": false,
+    "inheritable": true
+  }
+}

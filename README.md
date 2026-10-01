@@ -50,6 +50,7 @@ regenerated every time you play, so it does not belong in version control.
 | `src/data/combos.json` | 41,617 parent pairs — an exhaustive matrix, not special cases |
 | `src/data/meta.json` | 25 unbreedable species, 1 gender-dependent pairing |
 | `src/data/passives.json` | 108 passive skills — names, effects, tiers, species locks |
+| `src/data/skills.json` | 320 active skills — name, element, power, cooldown, keyed by the save's internal id |
 
 `combos.json` covers every unordered pair of the 288 breedable-matrix species
 (288 × 289 / 2 = 41,616, plus one extra entry for the gender-split Katress × Wixen), so
@@ -83,8 +84,14 @@ npm run build   # tsc -b && vite build
 
 Pal data is extracted from the legacy single-file index in `legacy/`, cross-checked against
 [palworld.wiki.gg](https://palworld.wiki.gg) and [paldb.cc](https://paldb.cc), with op.gg
-supplying the internal passive skill ids that no wiki publishes. Every element and work
-suitability level in `pals.json` has been diffed against paldb's dex. Portraits are
+supplying the internal passive skill ids that no wiki publishes. Active skills come from
+[PalCalc](https://github.com/tylercamp/palcalc) (MIT, © Tyler Camp), whose game-data
+extraction is the only public source that pairs each skill with its internal id; `npm run
+build-skills` pulls a pinned commit and spot-checks it against paldb's v1.0 values. Every element and work
+suitability level in `pals.json` has been diffed against paldb's dex. `npm run
+build-pal-extras` takes partner skills from paldb.cc (v1.0.5), food amounts from the wiki's
+Cargo tables and the pal exp curve from [The Pal Professor](https://thepalprofessor.com/xp-tables/);
+the curve is tested against every pal in an imported save. Portraits are
 mirrored from a third-party host by `npm run fetch-images` and are not redistributed here.
 
 ## License

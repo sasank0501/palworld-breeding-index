@@ -1,0 +1,107 @@
+{
+  "SheepBall": {
+    "head": 2.0
+  },
+  "Boar": {
+    "head": 2.0
+  },
+  "Deer": {
+    "head": 2.0
+  },
+  "Deer_Ground": {
+    "head": 2.0
+  },
+  "Eagle": {
+    "head": 2.0
+  },
+  "KingWhale": {
+    "head": 2.0
+  },
+  "FoxMage": {
+    "head": 1.8
+  },
+  "Mutant": {
+    "head": 1.8
+  },
+  "PandaGirl": {
+    "head": 1.8
+  },
+  "Baphomet": {
+    "head": 1.8
+  },
+  "Baphomet_Dark": {
+    "head": 1.8
+  },
+  "IceFox": {
+    "head": 1.8
+  },
+  "WeaselDragon": {
+    "head": 1.8
+  },
+  "RedArmorBird": {
+    "head": 1.8
+  },
+  "IceWitch": {
+    "head": 1.8
+  },
+  "GrimGirl": {
+    "head": 1.8
+  },
+  "WhiteDeer": {
+    "head": 1.8
+  },
+  "WhiteDeer_Dark": {
+    "head": 1.8
+  },
+  "SleeveRabbit": {
+    "head": 1.8
+  },
+  "MushroomLady": {
+    "head": 1.8
+  },
+  "MoonChild": {
+    "head": 1.8
+  },
+  "Umihebi": {
+    "head": 1.5
+  },
+  "Umihebi_Fire": {
+    "head": 1.5
+  },
+  "SwordCutlassfish": {
+    "head": 1.5
+  },
+  "SwordCutlassfish_Fire": {
+    "head": 1.5
+  },
+  "KendoFrog": {
+    "head": 1.6
+  },
+  "KendoFrog_Dark": {
+    "head": 1.6
+  },
+  "KingSunfish": {
+    "head": 1.6
+  },
+  "KingSunfish_Thunder": {
+    "head": 1.6
+  },
+  "ElecPanda": {
+    "head": 1.6
+  },
+  "WhiteMoth": {
+    "head": 1.6
+  },
+  "WhiteMoth_Neutral": {
+    "head": 1.6
+  },
+  "FairyDragon": {
+    "head": 1.6
+  },
+  "FairyDragon_Water": {
+    "head": 1.6
+  },
+  "WizardOwl": {
+    "pose": "bind"
+  }
+}

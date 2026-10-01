@@ -112,7 +112,10 @@
   }
 }
 
-:root[data-theme="dark"] {
+/* .force-dark pins a subtree to the dark set whatever the toggle says (the
+   Design sandbox is styled as a game screen). Drop the class to let it theme. */
+:root[data-theme="dark"],
+.force-dark {
   --bg: #16161a;
   --panel: #1f1f24;
   --panel-2: #26262d;

@@ -41,8 +41,42 @@ export const workOrder = (code: string): number => BY_CODE.get(code)?.order ?? 9
 export const isKnownWorkCode = (code: string): boolean => BY_CODE.has(code);
 
 /**
- * Highest suitability level present in the current dex. Not the in-game cap of 5 —
- * this dataset records values up to 8 (Farming peaks at 4, Transporting at 7), so
- * bars and thresholds should scale to this rather than a hard-coded 5.
+ * Highest species base level in the current dex (Farming peaks at 4,
+ * Transporting at 7). For drawing one pal's gauge use WORK_LEVEL_CAP instead —
+ * boosts can take a pal past the species base.
  */
 export const MAX_WORK_LEVEL = 8;
+
+/** The in-game ceiling on a single pal's suitability (species base + boosts). */
+export const WORK_LEVEL_CAP = 10;
+
+/** The game's `EPalWorkSuitability` names, as they appear in passive ids. */
+const ENUM_TO_CODE: Record<string, string> = {
+  EmitFlame: 'Kdl',
+  Watering: 'Wtr',
+  Seeding: 'Plt',
+  GenerateElectricity: 'Elc',
+  Handcraft: 'Hnd',
+  Collection: 'Gth',
+  Deforest: 'Lmb',
+  Mining: 'Min',
+  ProductMedicine: 'Med',
+  Cool: 'Cool',
+  Transport: 'Trn',
+  MonsterFarm: 'Frm',
+};
+
+/**
+ * Per-pal suitability boosts. The save has no separate list for them: they are
+ * passives named `WorkSuitabilityAddRank_<EPalWorkSuitability>_<n>` (Farmhand is
+ * `…_MonsterFarm_1`). Returns code -> total bonus.
+ */
+export function workBonuses(passives: string[]): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const id of passives) {
+    const m = /^WorkSuitabilityAddRank_([A-Za-z]+)_(\d+)$/.exec(id);
+    const code = m && ENUM_TO_CODE[m[1]];
+    if (code) out.set(code, (out.get(code) ?? 0) + Number(m[2]));
+  }
+  return out;
+}

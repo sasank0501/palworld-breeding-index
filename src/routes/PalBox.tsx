@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-import palsJson from '../data/pals.json';
-import passivesJson from '../data/passives.json';
-import { RankMark } from '../components/RankMark.tsx';
-import { rankClass, rankOf } from '../lib/passiveCategories.ts';
-import type { PalDex, PassiveInfo, Roster, RosterPal } from '../types.ts';
+import {
+  DENSITY_LAYOUT,
+  DensityToggle,
+  PalDetail,
+  PalTradingCard,
+  displayName,
+  ivTotal,
+  passiveLabel,
+  useDensity,
+} from '../components/PalCards.tsx';
+import type { Roster, RosterPal } from '../types.ts';
 
-const DEX = palsJson as unknown as Record<string, PalDex>;
-const PASSIVES = passivesJson as unknown as Record<string, PassiveInfo>;
-
-// Portraits are 100x100 at source, so the art box is exactly that — anything
-// larger upscales and softens, anything non-square crops the pal.
-const CARD_HEIGHT = 214;
-const CARD_MIN_WIDTH = 300;
-const GAP = 12;
+/** Matches the grid gap in design.css; the column maths below depends on it. */
+const GAP = 16;
 
 type SortKey = 'level' | 'ivTotal' | 'rank' | 'name' | 'passives';
 
@@ -36,19 +36,7 @@ const SORTS: Array<[SortKey, string]> = [
   ['name', 'Name'],
 ];
 
-const ivTotal = (p: RosterPal): number => p.ivs.hp + p.ivs.attack + p.ivs.defense;
 const soulTotal = (p: RosterPal): number => p.souls.hp + p.souls.attack + p.souls.defense + p.souls.craftSpeed;
-
-const dexOf = (p: RosterPal): PalDex | undefined => (p.palId ? DEX[p.palId] : undefined);
-const displayName = (p: RosterPal): string => dexOf(p)?.name ?? p.characterId;
-
-const passiveLabel = (id: string): string => PASSIVES[id]?.name ?? id;
-
-function passiveTitle(id: string): string {
-  const info = PASSIVES[id];
-  if (!info || !info.name) return `${id} (name not verified)`;
-  return info.effects.length ? `${info.name} — ${info.effects.join(', ')}` : info.name;
-}
 
 export default function PalBox({ roster }: { roster: Roster }) {
   const [query, setQuery] = useState('');
@@ -58,6 +46,8 @@ export default function PalBox({ roster }: { roster: Roster }) {
   const [onlyAlpha, setOnlyAlpha] = useState(false);
   const [onlyLucky, setOnlyLucky] = useState(false);
   const [minIv, setMinIv] = useState(0);
+  const [density, setDensity] = useDensity();
+  const [selected, setSelected] = useState<RosterPal | null>(null);
 
   // Every passive present in the save, so the dropdown reflects reality.
   const passiveOptions = useMemo(() => {
@@ -82,7 +72,11 @@ export default function PalBox({ roster }: { roster: Roster }) {
       return true;
     });
 
+    // Nicknamed pals lead whatever the sort: naming one is how a player marks
+    // it as important.
     out.sort((a, b) => {
+      const named = Number(b.nickname !== null) - Number(a.nickname !== null);
+      if (named) return named;
       switch (sort) {
         case 'level':
           return b.level - a.level || ivTotal(b) - ivTotal(a);
@@ -100,28 +94,34 @@ export default function PalBox({ roster }: { roster: Roster }) {
   }, [roster, query, location, sort, passiveFilter, onlyAlpha, onlyLucky, minIv]);
 
   // --- virtualised grid -----------------------------------------------------
+  // Columns follow the size preset exactly as the CSS presets do: the preset's
+  // column count, minus however many would push a card below its floor width.
+  // Row height is measured from the rendered cards (the portrait is square, so
+  // height tracks width) rather than assumed.
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [cols, setCols] = useState(4);
+  const [width, setWidth] = useState(0);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const measure = () => {
-      const w = el.clientWidth;
-      setCols(Math.max(1, Math.floor((w + GAP) / (CARD_MIN_WIDTH + GAP))));
-    };
+    const measure = () => setWidth(el.clientWidth);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
+  const { cols: maxCols, floor } = DENSITY_LAYOUT[density];
+  const cols = Math.max(1, Math.min(maxCols, Math.floor((width + GAP) / (floor + GAP))));
   const rowCount = Math.ceil(filtered.length / cols);
+  const cardWidth = width ? (width - (cols - 1) * GAP) / cols : floor;
   const virtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => CARD_HEIGHT + GAP,
-    overscan: 4,
+    // A first guess only (square portrait + header + stats); measureElement
+    // replaces it with the real height once a row renders.
+    estimateSize: () => cardWidth + (density === 'compact' ? 70 : 230) + GAP,
+    overscan: 3,
   });
 
   // Jumping back to the top on a filter change avoids landing in empty space.
@@ -130,13 +130,17 @@ export default function PalBox({ roster }: { roster: Roster }) {
   }, [filtered, virtualizer]);
 
   return (
-    <div className="app">
+    // .dp-page carries the card and detail tokens, which follow the theme
+    // toggle. The detail page opens over the list rather than replacing it, so
+    // Back lands on the same scroll position.
+    <div className="app dp-page dl-page box-page">
       <header className="topbar">
         <div className="titles">
           <h1>Pal Box</h1>
           <span className="muted">
-            {roster.counts.total} pals · world {roster.world.slice(0, 8)} · imported{' '}
-            {new Date(roster.exportedAt).toLocaleString()}
+            {roster.demo
+              ? `${roster.counts.total} pals · demo save (import your own with npm run import-save)`
+              : `${roster.counts.total} pals · world ${roster.world.slice(0, 8)} · imported ${new Date(roster.exportedAt).toLocaleString()}`}
           </span>
         </div>
         <div className="tallies">
@@ -189,6 +193,7 @@ export default function PalBox({ roster }: { roster: Roster }) {
         <label className="check">
           <input type="checkbox" checked={onlyLucky} onChange={(e) => setOnlyLucky(e.target.checked)} /> Lucky
         </label>
+        <DensityToggle value={density} onChange={setDensity} />
         <span className="count">{filtered.length} shown</span>
       </div>
 
@@ -199,15 +204,19 @@ export default function PalBox({ roster }: { roster: Roster }) {
             const items = filtered.slice(start, start + cols);
             return (
               <div
-                key={row.key}
-                className="grid-row"
+                // Keyed by layout too: a column or size change remounts the row,
+                // and a remount is what makes measureElement read it again.
+                key={`${row.key}-${cols}-${density}`}
+                ref={virtualizer.measureElement}
+                data-index={row.index}
+                className={`grid-row density-${density}`}
                 style={{
                   transform: `translateY(${row.start}px)`,
                   gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
                 }}
               >
                 {items.map((p) => (
-                  <PalCard key={p.instanceId || `${p.characterId}-${start}`} pal={p} />
+                  <PalTradingCard key={p.instanceId || `${p.characterId}-${start}`} pal={p} onOpen={() => setSelected(p)} />
                 ))}
               </div>
             );
@@ -215,79 +224,12 @@ export default function PalBox({ roster }: { roster: Roster }) {
         </div>
         {filtered.length === 0 && <p className="nothing">Nothing matches those filters.</p>}
       </div>
+
+      {selected && (
+        <div className="box-detail">
+          <PalDetail pal={selected} onBack={() => setSelected(null)} />
+        </div>
+      )}
     </div>
-  );
-}
-
-function PalCard({ pal }: { pal: RosterPal }) {
-  const dex = dexOf(pal);
-  const [imgFailed, setImgFailed] = useState(false);
-  const total = ivTotal(pal);
-  const souls = soulTotal(pal);
-
-  return (
-    <article className={`card${pal.isBoss ? ' is-alpha' : ''}${pal.isLucky ? ' is-lucky' : ''}`}>
-      <div className="card-top">
-        <div className="portrait">
-          {dex?.img && !imgFailed ? (
-            <img src={`/${dex.img}`} alt="" loading="lazy" onError={() => setImgFailed(true)} />
-          ) : (
-            <span className="portrait-fallback">{displayName(pal).slice(0, 2)}</span>
-          )}
-          <span className={`loc loc-${pal.location.kind}`}>{pal.location.kind}</span>
-        </div>
-
-        <div className="body">
-          <div className="name-row">
-            <strong className="name">{displayName(pal)}</strong>
-            {pal.gender && <span className={`gender ${pal.gender}`}>{pal.gender === 'male' ? '♂' : '♀'}</span>}
-          </div>
-          {pal.nickname && <div className="nick">“{pal.nickname}”</div>}
-
-          <div className="badges">
-            <span className="lvl">Lv {pal.level}</span>
-            {pal.rank > 1 && <span className="stars">{'★'.repeat(pal.rank - 1)}</span>}
-            {pal.isBoss && <span className="tag alpha">Alpha</span>}
-            {pal.isLucky && <span className="tag lucky">Lucky</span>}
-            {pal.isAwakened && <span className="tag awake">Awakened</span>}
-            {souls > 0 && <span className="tag souls">souls {souls}</span>}
-          </div>
-
-          <div className="ivs">
-            {(
-              [
-                ['HP', pal.ivs.hp],
-                ['ATK', pal.ivs.attack],
-                ['DEF', pal.ivs.defense],
-              ] as const
-            ).map(([label, v]) => (
-              <div key={label} className="iv">
-                <span className="iv-label">{label}</span>
-                <span className="bar">
-                  <span className={`fill ${v >= 70 ? 'good' : v >= 40 ? 'mid' : 'low'}`} style={{ width: `${v}%` }} />
-                </span>
-                <span className="iv-val">{v}</span>
-              </div>
-            ))}
-            <div className="iv-total">{total}/300</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Passives span the full card width so four chips fit on one or two rows
-          instead of stacking down a narrow column. */}
-      <div className="passives">
-        {pal.passives.length === 0 && <span className="no-passives">no passives</span>}
-        {pal.passives.map((id) => {
-          const rank = rankOf(id, PASSIVES[id]);
-          return (
-            <span key={id} className={`chip ${rankClass(rank)}`} title={passiveTitle(id)}>
-              <span className="chip-label">{passiveLabel(id)}</span>
-              <RankMark rank={rank} />
-            </span>
-          );
-        })}
-      </div>
-    </article>
   );
 }

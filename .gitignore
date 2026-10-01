@@ -23,3 +23,32 @@ tsconfig.tsbuildinfo
 
 # Third-party portraits, regenerable with `npm run fetch-images`
 public/pals/
+
+# Everything below is derived from Pocketpair's game files, extracted from a copy
+# of the game you own by `npm run build-portraits`. The repo ships none of it.
+
+# Chibi stills rendered from the models (scripts/render-portraits.mjs).
+public/pal-portraits/
+
+# 3D models built by scripts/build-pal-models.mjs from the local extraction.
+public/pal-models/
+
+# The game's work-suitability icons (scripts/fetch-work-icons.mjs).
+public/work-icons/
+
+# Full-asset build for the portfolio site (`npm run build:resume`). Deployed from
+# a private place, never committed.
+dist-resume/
+
+# Extraction tooling: the .NET build output, the downloaded type mappings, and
+# the raw meshes/textures staged out of the pak.
+scripts/pal-textures/bin/
+scripts/pal-textures/obj/
+scripts/pal-textures/mappings/
+scripts/pal-textures/out/
+scripts/.cache/
+
+# Chibi review sandbox: a local tool for checking model builds. App.tsx loads
+# it only if present (import.meta.glob), so a clone without it still builds.
+src/routes/ChibiReview.tsx
+src/design/chibi.css

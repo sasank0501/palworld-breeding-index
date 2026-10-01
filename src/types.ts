@@ -39,14 +39,28 @@ export interface RosterPal {
   souls: { hp: number; attack: number; defense: number; craftSpeed: number };
   ivs: { hp: number; attack: number; defense: number };
   passives: string[];
+  /** Absent from a roster.json imported before skills were read — treat as none. */
+  skills?: { equipped: string[]; learned: string[] };
   location: { kind: LocationKind; containerId: string | null; slot: number | null };
   source: 'level' | 'dps' | 'global';
 }
 
+export interface ActiveSkill {
+  name: string;
+  element: string;
+  power: number;
+  /** Seconds. */
+  cooldown: number;
+  fruit: boolean;
+  inheritable: boolean;
+}
+
 export interface Roster {
   world: string;
+  /** Set on public/demo-roster.json, the stand-in a deployed copy loads. */
+  demo?: boolean;
   exportedAt: string;
   counts: Record<string, number>;
   pals: RosterPal[];
-  unknown: { characterIds: Array<{ id: string; count: number }>; passives: string[] };
+  unknown: { characterIds: Array<{ id: string; count: number }>; passives: string[]; skills?: string[] };
 }

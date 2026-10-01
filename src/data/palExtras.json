@@ -1,0 +1,2314 @@
+{
+  "1.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Fluffy Shield",
+      "description": "When activated, equips to the player and becomes a shield. Sometimes drops Wool when assigned to Ranch."
+    }
+  },
+  "2.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Cat Helper",
+      "description": "While in party, Cattiva helps carry supplies, increasing the player's max carrying capacity by (100~200). (Does not stack)"
+    }
+  },
+  "3.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Egg Layer",
+      "description": "Sometimes lays an Egg when assigned to Ranch."
+    }
+  },
+  "4.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Lifmunk Recoil",
+      "description": "When activated, leaps onto the player's head and uses a submachine gun to follow up the player's attacks."
+    }
+  },
+  "5.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Surfing Slam",
+      "description": "When activated, Fuack body surfs towards an enemy and slams into them."
+    }
+  },
+  "5.1": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Fire Tackle",
+      "description": "When activated, Fuack Ignis fire surfs towards an enemy and slams into them."
+    }
+  },
+  "6.0": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Dig Here!",
+      "description": "Sometimes digs up items from the ground when assigned to Ranch."
+    }
+  },
+  "7.0": {
+    "food": 2,
+    "rarity": 3,
+    "partner": {
+      "name": "Zephyr Glider",
+      "description": "While in party, modifies the performance of the equipped glider. Prevents fall damage and extends the duration of high-speed gliding."
+    }
+  },
+  "7.1": {
+    "food": 2,
+    "rarity": 4,
+    "partner": {
+      "name": "Jolt Glider",
+      "description": "While in party, modifies the performance of the equipped glider. Prevents fall damage and extends the duration of high-speed gliding."
+    }
+  },
+  "8.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Fluffy Wool",
+      "description": "While in party, increases Attack of Neutral Pals by (15~30)%. (Does not stack) Sometimes drops Wool when assigned to Ranch."
+    }
+  },
+  "9.0": {
+    "food": 2,
+    "rarity": 4,
+    "partner": {
+      "name": "Leap Stance",
+      "description": "When activated, Croajiro channels its loyalty and puffs up its abdomen to store energy. Climbing on top will propel the player high into the air. While airborne, the player's Attack is increased by (50~86)%."
+    }
+  },
+  "9.1": {
+    "food": 2,
+    "rarity": 5,
+    "partner": {
+      "name": "Shadow Stance",
+      "description": "When activated, Croajiro Noct channels its loyalty and puffs up its abdomen to store energy. Climbing on top will propel the player high into the air. While in party, increases damage dealt by Player and Pals' Dark attacks when hitting the enemy's elemental weakness by (25~40)%. (Does not stack)"
+    }
+  },
+  "10.0": {
+    "food": 1,
+    "rarity": 3,
+    "partner": {
+      "name": "Herbil Pulse",
+      "description": "While in party, Herbil uses its healing powers to restore (30~60)% of the player's Max Health when incapacitated."
+    }
+  },
+  "11.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Soothing Shower",
+      "description": "While in party, restores (20~40)% of the player's Health when Health falls below 30%. (Does not stack) (120-second cooldown after activation)"
+    }
+  },
+  "12.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Logging Assistance",
+      "description": "While in party, improves logging efficiency by (30~50)% and reduces weight of all types of wood by (40~60)%. (Does not stack)"
+    }
+  },
+  "12.1": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Logging Assistance",
+      "description": "While in party, improves logging efficiency by (30~50)% and reduces weight of all types of wood by (40~60)%. (Does not stack)"
+    }
+  },
+  "13.0": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Best Boy",
+      "description": "While in party, increases the player's melee weapon damage by (10~35)%. (Does not stack)"
+    }
+  },
+  "14.0": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Happy Clover",
+      "description": "While at a base, increases the Gathering Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "15.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Jolt Bomb",
+      "description": "When activated, equips Jolthog to the player to be thrown at an enemy, causing an Electric explosion upon impact."
+    }
+  },
+  "15.1": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Cold Bomb",
+      "description": "When activated, equips Jolthog Cryst to the player to be thrown at an enemy, causing an Ice explosion upon impact."
+    }
+  },
+  "16.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Caffeine Inoculation",
+      "description": "When activated, Depresso chugs an entire energy drink, increasing its Movement Speed and Work Speed by (100~900)%. Sometimes drops Venom Gland when assigned to Ranch."
+    }
+  },
+  "17.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Pengullet Launcher",
+      "description": "When activated, the player equips a Rocket Launcher to fire Pengullet as ammunition. Pengullet explodes on impact and is incapacitated."
+    }
+  },
+  "17.1": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Pengullet Lux Launcher",
+      "description": "When activated, the player equips a Rocket Launcher to fire Pengullet Lux as ammunition. Pengullet Lux explodes on impact and is incapacitated."
+    }
+  },
+  "18.0": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Brave Sailor",
+      "description": "While in party, Fire Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "18.1": {
+    "food": 4,
+    "rarity": 7,
+    "partner": {
+      "name": "Unyielding Storm Commander",
+      "description": "While in party, increases damage dealt by Player and Pals' Water attacks when hitting the enemy's elemental weakness by (25~40)%. (Does not stack)"
+    }
+  },
+  "19.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Dark Knowledge",
+      "description": "While in party, increases Attack of Dark Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "20.0": {
+    "food": 2,
+    "rarity": 3,
+    "partner": {
+      "name": "Pacapaca Wool",
+      "description": "Can be ridden. While in party, increases Kingpaca 's Defense and Movement Speed. Sometimes drops Wool when assigned to Ranch."
+    }
+  },
+  "21.0": {
+    "food": 4,
+    "rarity": 8,
+    "partner": {
+      "name": "King of Muscles",
+      "description": "Can be ridden. This Pal's Defense and Movement Speed increase by (5~14)% for each Melpaca in party."
+    }
+  },
+  "21.1": {
+    "food": 4,
+    "rarity": 9,
+    "partner": {
+      "name": "Coldhearted King",
+      "description": "Can be ridden. This Pal's Defense and Movement Speed increase by (5~14)% for each Melpaca in party."
+    }
+  },
+  "22.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Dream Chaser",
+      "description": "While in party, appears near the player. Attacks hostile enemies with Dark magic bullets. These bullets will not reduce the target's Health below 1."
+    }
+  },
+  "23.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Cheery Rifle",
+      "description": "When activated, Tanzee will mercilessly fire an assault rifle at nearby enemies for a limited time."
+    }
+  },
+  "23.1": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Chipper Chimp Gunfire",
+      "description": "When activated, Tanzee Ignis will mercilessly fire a Fire assault rifle at nearby enemies for a limited time."
+    }
+  },
+  "24.0": {
+    "food": 1,
+    "rarity": 6,
+    "partner": {
+      "name": "Kuudere",
+      "description": "When activated, detects the location of nearby Pal Effigies."
+    }
+  },
+  "25.0": {
+    "food": 2,
+    "rarity": 1,
+    "partner": {
+      "name": "Magma Tears",
+      "description": "While in party, recovers Health of the player and Party Pals by (0.1~0.5)% per second outside of combat. (Does not stack) Sometimes drops Flame Organ when assigned to Ranch."
+    }
+  },
+  "26.0": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Tiny Spark",
+      "description": "While in party, increases Defense of Fire Pals by (15~30)%. (Does not stack) Sometimes drops Flame Organ when assigned to Ranch."
+    }
+  },
+  "27.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Gold Digger",
+      "description": "Sometimes digs up Gold Coin when assigned to Ranch."
+    }
+  },
+  "27.1": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Icy Whispers",
+      "description": "Sometimes drops Ice Organ when assigned to Ranch."
+    }
+  },
+  "28.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Hard Head",
+      "description": "Can be ridden. While mounted, increases efficiency of destroying Stone by (500~2000)%."
+    }
+  },
+  "29.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Huggy Fire",
+      "description": "When activated, equips to the player and transforms into a flamethrower."
+    }
+  },
+  "29.1": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Huggy Frost",
+      "description": "When activated, equips to the player and attacks using frigid air."
+    }
+  },
+  "30.0": {
+    "food": 2,
+    "rarity": 1,
+    "partner": {
+      "name": "Fried Squid",
+      "description": "While in party, modifies the performance of the equipped glider. Enables gentle floating while gliding for an extended time."
+    }
+  },
+  "30.1": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Fried Killamari",
+      "description": "While in party, modifies the performance of the equipped glider. Enables gentle floating while gliding for an extended time."
+    }
+  },
+  "31.0": {
+    "food": 2,
+    "rarity": 1,
+    "partner": {
+      "name": "Mining Assistance",
+      "description": "While in party, improves player mining efficiency by (30~60)% and reduces Stone weight by (80~100)%. (Does not stack)"
+    }
+  },
+  "32.0": {
+    "food": 2,
+    "rarity": 5,
+    "partner": {
+      "name": "Guardian of the Forest",
+      "description": "Can be ridden. Can perform a double jump while mounted and increases lumbering efficiency by (220~500)%."
+    }
+  },
+  "32.1": {
+    "food": 2,
+    "rarity": 6,
+    "partner": {
+      "name": "Guardian of the Golden Forest",
+      "description": "Can be ridden. Can perform a double jump while mounted. While at a base, increases the Lumbering Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "33.0": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Direhowl Rider",
+      "description": "Can be ridden. Moves slightly faster than most mounts."
+    }
+  },
+  "34.0": {
+    "food": 2,
+    "rarity": 3,
+    "partner": {
+      "name": "Berry Picker",
+      "description": "Sometimes drops Red Berries from its back when assigned to Ranch. While in party, restores (100~200) Pal's Hunger to the Pal with the lowest Hunger every 5 minutes. (Does not stack)"
+    }
+  },
+  "34.1": {
+    "food": 2,
+    "rarity": 3,
+    "partner": {
+      "name": "Venom Picker",
+      "description": "Sometimes drops Venom Gland from its back when assigned to Ranch. While in party, restores (100~200) Pal's Hunger to the Pal with the lowest Hunger every 5 minutes. (Does not stack)"
+    }
+  },
+  "35.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Fluffy",
+      "description": "While in party, increases Attack and Defense of Sweepa."
+    }
+  },
+  "36.0": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "King of Fluff",
+      "description": "Can be ridden. This Pal's Attack and Defense increase by (12~24)% for each Swee in party."
+    }
+  },
+  "37.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Spikey Carrier",
+      "description": "While in party, reduces the weight of the item Ore by (80~100)%. (Does not stack)"
+    }
+  },
+  "37.1": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Shiny Hauler",
+      "description": "While in party, reduces weight of Sulfur and Coal by (80~100)%. Also increases damage dealt by Player and Pals' Ground attacks when hitting the enemy's elemental weakness by (25~40)%. (Does not stack)"
+    }
+  },
+  "38.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Flying Trapeze",
+      "description": "While in party, modifies the performance of the equipped glider. Enables slow ascension while gliding."
+    }
+  },
+  "38.1": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Winter Trapeze",
+      "description": "While in party, modifies the performance of the equipped glider. Enables slow ascension while gliding."
+    }
+  },
+  "39.0": {
+    "food": 1,
+    "rarity": 3,
+    "partner": {
+      "name": "Candy Pop",
+      "description": "Sometimes drops Cotton Candy when assigned to Ranch. While at a base, reduces Hunger depletion rate of Base Pals by (-10~-20)%. (Does not stack)"
+    }
+  },
+  "39.1": {
+    "food": 1,
+    "rarity": 4,
+    "partner": {
+      "name": "Bitter Pop",
+      "description": "Sometimes drops Caramel Cotton Candy when assigned to Ranch. While at a base, reduces Hunger depletion rate of Base Pals by (-15~-25)%. (Does not stack)"
+    }
+  },
+  "40.0": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Milk Maker",
+      "description": "Sometimes drops Milk when assigned to Ranch."
+    }
+  },
+  "41.0": {
+    "food": 5,
+    "rarity": 7,
+    "partner": {
+      "name": "Waterwing Dance",
+      "description": "Can be ridden to travel on water. While mounted, changes the player's attack type to Water and increases Attack by (5~20)%."
+    }
+  },
+  "41.1": {
+    "food": 5,
+    "rarity": 8,
+    "partner": {
+      "name": "Icewing Dance",
+      "description": "Can be ridden to travel on water. While mounted, changes the player's attack type to Ice and increases Attack by (5~20)%."
+    }
+  },
+  "42.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Static Electricity",
+      "description": "While in party, increases Attack of Electric Pals by (15~30)%. (Does not stack) Sometimes drops Electric Organ when assigned to Ranch."
+    }
+  },
+  "43.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Aqua Spout",
+      "description": "While in party, increases Attack of Water Pals by (15~30)%. (Does not stack) Sometimes drops Aquatic Pal Fluids when assigned to Ranch."
+    }
+  },
+  "43.1": {
+    "food": 1,
+    "rarity": 2,
+    "partner": {
+      "name": "Lava Spout",
+      "description": "While in party, increases Attack of Fire Pals by (15~30)%. (Does not stack) Sometimes drops Flame Organ when assigned to Ranch."
+    }
+  },
+  "44.0": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Happy-Go-Lucky Bunny",
+      "description": "While in party, increases Attack of Neutral Pals by (15~30)%. (Does not stack) While at a base, increases the Handiwork Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "44.1": {
+    "food": 1,
+    "rarity": 1,
+    "partner": {
+      "name": "Ground 'n' Pound",
+      "description": "While in party, increases damage dealt by Player and Pals' Grass attacks when hitting the enemy's elemental weakness by (25~40)%. (Does not stack) Increases Ribbuny Botan 's efficiency by (200~400)% when working at a Weapon Workbench, Weapon Assembly Line, or other related facilities."
+    }
+  },
+  "45.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Jelliette Drop",
+      "description": "While in party, increases items obtained from fishing by (55~95)%. While Jelliette and Jellroy are in your base, Jelliette 's watering speed increases by (50~120)%. (Does not stack)"
+    }
+  },
+  "46.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Jellroy Drop",
+      "description": "While in party, increases items obtained from salvaging by (55~95)%. While Jelliette and Jellroy are in your base, Jellroy 's watering speed increases by (50~120)%. (Does not stack)"
+    }
+  },
+  "47.0": {
+    "food": 3,
+    "rarity": 2,
+    "partner": {
+      "name": "Magical Twin Powers",
+      "description": "While at a base, increases the Watering Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "48.0": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Sticky Princess",
+      "description": "While in party, the capture gauge decreases (12~35)% more slowly while the bars are not overlapping during the fishing minigame. (Does not stack)"
+    }
+  },
+  "48.1": {
+    "food": 3,
+    "rarity": 6,
+    "partner": {
+      "name": "Cephalo-Princess",
+      "description": "While in party, increases Defense of Water Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "49.0": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Galeclaw Glider",
+      "description": "While in party, modifies the performance of the equipped glider. Enables high-speed gliding and allows shooting with the right hand."
+    }
+  },
+  "50.0": {
+    "food": 6,
+    "rarity": 5,
+    "partner": {
+      "name": "Death-Cheating Feline",
+      "description": "While in party, increases the capture rate when awarded a back bonus. (Does not stack)"
+    }
+  },
+  "51.0": {
+    "food": 2,
+    "rarity": 3,
+    "partner": {
+      "name": "Travel Companion",
+      "description": "Can be ridden as a flying mount."
+    }
+  },
+  "52.0": {
+    "food": 2,
+    "rarity": 5,
+    "partner": {
+      "name": "Ultrasonic Sensor",
+      "description": "When activated, uses ultrasonic waves to detect nearby dungeons, treasure chests, and scrap."
+    }
+  },
+  "53.0": {
+    "food": 2,
+    "rarity": 1,
+    "partner": {
+      "name": "Eggbomb Launcher",
+      "description": "When activated, equips to the player and transforms into an egg launcher."
+    }
+  },
+  "54.0": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Swift Deity",
+      "description": "Can be ridden. While in party, increases damage dealt by Player and Pals' Electric attacks when hitting the enemy's elemental weakness by (25~40)%. (Does not stack)"
+    }
+  },
+  "54.1": {
+    "food": 3,
+    "rarity": 6,
+    "partner": {
+      "name": "Frigid Deity",
+      "description": "Can be ridden. While mounted, changes the player's attack type to Ice and increases Attack by (5~20)%."
+    }
+  },
+  "55.0": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Angry Shark",
+      "description": "When activated, attacks targeted enemy with Aqua Gun. When this Pal uses Aqua Gun, it has a x(1.1~2.5) damage multiplier. While in party, increases the player's Attack by (10~20)%."
+    }
+  },
+  "55.1": {
+    "food": 2,
+    "rarity": 3,
+    "partner": {
+      "name": "Angry Shark",
+      "description": "When activated, attacks targeted enemy with Spirit Fire. When this Pal uses Spirit Fire, it has a x(1.1~2.5) damage multiplier. While in party, increases the player's Attack by (10~20)%."
+    }
+  },
+  "56.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Dark Gleam Strike",
+      "description": "When activated, attacks targeted enemy with Jumping Claw. When this Pal uses Jumping Claw, it has a x(1.1~2.5) damage multiplier. While in party, increases the player's melee weapon attack speed by (15~30)%. (Does not stack)"
+    }
+  },
+  "56.1": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Frozen Gleam Strike",
+      "description": "When activated, attacks targeted enemy with Snow Claw. When this Pal uses Snow Claw, it has a x(1.1~2.5) damage multiplier. While in party, increases the player's melee weapon attack speed by (15~30)%. (Does not stack)"
+    }
+  },
+  "57.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Eerie Nightstreaker",
+      "description": "When activated, grants Night Vision to see in dark places. Activate again to turn off. Sometimes digs up Bone when assigned to Ranch."
+    }
+  },
+  "58.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Warm Body",
+      "description": "Can be ridden. While in party,the player gains Cold Resistance +2. (Does not stack)"
+    }
+  },
+  "59.0": {
+    "food": 3,
+    "rarity": 2,
+    "partner": {
+      "name": "Fluffy Flutterer",
+      "description": "While in party, increases the capture rate of Pals afflicted with Freeze. (Does not stack)"
+    }
+  },
+  "60.0": {
+    "food": 2,
+    "rarity": 1,
+    "partner": {
+      "name": "Princess Gaze",
+      "description": "While in party, increases Attack of Grass Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "61.0": {
+    "food": 2,
+    "rarity": 4,
+    "partner": {
+      "name": "Mysterious Scales",
+      "description": "When activated, attacks the targeted enemy with Poison Fog. While at a base, increases the Farming Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "62.0": {
+    "food": 3,
+    "rarity": 2,
+    "partner": {
+      "name": "Crackle Booster",
+      "description": "While at a base, increases the Generating Electricity Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "63.0": {
+    "food": 6,
+    "rarity": 7,
+    "partner": {
+      "name": "Amicable Holy Dragon",
+      "description": "Can be ridden as a flying mount. While flying, Movement Speed is increased. While in party, Dark Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "63.1": {
+    "food": 3,
+    "rarity": 8,
+    "partner": {
+      "name": "Amicable Water Dragon",
+      "description": "Can be ridden as a flying mount. While flying, Movement Speed is increased. While in party, player and party Pals take (15~30)% less Fire damage and are immune to Burn. (Does not stack)"
+    }
+  },
+  "64.0": {
+    "food": 6,
+    "rarity": 5,
+    "partner": {
+      "name": "Aerial Marauder",
+      "description": "Can be ridden as a flying mount. While in party, increases damage player deals to enemy weak points by (20~40)%. (Does not stack)"
+    }
+  },
+  "64.1": {
+    "food": 5,
+    "rarity": 5,
+    "partner": {
+      "name": "Aerial Marauder",
+      "description": "Can be ridden as a flying mount. While in party, increases damage player deals to enemy weak points by (30~50)%. (Does not stack)"
+    }
+  },
+  "65.0": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Life Steal",
+      "description": "While fighting together, grants the player and Felbat a life steal effect that restores (5~9)% of damage dealt as Health."
+    }
+  },
+  "66.0": {
+    "food": 3,
+    "rarity": 8,
+    "partner": {
+      "name": "Purification of Gaia",
+      "description": "While in party, Ground Pals drop (40~80)% more items when defeated. (Does not stack) Sometimes drops various seeds when assigned to Ranch."
+    }
+  },
+  "67.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Worker Bee",
+      "description": "While in party, increases Elizabee 's Attack. Sometimes drops Honey when assigned to Ranch."
+    }
+  },
+  "68.0": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Queen Bee Command",
+      "description": "This Pal's Attack increases by (12~24)% for each Beegarde in party."
+    }
+  },
+  "69.0": {
+    "food": 4,
+    "rarity": 5,
+    "partner": {
+      "name": "Heart Drain",
+      "description": "While fighting together, grants the player and Lovander a life steal effect that restores (5~9)% of damage dealt as Health."
+    }
+  },
+  "70.0": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Glaring Cat's Eye",
+      "description": "Can be ridden. While in party, picking up a Pal Egg has a (50~75)% chance of receiving one extra. (Does not stack)"
+    }
+  },
+  "71.0": {
+    "food": 4,
+    "rarity": 3,
+    "partner": {
+      "name": "Tarantriss’ Web",
+      "description": "Can be ridden. Can double jump while mounted. Additionally, can shoot spider web to grapple and move at high speed."
+    }
+  },
+  "72.0": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Rider of the Snowy Mountain",
+      "description": "Can be ridden. Movement Speed is increased by (80~160)% while mounted on snow. Can also slide quickly down slopes."
+    }
+  },
+  "72.1": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Snowy Mountain Slider",
+      "description": "Can be ridden. Movement Speed is increased by (80~160)% while mounted on snow. Can also slide quickly down slopes. While it starts out slow, the top speed it can hit while sliding is no joke."
+    }
+  },
+  "73.0": {
+    "food": 3,
+    "rarity": 2,
+    "partner": {
+      "name": "Too Cool to be Seen",
+      "description": "When activated, Leezpunk and the player become invisible, making them undetectable to enemies for (10~20) seconds."
+    }
+  },
+  "73.1": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Too Cool to be Seen",
+      "description": "When activated, Leezpunk Ignis and the player become invisible, making them undetectable to enemies for (10~20) seconds."
+    }
+  },
+  "74.0": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Full-Power Gorilla Mode",
+      "description": "When activated, unleashes a primal fury that increases Gorirat 's Attack by (75~300)% for a limited time."
+    }
+  },
+  "74.1": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Full-Power Gorilla Pound",
+      "description": "While in party, increases the player's climbing speed by (50~100)%. (Does not stack)"
+    }
+  },
+  "75.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Swift Swimmer",
+      "description": "Can be ridden to travel on water. Sometimes drops Leather when assigned to Ranch."
+    }
+  },
+  "75.1": {
+    "food": 5,
+    "rarity": 5,
+    "partner": {
+      "name": "Sand Swimmer",
+      "description": "Can be ridden. While in party, the player's attacks increase Muddy buildup by (2~6). (Does not stack)"
+    }
+  },
+  "76.0": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Grounded Archer",
+      "description": "While in party, increases the player's bow damage by (10~35)%. (Does not stack)"
+    }
+  },
+  "76.1": {
+    "food": 3,
+    "rarity": 6,
+    "partner": {
+      "name": "Master Archer",
+      "description": "While in party, increases the player's bow charge speed by (15~30)%. (Does not stack)"
+    }
+  },
+  "77.0": {
+    "food": 3,
+    "rarity": 1,
+    "partner": {
+      "name": "Helper Bunny",
+      "description": "While in party, appears near the player. Automatically picks up nearby items."
+    }
+  },
+  "78.0": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Lord Fox",
+      "description": "When activated, Wixen changes the player's attack type to Fire and increases Attack by (30~50)%."
+    }
+  },
+  "78.1": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Black Fox Lord",
+      "description": "When activated, Wixen Noct changes the player's attack type to Dark and increases Attack by (30~50)%."
+    }
+  },
+  "79.0": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Mystical Black Magic",
+      "description": "While in party, Neutral Pals drop (40~80)% more items when defeated. Also has a (10~50)% chance to prevent Pal Sphere consumption when thrown. (Does not stack)"
+    }
+  },
+  "79.1": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Blazing Black Magic",
+      "description": "While at a base, increases the Kindling Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "80.0": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Wings of Death",
+      "description": "Can be ridden as a flying mount. While mounted, changes the player's attack type to Dark and increases Attack by (5~20)%."
+    }
+  },
+  "80.1": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Wings of Thunder",
+      "description": "Can be ridden as a flying mount. While mounted, changes the player's attack type to Electric and increases Attack by (5~20)%."
+    }
+  },
+  "81.0": {
+    "food": 8,
+    "rarity": 6,
+    "partner": {
+      "name": "Mother Nature's Menace",
+      "description": "When activated, Elgrove changes the player's attack type to Grass and increases Attack by (30~50)%."
+    }
+  },
+  "81.1": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Father Winter's Threat",
+      "description": "While in party, grants the player the ability to Freeze enemies afflicted with Soak in one strike."
+    }
+  },
+  "82.0": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Antigravity",
+      "description": "While in party, spheres home in on Pals, and carrying capacity increases by (300~600). (Does not stack)"
+    }
+  },
+  "83.0": {
+    "food": 6,
+    "rarity": 3,
+    "partner": {
+      "name": "Wind and Clouds",
+      "description": "Can be ridden. Can double jump while mounted."
+    }
+  },
+  "83.1": {
+    "food": 6,
+    "rarity": 3,
+    "partner": {
+      "name": "Stormcloud",
+      "description": "Can be ridden. Can double jump while mounted. While in party, Water Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "84.0": {
+    "food": 6,
+    "rarity": 6,
+    "partner": {
+      "name": "Fragrant Dragon",
+      "description": "Can be ridden. While in party, increase Defense of Dragon Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "84.1": {
+    "food": 6,
+    "rarity": 7,
+    "partner": {
+      "name": "Thunder Dragon",
+      "description": "Can be ridden. While in party, increases Defense of Electric Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "85.0": {
+    "food": 4,
+    "rarity": 7,
+    "partner": {
+      "name": "Brandish Blade",
+      "description": "When activated, attacks targeted enemy with Iaigiri. When this Pal uses Iaigiri, it has a x(1.1~2.5) damage multiplier."
+    }
+  },
+  "85.1": {
+    "food": 5,
+    "rarity": 7,
+    "partner": {
+      "name": "Void Blade",
+      "description": "When activated, attacks targeted enemy with Iaigiri. When this Pal uses Iaigiri, it has a x(1.1~2.5) damage multiplier. While in party, increases the player's melee weapon damage by (30~65)% but only when not in combat. (Does not stack)"
+    }
+  },
+  "86.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Icy Maw",
+      "description": "While in party, reduces the weight of ingredient and food by (30~60)%. When paired with another Ice Pal, their Rot Speed also reduces by (-30~-80)%. (Does not stack)"
+    }
+  },
+  "87.0": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Gaia Crusher",
+      "description": "Can be ridden. While mounted, increases logging efficiency by (220~500)% and mining efficiency by (500~2000)%."
+    }
+  },
+  "87.1": {
+    "food": 8,
+    "rarity": 9,
+    "partner": {
+      "name": "Ice Crusher",
+      "description": "Can be ridden. While mounted, increases logging efficiency by (220~500)% and mining efficiency by (500~2000)%."
+    }
+  },
+  "88.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Water Gun",
+      "description": "When activated, Finsider changes the player's attack type to Water and increases Attack by (30~50)%."
+    }
+  },
+  "88.1": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Ember Chamber",
+      "description": "While in party, Finsider Ignis helps carry supplies, reducing the weight of weapons in your inventory by (60~100)%. Also increases damage dealt by Player and Pals' Fire attacks when hitting the enemy's elemental weakness by (25~40)%. (Does not stack)"
+    }
+  },
+  "89.0": {
+    "food": 6,
+    "rarity": 8,
+    "partner": {
+      "name": "Blessing of the Flower Spirit",
+      "description": "When activated, soothing blossoms restore the player's Health by (75~85)%. While at a base, increases the Planting Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "89.1": {
+    "food": 6,
+    "rarity": 9,
+    "partner": {
+      "name": "Passion of the Flower Spirit",
+      "description": "When activated, soothing blossoms restore the player's Health by (80~90)%. While in party, player and party Pals take (15~30)% less Grass damage, and are immune to Ivy-Covered. (Does not stack)"
+    }
+  },
+  "90.0": {
+    "food": 7,
+    "rarity": 7,
+    "partner": {
+      "name": "Selfless Discipline",
+      "description": "This Pal's Attack and Defense increase by (2~6)% for each other Grass Pal in your party."
+    }
+  },
+  "91.0": {
+    "food": 4,
+    "rarity": 4,
+    "partner": {
+      "name": "Flameclaw Hunter",
+      "description": "When activated, attacks the targeted enemy with Hellfire Claw. When this Pal uses Hellfire Claw, it has a x(1.1~2.5) damage multiplier."
+    }
+  },
+  "91.1": {
+    "food": 4,
+    "rarity": 5,
+    "partner": {
+      "name": "Darkclaw Hunter",
+      "description": "When activated, attacks the targeted enemy with Nightmare Claw. When this Pal uses Nightmare Claw, it has a x(1.1~2.5) damage multiplier."
+    }
+  },
+  "92.0": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Lady of Lightning",
+      "description": "While in party, appears near the player. Attacks hostile enemies with Electric bolts. These bolts will not reduce the target's Health below 1."
+    }
+  },
+  "92.1": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Lady of Dark Lightning",
+      "description": "While in party, appears near the player. Attacks hostile enemies with Dark bolts. These bolts will not reduce the target's Health below 1."
+    }
+  },
+  "93.0": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Red Hare",
+      "description": "Can be ridden. While mounted, changes the player's attack type to Fire and increases Attack by (5~20)%."
+    }
+  },
+  "93.1": {
+    "food": 4,
+    "rarity": 7,
+    "partner": {
+      "name": "Black Hare",
+      "description": "Can be ridden. While mounted, changes the player's attack type to Dark and increases Attack by (5~20)%."
+    }
+  },
+  "94.0": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Hungry Missile",
+      "description": "Can be ridden. Can rapidly fire a missile launcher while mounted."
+    }
+  },
+  "94.1": {
+    "food": 7,
+    "rarity": 9,
+    "partner": {
+      "name": "Missile Party",
+      "description": "Can be ridden. Can rapidly fire a missile launcher while mounted."
+    }
+  },
+  "95.0": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Aurora Guide",
+      "description": "While in party, increases Attack of Ice Pals by (15~30)%. (Does not stack) Sometimes drops Ice Organ when assigned to Ranch."
+    }
+  },
+  "96.0": {
+    "food": 7,
+    "rarity": 6,
+    "partner": {
+      "name": "Thunderous",
+      "description": "Can be ridden as a flying mount. While mounted, changes the player's attack type to Electric and increases Attack by (5~20)%. This Pal's Movement Speed increases by (5~25)% for each other Electric Pal in your party. (Excluding Beakon)"
+    }
+  },
+  "96.1": {
+    "food": 5,
+    "rarity": 7,
+    "partner": {
+      "name": "Coldsnap",
+      "description": "Can be ridden as a flying mount. While mounted, changes the player's attack type to Ice and increases Attack by (5~20)%. This Pal's Movement Speed increases by (5~25)% for each other Ice Pal in your party. (Excluding Beakon Cryst)"
+    }
+  },
+  "97.0": {
+    "food": 4,
+    "rarity": 5,
+    "partner": {
+      "name": "Master of Darkness",
+      "description": "Can be ridden to travel on water. This Pal's Movement Speed increases by (5~25)% for each other Dark or Water Pal in your party. (Excluding Ghangler)"
+    }
+  },
+  "97.1": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Abyssal Celebrity Chef",
+      "description": "Can be ridden to travel on water. This Pal's Movement Speed increases by (5~25)% for each other Fire or Water Pal in your party. (Excluding Ghangler Ignis)"
+    }
+  },
+  "98.0": {
+    "food": 4,
+    "rarity": 5,
+    "partner": {
+      "name": "Lightning Shepherd",
+      "description": "Can be ridden. Can perform a double jump while mounted. This Pal's Movement Speed increases by (5~25)% for each other Electric Pal in your party. (Excluding Rayhound)"
+    }
+  },
+  "98.1": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Snow Shepherd",
+      "description": "Can be ridden. Can perform a double jump while mounted. While in party, increases Defense of Ice Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "99.0": {
+    "food": 6,
+    "rarity": 9,
+    "partner": {
+      "name": "Steel Scorpion",
+      "description": "While in party, player's Defense increases by (5~10)%, and Electric Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "99.1": {
+    "food": 7,
+    "rarity": 10,
+    "partner": {
+      "name": "Golden Scorpion",
+      "description": "While in party, player's Defense increases by (5~10)%, and Electric Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "100.0": {
+    "food": 2,
+    "rarity": 2,
+    "partner": {
+      "name": "Hug Me Please",
+      "description": "While in party, increases player's and Pals' damage to enemies afflicted with Ivy-Covered by (50~65)%. (Does not stack)"
+    }
+  },
+  "100.1": {
+    "food": 2,
+    "rarity": 3,
+    "partner": {
+      "name": "Hug You So Much",
+      "description": "While in party, the player's attacks increase Ivy-Covered buildup by (2~6). (Does not stack)"
+    }
+  },
+  "101.0": {
+    "food": 7,
+    "rarity": 4,
+    "partner": {
+      "name": "Cool Body",
+      "description": "Can be ridden. While in party, the player gains Heat Resistance +2. (Does not stack)"
+    }
+  },
+  "102.0": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Grenadier Panda",
+      "description": "Can be ridden. Can rapidly fire a grenade launcher while mounted."
+    }
+  },
+  "102.1": {
+    "food": 5,
+    "rarity": 7,
+    "partner": {
+      "name": "Grenadier Panda",
+      "description": "Can be ridden. Can rapidly fire a grenade launcher while mounted."
+    }
+  },
+  "103.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Wriggling Weasel",
+      "description": "Can be ridden. While mounted, changes the player's attack type to Dragon and increases Attack by (5~20)%."
+    }
+  },
+  "103.1": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Sparkling Weasel",
+      "description": "Can be ridden. While mounted, changes the player's attack type to Fire and increases Attack by (5~20)%."
+    }
+  },
+  "104.0": {
+    "food": 7,
+    "rarity": 7,
+    "partner": {
+      "name": "Flame Wing",
+      "description": "Can be ridden as a flying mount. While mounted, changes the player's attack type to Fire and increases Attack by (5~20)%."
+    }
+  },
+  "105.0": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Magma Overload",
+      "description": "Can be ridden as a mount. This Pal's Attack increases by (4~8)% for each other Fire or Ground Pal in your party."
+    }
+  },
+  "105.1": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Ice Overload",
+      "description": "Can be ridden. While in party, increases damage dealt by Player and Pals' Ice attacks when hitting the enemy's elemental weakness by (25~40)%. (Does not stack)"
+    }
+  },
+  "106.0": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Samba Step",
+      "description": "Can be ridden. Movement Speed is increased by (155~240)% while mounted on grass."
+    }
+  },
+  "107.0": {
+    "food": 5,
+    "rarity": 5,
+    "partner": {
+      "name": "Drill Crusher",
+      "description": "When activated, enters the Shell Spin state. Follows the player while spinning, increasing ore mining efficiency by (800~2000)%."
+    }
+  },
+  "108.0": {
+    "food": 6,
+    "rarity": 8,
+    "partner": {
+      "name": "Love's First Blossom",
+      "description": "Can be ridden. While in party, Pal Eggs you pick up have a (35~45)% chance of becoming an Alpha Pal Egg. (Does not stack)"
+    }
+  },
+  "108.1": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Purity's Full Bloom",
+      "description": "Can be ridden. While in party, Pal Eggs you pick up have a (45~55)% chance of becoming an Alpha Pal Egg. (Does not stack)"
+    }
+  },
+  "109.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Soil Improver",
+      "description": "While in party, increases Attack of Ground Pals by (15~30)%. (Does not stack) Sometimes drops High Quality Pal Oil when assigned to Ranch."
+    }
+  },
+  "109.1": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Golden Harvest",
+      "description": "While in party, increases amount of Gold Coin dropped by enemies by +(100~200)%. Sometimes drops High Quality Pal Oil when assigned to Ranch, with a small chance to drop Gold Coin. (Does not stack)"
+    }
+  },
+  "110.0": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Balmy Weather",
+      "description": "Can be ridden. While in your base, increases the egg production speed of Pals assigned to Breeding Farm by (20~50)%. (Does not stack)"
+    }
+  },
+  "111.0": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Wolf of the Sun",
+      "description": "Can be ridden. While in party, player and party Pals take (15~30)% less Ice damage and are immune to Freeze. (Does not stack)"
+    }
+  },
+  "111.1": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Gloomhowl",
+      "description": "Can be ridden. While in party, player and party Pals take (15~30)% less Dark damage and are immune to Blind. (Does not stack)"
+    }
+  },
+  "112.0": {
+    "food": 7,
+    "rarity": 7,
+    "partner": {
+      "name": "Hellflame Lion",
+      "description": "Can be ridden. While in party, Grass Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "112.1": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Darkflame Lion",
+      "description": "Can be ridden. While in party, Neutral Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "113.0": {
+    "food": 6,
+    "rarity": 8,
+    "partner": {
+      "name": "Cast-Iron Shell",
+      "description": "While in party, generates a barrier around the player after 5 melee hits are landed within (5~9) seconds. (Does not stack)"
+    }
+  },
+  "113.1": {
+    "food": 6,
+    "rarity": 9,
+    "partner": {
+      "name": "Fullmetal Shell",
+      "description": "While in party, generates a barrier around the player after 5 melee hits are landed within (5~9) seconds. (Does not stack)"
+    }
+  },
+  "114.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Peacock Pounce",
+      "description": "While in party, Frostplume 's icy aura sharpens focus, increasing the player's reload speeds by (20~50)%. (Does not stack)"
+    }
+  },
+  "115.0": {
+    "food": 8,
+    "rarity": 5,
+    "partner": {
+      "name": "Phantasmal Arcana",
+      "description": "While in party, when the player attacks an enemy afflicted with Burn, the enemy creates flames around itself, dealing continuous damage equal to (15~30)% of the player's attack damage to enemies that come into contact with them. (Does not stack.)"
+    }
+  },
+  "116.0": {
+    "food": 5,
+    "rarity": 7,
+    "partner": {
+      "name": "Silk Shroud",
+      "description": "When activated, attacks targeted enemy with Blizzard Spike. When this Pal uses Blizzard Spike, it has a x(1.1~2.5) damage multiplier. Sometimes makes High Quality Cloth when assigned to Ranch."
+    }
+  },
+  "116.1": {
+    "food": 5,
+    "rarity": 8,
+    "partner": {
+      "name": "Gilded Shroud",
+      "description": "While in party, increases Defense of Neutral Pals by (15~30)%. (Does not stack) Sometimes makes High Quality Cloth when assigned to Ranch."
+    }
+  },
+  "117.0": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Messenger of Death",
+      "description": "Can be ridden. While in party, all Party Pals' Active Skill cooldowns are reduced by (30~60)% whenever you defeat an enemy. (Does not stack)"
+    }
+  },
+  "118.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Rampant Spores",
+      "description": "Can be ridden. Sometimes drops Mushroom or Cavern Mushroom when assigned to Ranch."
+    }
+  },
+  "118.1": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Roiling Spores",
+      "description": "Can be ridden. While at a base, its mysterious spores slow the rate at which the SAN value of allies at the base decreases by (10~15)%."
+    }
+  },
+  "119.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Witch's Icy Veil",
+      "description": "When activated, Icelyn changes the player's attack type to Ice and increases Attack by (30~50)%."
+    }
+  },
+  "120.0": {
+    "food": 6,
+    "rarity": 5,
+    "partner": {
+      "name": "Resurrection",
+      "description": "While fighting together, when Gildra is incapacitated, it revives with its Hunger reduced to 0."
+    }
+  },
+  "121.0": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Stormbringer Sea Dragon",
+      "description": "Can be ridden to travel on water. While in party, increases player's and Pals' damage to enemies afflicted with Soak by (50~65)%. (Does not stack)"
+    }
+  },
+  "121.1": {
+    "food": 7,
+    "rarity": 9,
+    "partner": {
+      "name": "Stormbringer Lava Dragon",
+      "description": "Can be ridden. While in party, nullifies lava damage and increases player's and Pals' damage to enemies afflicted with Burn by (50~65)%. (Does not stack)"
+    }
+  },
+  "122.0": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Wings of Flame",
+      "description": "Can be ridden as a flying mount. This Pal's Movement Speed increases by (5~25)% for each other Fire Pal in your party. (Excluding Suzaku)"
+    }
+  },
+  "122.1": {
+    "food": 8,
+    "rarity": 9,
+    "partner": {
+      "name": "Wings of Water",
+      "description": "Can be ridden as a flying mount. This Pal's Movement Speed increases by (5~25)% for each other Water Pal in your party. (Excluding Suzaku Aqua)"
+    }
+  },
+  "123.0": {
+    "food": 4,
+    "rarity": 5,
+    "partner": {
+      "name": "Sand Sprint",
+      "description": "Can be ridden. Movement Speed is increased by (50~100)% while mounted on sand."
+    }
+  },
+  "124.0": {
+    "food": 4,
+    "rarity": 7,
+    "partner": {
+      "name": "Sky Dragon Affection",
+      "description": "Can be ridden as a flying mount. While in party, increases Attack of Dragon Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "124.1": {
+    "food": 4,
+    "rarity": 8,
+    "partner": {
+      "name": "Grass Dragon Affection",
+      "description": "Can be ridden as a flying mount. While mounted, changes the player's attack type to Grass and increases Attack by (5~20)%."
+    }
+  },
+  "125.0": {
+    "food": 2,
+    "rarity": 4,
+    "partner": {
+      "name": "Floral Boost",
+      "description": "While at a base, Lullu fills farms with good spirits, increasing the growth rate of the crops by (50~70)%."
+    }
+  },
+  "126.0": {
+    "food": 2,
+    "rarity": 4,
+    "partner": {
+      "name": "Sandball Soccer",
+      "description": "While in party, increases Defense of Ground Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "127.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Birds of a Feather",
+      "description": "Can be ridden. While fighting together, (15~30)% increased chance of encountering pals with the same Passive Skill as this Pal. (Excludes certain Passive Skills)"
+    }
+  },
+  "128.0": {
+    "food": 5,
+    "rarity": 5,
+    "partner": {
+      "name": "Fish Fillet",
+      "description": "When activated, Skutlass becomes the player's katana (Attack: (2600~3900)). If it does not revert to its normal form quickly, Skutlass will become incapacitated. It will also become incapacitated if Iaigiri is used."
+    }
+  },
+  "128.1": {
+    "food": 5,
+    "rarity": 5,
+    "partner": {
+      "name": "Seared Fish Fillet",
+      "description": "When activated, Skutlass Ignis becomes the player's katana (Attack: (2900~4200)). If it does not revert to its normal form quickly, Skutlass Ignis will become incapacitated. It will also become incapacitated if Iaigiri is used."
+    }
+  },
+  "129.0": {
+    "food": 7,
+    "rarity": 6,
+    "partner": {
+      "name": "Ore-Loving Beast",
+      "description": "Can be ridden. While in party, reduces weight of all types of ore by (30~60)%. (Does not stack)"
+    }
+  },
+  "129.1": {
+    "food": 7,
+    "rarity": 7,
+    "partner": {
+      "name": "Ice-Loving Beast",
+      "description": "Can be ridden. While in party, reduces weight of all types of ore by (35~65)%. (Does not stack)"
+    }
+  },
+  "130.0": {
+    "food": 6,
+    "rarity": 7,
+    "partner": {
+      "name": "Night Dancer",
+      "description": "Can be ridden. Boosts Jump Power while mounted. This Pal's movement speed increases by +(50~100)% at night."
+    }
+  },
+  "130.1": {
+    "food": 6,
+    "rarity": 8,
+    "partner": {
+      "name": "Light Dancer",
+      "description": "Can be ridden. Boosts Jump Power while mounted. This Pal's Movement Speed increases by (5~25)% for each other Neutral Pal in your party. (Excluding Starryon Primo)"
+    }
+  },
+  "131.0": {
+    "food": 8,
+    "rarity": 6,
+    "partner": {
+      "name": "Power Stone",
+      "description": "While in party, increases player's and Pals' damage to enemies afflicted with Muddy by (50~65)%. (Does not stack)"
+    }
+  },
+  "131.1": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Power Crystal",
+      "description": "While in party, player and party Pals take (15~30)% less Dragon damage. (Does not stack)"
+    }
+  },
+  "132.0": {
+    "food": 7,
+    "rarity": 7,
+    "partner": {
+      "name": "Dragon Hunter",
+      "description": "While in party, Dragon Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "132.1": {
+    "food": 7,
+    "rarity": 7,
+    "partner": {
+      "name": "Explosive Strength",
+      "description": "While in party, when attacking enemy weak point, increases the power of the next weak point attack by (30~60)%. (Does not stack)"
+    }
+  },
+  "133.0": {
+    "food": 5,
+    "rarity": 3,
+    "partner": {
+      "name": "Invisible Eye",
+      "description": "While in party, reduces the chance of being detected by enemies. (Does not stack)"
+    }
+  },
+  "134.0": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Guardian of the Snowy Mountain",
+      "description": "Can be ridden. While at a base, increases the Transporting Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "134.1": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Guardian of the South",
+      "description": "Can be ridden. While in party, player and party Pals take (15~30)% less Ground damage and are immune to Muddy status. (Does not stack)"
+    }
+  },
+  "135.0": {
+    "food": 7,
+    "rarity": 7,
+    "partner": {
+      "name": "Grave Robber",
+      "description": "While in party, player and party Pals take (15~30)% less Neutral damage. (Does not stack) Sometimes digs up Bone when assigned to Ranch."
+    }
+  },
+  "136.0": {
+    "food": 7,
+    "rarity": 6,
+    "partner": {
+      "name": "Entangling Tongue",
+      "description": "While in party, when the player performs a dodge roll or dodge step, Carnibora creates a whirlwind that deals damage to enemies it touches ( Grass / Power: (40~80)). (Does not stack)"
+    }
+  },
+  "137.0": {
+    "food": 9,
+    "rarity": 9,
+    "partner": {
+      "name": "Magma Kaiser",
+      "description": "Can be ridden. While in party, increases the Attack and Defense of the Pal fighting alongside you by (5~10)% whenever you defeat an enemy. This effect lasts 20 seconds and stacks up to five times."
+    }
+  },
+  "137.1": {
+    "food": 9,
+    "rarity": 10,
+    "partner": {
+      "name": "Dragon Kaiser",
+      "description": "Can be ridden. While in party, increases damage dealt by Player and Pals' Dragon attacks when hitting the enemy's elemental weakness by (25~40)%. (Does not stack)"
+    }
+  },
+  "138.0": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Forest Laser",
+      "description": "Can be ridden. While mounted, Dualith fires a powerful Grass laser from its right hand."
+    }
+  },
+  "138.1": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Corruption Laser",
+      "description": "Can be ridden. While mounted, Dualith Noct fires a powerful Dark laser from its right hand."
+    }
+  },
+  "139.0": {
+    "food": 6,
+    "rarity": 10,
+    "partner": {
+      "name": "Guardian of the Desert",
+      "description": "When activated, Anubis changes the player's attack type to Ground and increases Attack by (30~50)%. Occasionally evades attacks with a flash sidestep during battle."
+    }
+  },
+  "140.0": {
+    "food": 7,
+    "rarity": 5,
+    "partner": {
+      "name": "Desert Empress",
+      "description": "While at a base, boosts Anubis 's work speed by (20~40)%. Increases efficiency by (30~60)% if Sekhmet is working at a Workbench, Workshop, or other related facilities. (Does not stack)"
+    }
+  },
+  "141.0": {
+    "food": 4,
+    "rarity": 5,
+    "partner": {
+      "name": "Phantom Venom",
+      "description": "While in party, increases player's and Pals' damage to enemies afflicted with Poison by (50~65)%. (Does not stack)"
+    }
+  },
+  "141.1": {
+    "food": 5,
+    "rarity": 6,
+    "partner": {
+      "name": "Scorpion Longwave",
+      "description": "When activated, Prixter Lux changes the player's attack type to Electric and increases Attack by (30~50)%."
+    }
+  },
+  "142.0": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Masonry Archelon",
+      "description": "Can be ridden While at a base, increases the Mining Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "142.1": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Stone-Chaser Archelon",
+      "description": "Can be ridden. While in party, reduces durability loss of all weapons and armor by (80~100)%. (Does not stack)"
+    }
+  },
+  "143.0": {
+    "food": 3,
+    "rarity": 4,
+    "partner": {
+      "name": "Shot-Nyan Mode",
+      "description": "When activated, Nyafia will fire a shotgun at nearby enemies for a limited time. While in party, increases the player's shotgun damage by (10~35)%. (Does not stack)"
+    }
+  },
+  "144.0": {
+    "food": 3,
+    "rarity": 7,
+    "partner": {
+      "name": "Master of Unlocking",
+      "description": "While fighting together, Mimog can open treasure chests without using a key. Does not apply to chests that require a specific Work Suitability."
+    }
+  },
+  "145.0": {
+    "food": 7,
+    "rarity": 7,
+    "partner": {
+      "name": "Unknown Invader",
+      "description": "While in party, increases the damage of the last bullet fired from a full-auto weapon by (100~160)%. (Does not stack)"
+    }
+  },
+  "146.0": {
+    "food": 7,
+    "rarity": 9,
+    "partner": {
+      "name": "Unknown Intruder",
+      "description": "Can be ridden. While in party, increases the player's energy weapon damage by (10~35)%. (Does not stack)"
+    }
+  },
+  "147.0": {
+    "food": 3,
+    "rarity": 5,
+    "partner": {
+      "name": "Prayer for Abundant Harvest",
+      "description": "While at a base, Prunelia 's prayers bless the crops, increasing their harvest by (18~35)%."
+    }
+  },
+  "148.0": {
+    "food": 3,
+    "rarity": 6,
+    "partner": {
+      "name": "Soul Collector",
+      "description": "While fighting together, Pals drop +(100~200)% more Pal Souls when defeated. (Does not stack)"
+    }
+  },
+  "148.1": {
+    "food": 6,
+    "rarity": 7,
+    "partner": {
+      "name": "Soul Binder",
+      "description": "While in party, increases Defense of Grass Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "149.0": {
+    "food": 3,
+    "rarity": 2,
+    "partner": {
+      "name": "Dig, Smokie! Dig!",
+      "description": "When activated, uses its sharp sense of smell to detect nearby Chromite. While fighting together, Chromite acquisition increases by +(100~200)%."
+    }
+  },
+  "149.1": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Cryo Instincts",
+      "description": "While at a base, increases the Cooling Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "150.0": {
+    "food": 2,
+    "rarity": 4,
+    "partner": {
+      "name": "Masquerade Dance",
+      "description": "While in party, increases Party Pals' EXP gained by (40~80)%. (Does not stack)"
+    }
+  },
+  "151.0": {
+    "food": 6,
+    "rarity": 8,
+    "partner": {
+      "name": "Chilled Whale Cruiser",
+      "description": "Can be ridden. While in party, fishing minigames start with the capture gauge increased by (5~14)%. Additionally, while the bars overlap, capture progress increases by (5~14)%. (Does not stack)"
+    }
+  },
+  "151.1": {
+    "food": 6,
+    "rarity": 8,
+    "partner": {
+      "name": "Cozy Whale Cruiser",
+      "description": "Can be ridden. While in party, fishing minigame begins with the capture gauge (7~17)% higher than usual, and capture progress increases by (7~17)% while the bars overlap. (Does not stack)"
+    }
+  },
+  "152.0": {
+    "food": 3,
+    "rarity": 8,
+    "partner": {
+      "name": "Grassland Gymnast",
+      "description": "While in party, grants 1 additional jump and 1 additional mid-air dash. (Does not stack)"
+    }
+  },
+  "153.0": {
+    "food": 2,
+    "rarity": 4,
+    "partner": {
+      "name": "Blade of Uncontrolled Passion",
+      "description": "While in party, the amount of items obtained from using the Meat Cleaver increases by (100~200)%. (Does not stack)"
+    }
+  },
+  "154.0": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Sandstorm's Blessing",
+      "description": "Can be ridden. While mounted, changes the player's attack type to Ground and increases Attack by (5~20)%."
+    }
+  },
+  "155.0": {
+    "food": 4,
+    "rarity": 6,
+    "partner": {
+      "name": "Homeward Prayer",
+      "description": "When activated, teleports to the nearest base. Cannot be used inside dungeons or similar areas."
+    }
+  },
+  "156.0": {
+    "food": 6,
+    "rarity": 4,
+    "partner": {
+      "name": "Yokozuna's Presence",
+      "description": "Can be ridden. While in party, player and party Pals take (15~30)% less Electric damage and are immune to Electrify. (Does not stack)"
+    }
+  },
+  "157.0": {
+    "food": 6,
+    "rarity": 6,
+    "partner": {
+      "name": "Blessing of Purification",
+      "description": "Can be ridden. This Pal's Attack and Movement Speed increases by (2~6)% for each other Neutral Pal in your party. When in party, recovers Health of the player and Party Pals by (0.15~0.75)% per second. (Does not stack)"
+    }
+  },
+  "157.1": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Blessing of Chaos",
+      "description": "Can be ridden. While in party, the Pal fighting alongside you gradually loses Health in exchange for (40~80)% Attack increase. (Does not stack)"
+    }
+  },
+  "158.0": {
+    "food": 9,
+    "rarity": 9,
+    "partner": {
+      "name": "Black Ankylosaur",
+      "description": "Can be ridden as a flying mount. Increases the damage dealt to ores by (1100~3300)%, and you can obtain (150~300)% more Ore while mounted."
+    }
+  },
+  "159.0": {
+    "food": 9,
+    "rarity": 9,
+    "partner": {
+      "name": "Steel Guardian Mode",
+      "description": "When activated, a steel resolve increases Knocklem 's Attack by (50~200)% and Defense by (50~200)% for a limited time."
+    }
+  },
+  "159.1": {
+    "food": 9,
+    "rarity": 10,
+    "partner": {
+      "name": "Iron Guardian Mode",
+      "description": "When activated, a steel resolve increases Knocklem Ignis 's Attack by (60~210)% and Defense by (60~210)% for a limited time."
+    }
+  },
+  "160.0": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Aegis Shield",
+      "description": "Can be ridden. While in party, reduces shield regeneration delay by (30~60)% and reduces damage taken by your shield by (65~80)%. (Does not stack)"
+    }
+  },
+  "161.0": {
+    "food": 6,
+    "rarity": 7,
+    "partner": {
+      "name": "Plasma Dash",
+      "description": "Can be ridden. Grants Air Dash, to move at even higher speeds."
+    }
+  },
+  "162.0": {
+    "food": 4,
+    "rarity": 2,
+    "partner": {
+      "name": "Big Stretch",
+      "description": "While in party, reduces the effects of gravity on the player, making them more floaty while jumping and falling. (Does not stack)"
+    }
+  },
+  "163.0": {
+    "food": 4,
+    "rarity": 2,
+    "partner": {
+      "name": "Charging Shell",
+      "description": "While in party, the player's attacks increase Electrify buildup by (2~6). (Does not stack)"
+    }
+  },
+  "163.1": {
+    "food": 4,
+    "rarity": 3,
+    "partner": {
+      "name": "Grounding Shell",
+      "description": "While in party, player and party Pals take (15~30)% less Water damage, and are immune to Soak. (Does not stack)"
+    }
+  },
+  "164.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Fuzzy Fairy",
+      "description": "While in party, increases the capture rate of Pals afflicted with Ivy-Covered. (Does not stack)"
+    }
+  },
+  "165.0": {
+    "food": 4,
+    "rarity": 3,
+    "partner": {
+      "name": "Friend of Earth",
+      "description": "While in party, increases the player's Defense by (50~65)% while sprinting. (Does not stack)"
+    }
+  },
+  "166.0": {
+    "food": 3,
+    "rarity": 3,
+    "partner": {
+      "name": "Void-Dweller",
+      "description": "While in party, increases the player's damage dealt to enemies that are not in combat by (50~100)%. (Does not stack)"
+    }
+  },
+  "167.0": {
+    "food": 4,
+    "rarity": 4,
+    "partner": {
+      "name": "Chillswitch",
+      "description": "While in party, when the player attacks an enemy afflicted with Electrify, the enemy discharges electricity, dealing damage equal to (40~60)% of the player's attack damage to nearby enemies. (Does not stack.)"
+    }
+  },
+  "168.0": {
+    "food": 5,
+    "rarity": 4,
+    "partner": {
+      "name": "Grinning Death",
+      "description": "While in party, attacking enemies afflicted with Poison reduces their Attack by (40~80)%. (Does not stack)"
+    }
+  },
+  "169.0": {
+    "food": 6,
+    "rarity": 4,
+    "partner": {
+      "name": "Charming Fish",
+      "description": "Can be ridden to travel on water. While in party, makes it easier to fish up talented Pals. (Does not stack)"
+    }
+  },
+  "169.1": {
+    "food": 6,
+    "rarity": 5,
+    "partner": {
+      "name": "Shocking Fish",
+      "description": "Can be ridden to travel on water. While mounted, changes the player's attack type to Electric and increases Attack by (5~20)%. While in party, makes it easier to fish up talented Pals. (Does not stack)"
+    }
+  },
+  "170.0": {
+    "food": 7,
+    "rarity": 4,
+    "partner": {
+      "name": "Long-Sleeved Hurray",
+      "description": "While in party, reduces the Partner Skill cooldowns for other party Pals by (10~50)%. (Does not stack)"
+    }
+  },
+  "171.0": {
+    "food": 9,
+    "rarity": 7,
+    "partner": {
+      "name": "Liberated Pterosaur",
+      "description": "Can be ridden as a flying mount. This Pal's Attack and Movement Speed increase by (2~6)% for each other Dragon or Dark Pal in your party."
+    }
+  },
+  "171.1": {
+    "food": 9,
+    "rarity": 8,
+    "partner": {
+      "name": "Resentful Pterosaur",
+      "description": "Can be ridden as a flying mount. This Pal's Attack and Movement Speed increase by (2~6)% for each other Dragon or Fire Pal in your party. (Excluding Eidrolon Ignis)"
+    }
+  },
+  "172.0": {
+    "food": 6,
+    "rarity": 6,
+    "partner": {
+      "name": "Electro-Massage Incubation",
+      "description": "Can be ridden as a flying mount. While at a base, shortens the time it takes to incubate eggs by (20~40)%. (Does not stack)"
+    }
+  },
+  "173.0": {
+    "food": 6,
+    "rarity": 5,
+    "partner": {
+      "name": "Flower Dance",
+      "description": "While in party, extends the invincibility period during dodge rolls and dodge steps by (15~30)%. (Does not stack)"
+    }
+  },
+  "174.0": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Burning Future",
+      "description": "While in party, when the player attacks an enemy afflicted with Burn, the enemy explodes, dealing damage equal to (40~60)% of the player's attack damage to nearby enemies. (Does not stack.)"
+    }
+  },
+  "175.0": {
+    "food": 9,
+    "rarity": 9,
+    "partner": {
+      "name": "Glorious Mist",
+      "description": "Can be ridden. While in party, the player's attacks increase Soak buildup by (2~6). (Does not stack)"
+    }
+  },
+  "176.0": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Trick-Loving Fluffle",
+      "description": "While in party, when the player's Health falls below 50%, Dupin generates an explosion around the player ( Fire / Power: (100~200) / Burn buildup: 777). Additionally, while the player's Health is below 50%, the player's Attack is increased by (30~50)%. (Does not stack)"
+    }
+  },
+  "177.0": {
+    "food": 8,
+    "rarity": 5,
+    "partner": {
+      "name": "Dark-Nester",
+      "description": "Can be ridden as a flying mount. While in party, increases player's and Pals' damage to enemies afflicted with Blind by (50~65)%. (Does not stack)"
+    }
+  },
+  "178.0": {
+    "food": 6,
+    "rarity": 5,
+    "partner": {
+      "name": "Snake's Sagacity",
+      "description": "While in party, the player's attacks increase Blind buildup by (2~6). (Does not stack)"
+    }
+  },
+  "179.0": {
+    "food": 7,
+    "rarity": 6,
+    "partner": {
+      "name": "Charming Spore",
+      "description": "While at a base, increases the Medicine Production Work Suitability Level for all other Base Pals by +1. (Does not stack)"
+    }
+  },
+  "180.0": {
+    "food": 7,
+    "rarity": 5,
+    "partner": {
+      "name": "Lantern Enchantment",
+      "description": "While in party, the player's arrows explode on contact, dealing additional damage equal to (15~30)% of the player's attack damage. (Does not stack)"
+    }
+  },
+  "181.0": {
+    "food": 5,
+    "rarity": 2,
+    "partner": {
+      "name": "Hidden Dark Energy",
+      "description": "While in party, increases Defense of Dark Pals by (15~30)%. (Does not stack)"
+    }
+  },
+  "182.0": {
+    "food": 9,
+    "rarity": 7,
+    "partner": {
+      "name": "Untainted Maiden",
+      "description": "While in party, increases the player's Attack by (30~80)% if all Pals in party are different species. (Does not stack)"
+    }
+  },
+  "183.0": {
+    "food": 8,
+    "rarity": 7,
+    "partner": {
+      "name": "Stage Combat",
+      "description": "While in party, the player's attacks increase Burn buildup by (2~6). (Does not stack)"
+    }
+  },
+  "184.0": {
+    "food": 9,
+    "rarity": 8,
+    "partner": {
+      "name": "Indestructible Fortress",
+      "description": "Can be ridden. While in party, player and party Pals take (60~80)% less damage from explosive attacks, and are immune to Stun. (Does not stack)"
+    }
+  },
+  "185.0": {
+    "food": 7,
+    "rarity": 8,
+    "partner": {
+      "name": "Yellow Tank",
+      "description": "Can be ridden. Can rapidly fire a minigun while mounted."
+    }
+  },
+  "186.0": {
+    "food": 8,
+    "rarity": 9,
+    "partner": {
+      "name": "Harvest Goddess",
+      "description": "When activated, the queen's soothing graces restore the Health of the player and Party Pals by (80~90)%."
+    }
+  },
+  "186.1": {
+    "food": 8,
+    "rarity": 10,
+    "partner": {
+      "name": "Goddess of the Tranquil Light",
+      "description": "When activated, the queen's soothing graces restore the Health of the player and Party Pals by (85~95)%."
+    }
+  },
+  "187.0": {
+    "food": 7,
+    "rarity": 9,
+    "partner": {
+      "name": "Ferocious Thunder Dragon",
+      "description": "While in party, hitting an enemy with a bullet increases the Attack and Defense of the Pal fighting alongside you by (1~5)% for 5 seconds. This effect stacks up to 30 times. (Does not stack.)"
+    }
+  },
+  "188.0": {
+    "food": 8,
+    "rarity": 9,
+    "partner": {
+      "name": "Scorching Predator",
+      "description": "Can be ridden as a flying mount. While in party, Ice Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "188.1": {
+    "food": 8,
+    "rarity": 9,
+    "partner": {
+      "name": "Tidal Predator",
+      "description": "Can be ridden as a flying mount. While in party, Fire Pals drop (40~80)% more items when defeated. (Does not stack)"
+    }
+  },
+  "189.0": {
+    "food": 8,
+    "rarity": 10,
+    "partner": {
+      "name": "Modified DNA",
+      "description": "Can be ridden as a flying mount. While flying, Movement Speed is increased. Enhances Dark attacks by (15~30)% while mounted."
+    }
+  },
+  "190.0": {
+    "food": 2,
+    "rarity": 9,
+    "partner": {
+      "name": "Celestial Darkness",
+      "description": "Can be ridden as a flying mount. While mounted, enhances Neutral and Dark attacks by (15~30)%."
+    }
+  },
+  "191.0": {
+    "food": 6,
+    "rarity": 8,
+    "partner": {
+      "name": "Blizzard Crash",
+      "description": "Can be ridden. While mounted, delivers crushing blows with a hammer forged from Ice."
+    }
+  },
+  "192.0": {
+    "food": 9,
+    "rarity": 9,
+    "partner": {
+      "name": "Azure Sovereign",
+      "description": "Can be ridden as a flying mount. This Pal's Attack increases by (4~8)% for each other Dragon Pal in your party."
+    }
+  },
+  "193.0": {
+    "food": 9,
+    "rarity": 8,
+    "partner": {
+      "name": "Spore Stalwart",
+      "description": "While in party, when the player attacks an enemy afflicted with Ivy-Covered, the enemy explodes, dealing additional damage equal to (40~60)% of the player's attack damage. (Does not stack) Also grants immunity to the World Tree's Explosive Spores to both the player and their Pals."
+    }
+  },
+  "194.0": {
+    "food": 9,
+    "rarity": 8,
+    "partner": {
+      "name": "Mist Stalwart",
+      "description": "When activated, the player's attacks increase Poison buildup by (2~6). While in party, grants the player and party Pals immunity to Poison, and nullifies the effects of toxic gas in the World Tree area. (Does not stack)"
+    }
+  },
+  "195.0": {
+    "food": 4,
+    "rarity": 20,
+    "partner": {
+      "name": "Nightmare Iris",
+      "description": "When activated, attacks targeted enemy with Nightmare Ray. When this Pal uses Nightmare Ray, it has a x(1.1~2.5) damage multiplier."
+    }
+  },
+  "195.1": {
+    "food": 4,
+    "rarity": 20,
+    "partner": {
+      "name": "Nightmare Stare",
+      "description": "When activated, attacks targeted enemy with Nightmare Bloom. When this Pal uses Nightmare Bloom, it has a x(1.1~2.5) damage multiplier."
+    }
+  },
+  "196.0": {
+    "food": 8,
+    "rarity": 8,
+    "partner": {
+      "name": "Meteor Wings",
+      "description": "Can be ridden as a flying mount. While in party, damage done by Partner Skills of weapon-wielding Pals increases by (20~50)%. (Does not stack)"
+    }
+  },
+  "197.0": {
+    "food": 7,
+    "rarity": 10,
+    "partner": {
+      "name": "Sacred Barrier",
+      "description": "Can be ridden. While mounted, it generates a barrier that blocks all attacks. Can triple jump while mounted."
+    }
+  },
+  "198.0": {
+    "food": 9,
+    "rarity": 20,
+    "partner": {
+      "name": "Holy Knight of the Firmament",
+      "description": "Can be ridden. Can triple jump while mounted. Activate Spear Thrust to have Necromus stay by your side and attack enemies in tandem."
+    }
+  },
+  "199.0": {
+    "food": 9,
+    "rarity": 20,
+    "partner": {
+      "name": "Dark Knight of the Abyss",
+      "description": "Can be ridden. Can double jump while mounted. When Twin Spears skill is activated, a Paladius in your party will appear and attack alongside you."
+    }
+  },
+  "200.0": {
+    "food": 7,
+    "rarity": 20,
+    "partner": {
+      "name": "Icy Steed",
+      "description": "Can be ridden as a flying mount. While mounted, changes the player's attack type to Ice, increases Attack by (10~40)%, and apply Freeze buildup by (2~6)."
+    }
+  },
+  "200.1": {
+    "food": 7,
+    "rarity": 20,
+    "partner": {
+      "name": "Black Steed",
+      "description": "Can be ridden as a flying mount. While mounted, changes the player's attack type to Dark, increases Attack by (10~40)%, and apply Blind buildup by (2~6)."
+    }
+  },
+  "201.0": {
+    "food": 9,
+    "rarity": 20,
+    "partner": {
+      "name": "Sentinel of the Great Sea",
+      "description": "While in party, it follows up the player's attacks with Water spear strikes. Can be ridden to travel on water. While mounted, it can leap high into the air over water."
+    }
+  },
+  "202.0": {
+    "food": 9,
+    "rarity": 20,
+    "partner": {
+      "name": "Aerial Missile",
+      "description": "Can be ridden as a flying mount. Can rapidly fire a missile launcher while mounted."
+    }
+  },
+  "203.0": {
+    "food": 9,
+    "rarity": 10,
+    "partner": {
+      "name": "Resonant Guardian",
+      "description": "Can be ridden as a flying mount. Only 1 can be summoned to a base. While at a base, it constantly patrols the skies and bombards intruders from high above."
+    }
+  },
+  "204.0": {
+    "food": 9,
+    "rarity": 10,
+    "partner": {
+      "name": "-",
+      "description": "This Pal's abilities are still being investigated."
+    }
+  }
+}

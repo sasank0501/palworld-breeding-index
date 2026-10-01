@@ -1,11 +1,19 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
 import Gaps from './routes/Gaps.tsx';
 import PalBox from './routes/PalBox.tsx';
 import PassivePlanner from './routes/PassivePlanner.tsx';
 import type { Roster } from './types.ts';
 
-type Tab = 'box' | 'gaps' | 'planner';
+type Tab = 'box' | 'gaps' | 'planner' | 'chibi';
+
+/**
+ * The chibi review sandbox is a local-only tool and gitignored, so it may not
+ * exist. import.meta.glob resolves to {} when the file is absent, which keeps a
+ * fresh clone building; the tab only appears where the file does.
+ */
+const reviewModule = Object.values(import.meta.glob<{ default: React.ComponentType }>('./routes/ChibiReview.tsx'))[0];
+const ChibiReview = reviewModule ? lazy(reviewModule) : null;
 
 /** null = follow the OS. Only an explicit choice is written to the document. */
 type Theme = 'light' | 'dark' | null;
@@ -70,13 +78,22 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
     // roster.json is produced by `npm run import-save` and is gitignored, so a
-    // fresh clone legitimately has no file here — 404 is a state, not a failure.
-    fetch(`${import.meta.env.BASE_URL}roster.json`)
-      .then((res) => {
-        if (res.status === 404) return null;
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<Roster>;
-      })
+    // fresh clone or a deployed copy has none. Those fall back to the demo
+    // roster (scripts/make-demo-roster.mjs); with neither, 404 is a state.
+    // The dev server answers a missing file with index.html, so a body that
+    // fails to parse counts as missing too.
+    const get = async (file: string): Promise<Roster | null> => {
+      const res = await fetch(`${import.meta.env.BASE_URL}${file}`);
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      try {
+        return (await res.json()) as Roster;
+      } catch {
+        return null;
+      }
+    };
+    get('roster.json')
+      .then(async (roster) => roster ?? (await get('demo-roster.json')))
       .then((roster) => {
         if (cancelled) return;
         setLoad(roster ? { state: 'ready', roster } : { state: 'missing' });
@@ -130,8 +147,15 @@ export default function App() {
         <button className={tab === 'planner' ? 'tab on' : 'tab'} onClick={() => setTab('planner')}>
           Passive planner
         </button>
+        {ChibiReview && (
+          <button className={tab === 'chibi' ? 'tab on' : 'tab'} onClick={() => setTab('chibi')}>
+            Chibi review
+          </button>
+        )}
         <span className="tabs-meta muted">
-          {load.roster.counts.total} pals · world {load.roster.world.slice(0, 8)}
+          {load.roster.demo
+            ? `${load.roster.counts.total} pals · demo save`
+            : `${load.roster.counts.total} pals · world ${load.roster.world.slice(0, 8)}`}
         </span>
         <button
           className="theme-toggle"
@@ -146,6 +170,11 @@ export default function App() {
       {tab === 'box' && <PalBox roster={load.roster} />}
       {tab === 'gaps' && <Gaps roster={load.roster} />}
       {tab === 'planner' && <PassivePlanner roster={load.roster} />}
+      {tab === 'chibi' && ChibiReview && (
+        <Suspense fallback={<div className="fullpage">Loading…</div>}>
+          <ChibiReview />
+        </Suspense>
+      )}
     </div>
   );
 }
