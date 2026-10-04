@@ -401,7 +401,7 @@ function overlap(a: Set<string>, b: Set<string>): number {
 }
 
 /** Passives a finished node actually carries — seeds bring their extras along. */
-export function nodePool(node: PlanNode): Set<string> {
+function nodePool(node: PlanNode): Set<string> {
   return node.kind === 'seed' ? new Set(node.pal.passives) : new Set(node.need);
 }
 

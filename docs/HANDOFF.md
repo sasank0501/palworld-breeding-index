@@ -1,36 +1,42 @@
-# Handoff — 2026-10-01
+# Handoff — 2026-10-02
 
-Branch `paldb-ranks-and-theme`. Type-check, the 76 tests and `npm run build` pass.
+Branch `paldb-ranks-and-theme`. Type-check, the 66 tests, `npm run build` and `npm run build:resume` pass.
 
 ## Where things stand
 
-- **Pal Box** uses the new card and detail page from `src/components/PalCards.tsx`; the Design sandbox tab is gone.
-  - Size presets: Comfortable (4 per row), Default (6) and Compact (8, no type or IVs). A preset drops columns rather than shrink a card below its floor width.
-  - Row heights are measured by the virtualiser. Rows are keyed by layout so they remount and re-measure.
-  - The detail page opens over the list, so Back keeps the scroll position.
-  - Both pages follow the Light/Dark toggle (the light token block is at the end of `design.css`).
-- **Card:** the frame shows rarity, not element (`rarityTier` in `src/design/palExtras.ts`). Alpha, Lucky and Awakened are pills. Passives slide up on hover. The portrait is a chibi still with a sprite fallback.
-- **Detail page:** real partner skill, food, XP bar and work levels out of 10 (plus passive boosts) with the game's icons. The chibi model opens by default and the Normal toggle stays for now.
-- **Demo save:** with no `public/roster.json`, the app loads `public/demo-roster.json`, built by `npm run make-demo-roster` from the real roster with IDs stripped.
+- **The app is the Showcase** (`src/routes/Showcase.tsx`, views in `src/routes/showcase/`). It replaced the old Pal Box, Breeding gaps and Passive planner tabs, and the paper-style "Field register" experiment.
+  - **Paldex** (home): completion ring, a rotating 3D spotlight of your top-potential pals, and all 289 species as tiles (owned in colour, breedable-now glowing, the rest silhouettes). Element and state filters.
+  - **Species page** (`Dossier.tsx`): partner skill, work, your copies, the shortest route as a family tree (`tree.tsx`), every parent pair ranked by what you can do now.
+  - **My Pals** (`Box.tsx`) and the pal sheet (`PalSheet.tsx`) with previous/next.
+  - **Breeding** (`Breeding.tsx`): the gaps as lanes by distance, each card previewing its recipe.
+  - **Planner** (`Planner.tsx`): species + up to four passives -> lineage tree, a "gather these pals" list with where each is stored, order of operations, alternatives per passive.
+  - Navigation is a stack: a species or pal opens in place of the section, Back/Esc returns to the same list with scroll and filters kept; arrows step through.
+- **Animations:** every model carries Rest, Idle, Walk, Sleep and Petting (whichever the pal has; `scripts/anim-roles.json` is the list, read by both the extractor and the model builder). The species and pal pages have a picker under the 3D model; the manifest's `clips` drives it. Known issue: some chibis' Sleep pose dips below the floor (Lamball lies on its back and its 2x head clips the stage bottom).
+- **Four skins** (`skins.ts`, tokens in `src/design/showcase.css`): Palpagos, Mount Obsidian, Sakurajima, Feybreak. A skin is tokens plus an animated background, so every view re-skins from one place. The choice is remembered in localStorage.
+- **No game art in the repo.** `npm run build-portraits` makes stills, models and icons locally; `npm run build` strips game art (and `roster.json`) from `dist/`; `npm run build:resume` ships stills + the lite model set to `dist-resume/` (never committed). See the README.
+- **Demo save:** with no `public/roster.json`, the app loads `public/demo-roster.json`, built by `npm run make-demo-roster` with IDs stripped.
 
 ## Pipelines (all scripts in `scripts/`)
 
 | Command | Makes | Notes |
 |---|---|---|
+| `npm run build-portraits` | everything below, in order | The one-command pipeline. `--check` only looks for the game, mappings and browser. `--only A B` for a few pals. `--lite` also builds the small model set. |
 | `npm run build-pal-extras` | `src/data/palExtras.json`, `palExp.json` | Partner skills and rarity from paldb (pages cached in `scripts/.cache/paldb`), food from the wiki Cargo `Pal.hungerRate`, pal XP curve from thepalprofessor. **The wiki's partner skill table is stale.** |
-| `npm run build-models` | `public/pal-models/` (gitignored) | Chibi files carry Rest02 (live viewer) and Idle (stills). Per-pal head sizes live in `chibi-overrides.json`. |
-| `npm run render-portraits` | `public/pal-portraits/` | Needs `npm run dev`. Idle pose by default, `"pose": "bind"` per pal in the overrides, and an automatic bind fallback for empty stills. The harness logic is in `portrait-harness.js` and imported cache-busted (Vite's watcher ignores `scripts/`). |
-| `node scripts/audit-textures.mjs` | report | Lists materials with no texture. 5 models still have one leftover "Extra" material. |
+| `npm run build-models` | `public/pal-models/` (gitignored) | Chibi files carry Rest02 (live viewer) and Idle (stills). Per-pal head sizes live in `chibi-overrides.json`. `-- --lite` writes `public/pal-models-lite/` (chibi only, 512px, meshopt). |
+| `npm run render-portraits` | `public/pal-portraits/` | Needs `npm run dev`. Idle pose by default, `"pose": "bind"` per pal in the overrides. |
+| `node scripts/audit-textures.mjs` | report | Lists materials with no texture. |
 | `node scripts/fetch-work-icons.mjs` | `public/work-icons/` | paldb icon numbering skips 09. |
 
 ## Local-only
 
-- The **Chibi review** tab (`src/routes/ChibiReview.tsx`, `src/design/chibi.css`) is gitignored. App.tsx loads it through `import.meta.glob` only if it is present.
-- `public/pal-models/` is 670 MB. Vite copies `public/` into `dist/`, so delete it from `dist` (or build on a clean clone) before deploying.
+- The **Chibi review** tool (`src/routes/ChibiReview.tsx`, `src/design/chibi.css`) is gitignored and dev only. Open `http://localhost:5173/#chibi`. App.tsx loads it through `import.meta.glob` only if it is present.
+- `public/pal-models/` is ~730 MB and `pal-models-lite/` ~133 MB; both are gitignored.
 
-## Next
+## Known issues / next
 
-- A second chibi review pass on the flagged pals (marks are saved in the review tab). Then remove the Normal toggle.
-- Make the detail page a URL (Back button, links) and add previous/next between pals.
-- Mark the equipped skills, show souls and Awakened on the detail page, and add exact partner values per level (from the cached paldb pages).
-- Decide whether the detail portrait frame should match the card's rarity colour.
+- **Panthalus (`KingWhale`)** was reported broken: the chibi head (scaled 2x) swelled through its crown ring. Fixed by lowering its head override to 1.4 in `chibi-overrides.json`; the still and both model sets are rebuilt. Worth a look in the Chibi review tool.
+- A second chibi review pass on flagged pals (marks are saved in the review tool).
+- Make species and pals URLs (Back button, shareable links).
+- Fonts load from Google Fonts, so the skins need a network; self-host them for a fully offline build.
+- Windows + Edge/Chrome only for `build-portraits`.
+- Decide where to host `dist-resume/` (about 149 MB).

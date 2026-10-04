@@ -35,7 +35,7 @@ export interface Reach {
   missingMate: string[];
 }
 
-interface Availability {
+export interface Availability {
   male: boolean;
   female: boolean;
 }
@@ -44,7 +44,7 @@ interface Availability {
  * A pair is usable when it can produce one male and one female between the two
  * species — including the same-species case, which needs both genders of it.
  */
-function canPair(a: string, b: string, have: Map<string, Availability>): boolean {
+export function canPair(a: string, b: string, have: Map<string, Availability>): boolean {
   const av = have.get(a);
   const bv = have.get(b);
   if (!av || !bv) return false;
@@ -123,26 +123,4 @@ export function summariseOwned(
     if (p.gender === 'female') e.female = true;
   }
   return [...map.values()];
-}
-
-/**
- * Expands a target into the full set of breeding steps needed, deepest-first,
- * skipping anything already owned. Used for the per-target route view.
- */
-export function expandRoute(target: string, reach: Reach): Array<{ child: string; parents: Pair }> {
-  const steps: Array<{ child: string; parents: Pair }> = [];
-  const seen = new Set<string>();
-
-  const walk = (id: string) => {
-    if (seen.has(id)) return;
-    seen.add(id);
-    const pair = reach.recipe.get(id);
-    if (!pair) return; // owned already, or unreachable
-    walk(pair[0]);
-    walk(pair[1]);
-    steps.push({ child: id, parents: pair });
-  };
-
-  walk(target);
-  return steps;
 }

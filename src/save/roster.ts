@@ -14,45 +14,24 @@
  * of the roster.
  */
 
+import type { LocationKind, Roster as SavedRoster, RosterPal as SavedPal } from '../types.ts';
 import { Reader } from './binary.ts';
 import { readHeader, readProperties, type Props } from './gvas.ts';
 import type { SpeciesIndex } from './species.ts';
 
-export type LocationKind = 'palbox' | 'dimension' | 'party' | 'base' | 'global' | 'unknown';
+export type { LocationKind };
 
-export interface RosterPal {
-  instanceId: string;
-  palId: string | null;
-  characterId: string;
-  nickname: string | null;
-  isBoss: boolean;
-  isLucky: boolean;
-  isAwakened: boolean;
-  gender: 'male' | 'female' | null;
-  level: number;
-  exp: number;
-  /** Condenser rank, 1 = un-condensed through 5 = four stars. */
-  rank: number;
-  /** Pal Souls invested, 0-10 each. */
-  souls: { hp: number; attack: number; defense: number; craftSpeed: number };
-  /** Talent values 0-100. The game tracks three, not four. */
-  ivs: { hp: number; attack: number; defense: number };
-  passives: string[];
-  /** Active skill code names, `EPalWazaID::` stripped. `equipped` is the (up to)
-   *  three battle slots; `learned` is MasteredWaza, which in practice does *not*
-   *  repeat the equipped ones — the full set is the union of the two. */
-  skills: { equipped: string[]; learned: string[] };
-  location: { kind: LocationKind; containerId: string | null; slot: number | null };
-  source: 'level' | 'dps' | 'global';
-}
+/**
+ * The shape in src/types.ts, as the importer writes it: every field present.
+ * (The app's copy leaves `skills` optional for rosters imported before skills
+ * were read.)
+ */
+export type RosterPal = SavedPal & Required<Pick<SavedPal, 'skills'>>;
 
-export interface Roster {
-  world: string;
-  exportedAt: string;
-  counts: Record<string, number>;
+export type Roster = Omit<SavedRoster, 'pals' | 'unknown' | 'demo'> & {
   pals: RosterPal[];
-  unknown: { characterIds: Array<{ id: string; count: number }>; passives: string[]; skills: string[] };
-}
+  unknown: Required<SavedRoster['unknown']>;
+};
 
 export interface ContainerRoles {
   palBox: Set<string>;

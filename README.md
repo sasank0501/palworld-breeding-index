@@ -3,24 +3,73 @@
 A breeding planner for Palworld v1.0 that works against **your actual Pal Box**, read
 straight out of your local save file.
 
-Three tools, each a tab in the app:
+It opens on the **Paldex**, and goes deeper from there:
 
-- **Pal Box** — everything you own, searchable by name, nickname or passive.
-- **Breeding gaps** — of the 289 species, which ones you can breed right now from pals you
-  already have, and which are out of reach.
-- **Passive planner** — pick a species and a passive set, get a concrete breeding chain that
-  lands them together.
+- **Paldex** — all 289 species as a collectible grid, with a spotlight on your strongest pals.
+  Species you own show in colour, ones you can breed right now glow, the rest are silhouettes.
+  Click one for its page: partner skill, work suitability, every parent pair, and a family tree
+  of the shortest breeding route from what you own.
+- **My Pals** — everything you own, searchable by name, nickname or passive, with a full sheet
+  for each pal (potential, passives, techniques, jobs).
+- **Breeding** — which species you can breed right now from pals you already have, how many
+  steps away the rest are, and which need a mate you lack.
+- **Planner** — pick a species and up to four passives, get a concrete breeding chain as a
+  tree, the pals to gather (and where they are kept), and the order to breed in.
+
+Four skins, switched from the top bar: **Palpagos** (the game's bright, chunky look),
+**Mount Obsidian**, **Sakurajima** and **Feybreak**.
 
 ## Setup
 
 ```bash
 npm install
-npm run fetch-images   # 288 portraits; without this, cards fall back to initials
+npm run import-save      # reads your Pal Box from your own save (see below)
+npm run build-portraits  # optional: pal art and 3D models, from your own copy of the game
 npm run dev
 ```
 
 Requires **Node 22.6 or newer**. `scripts/import-save.ts` runs as TypeScript directly via
 Node's native type stripping; on older versions it fails rather than degrading.
+
+The app works without `build-portraits`: cards fall back to a small sprite (after
+`npm run fetch-images`, which mirrors third-party portraits) or to the pal's initials, and the
+detail page simply has no 3D view.
+
+## Pal art and 3D models
+
+**This repository contains no Palworld art, models or icons.** `npm run build-portraits` makes
+them on your own machine, from a copy of the game you own:
+
+1. extracts each pal's mesh, textures and animations from the game's `.pak` files
+   (`scripts/pal-textures`, built on [CUE4Parse](https://github.com/FabianFG/CUE4Parse)),
+2. builds a `.glb` model of each pal, in the game's proportions and as a chibi, each carrying
+   five animations (Rest, Idle, Walk, Sleep, Petting; the list is `scripts/anim-roles.json`),
+   which the species and pal pages let you switch between,
+3. renders a chibi still of each pal with headless Edge or Chrome, and
+4. fetches the game's twelve work-suitability icons and nine element icons.
+
+```bash
+npm run build-portraits                                 # everything (long; resumable)
+npm run build-portraits -- --only Alpaca KingBahamut    # try it on two pals first
+npm run build-portraits -- --check                      # look for everything, change nothing
+```
+
+You need the **.NET 10 SDK**, Edge or Chrome, and a **`.usmap` type-mappings file** for your
+installed game version. Unreal stores Palworld's data without field names, so it cannot be read
+without one; the community publishes one per game update. Put it in
+`scripts/pal-textures/mappings/` (or pass `--usmap <file>`). The game folder is found through
+Steam automatically (or pass `--paks <dir>`). Run with `--help` for every option.
+
+Everything it writes (`public/pal-models`, `public/pal-portraits`, `public/work-icons`, `public/element-icons`,
+`scripts/pal-textures/out`) is gitignored and stays on your machine. `npm run build` produces
+the public site (`dist/`) **without** any of it, whatever is in `public/`.
+
+### Portfolio build
+
+The author's portfolio site shows the full art. `npm run build-portraits -- --lite` also builds a
+much smaller model set (`public/pal-models-lite`: chibi only, 512px textures, compressed
+meshes), and `npm run build:resume` writes `dist-resume/` with the art included. That build is
+deployed from a private place and is not part of this repository.
 
 ## Importing your save
 
@@ -69,7 +118,8 @@ diluted the parent pool is.
 ```
 src/save/      save-file parsing: binary reader, GVAS, container decode, roster assembly
 src/lib/       breeding engine, passive planner, passive categorisation
-src/routes/    the three tabs
+src/routes/    the Showcase: Paldex, My Pals, Breeding and Planner (src/routes/showcase/)
+src/design/    the Showcase's skins and styles, and the 3D model viewer
 src/data/      extracted game data (JSON)
 scripts/       one-off extraction and import pipelines
 legacy/        the original single-file HTML tool this was built from
@@ -94,10 +144,25 @@ Cargo tables and the pal exp curve from [The Pal Professor](https://thepalprofes
 the curve is tested against every pal in an imported save. Portraits are
 mirrored from a third-party host by `npm run fetch-images` and are not redistributed here.
 
+Pal extraction uses [CUE4Parse](https://github.com/FabianFG/CUE4Parse) (Apache-2.0). The 3D view
+is [`<model-viewer>`](https://modelviewer.dev) (Apache-2.0), and models are built with
+[glTF-Transform](https://gltf-transform.dev) and [meshoptimizer](https://github.com/zeux/meshoptimizer)
+(both MIT). Work-suitability and element icons are fetched from paldb.cc's mirror of the game's files.
+
+## Disclaimer
+
+This is an unofficial fan project. **Palworld and its characters, names, artwork and game data
+belong to Pocketpair, Inc. This project is not affiliated with or endorsed by Pocketpair.**
+
+This repository contains no game art, models or icons. `npm run build-portraits` reads a copy of
+the game you own, locally, and writes only to gitignored folders on your machine; please do not
+commit or redistribute what it makes, and follow Pocketpair's terms for the game. The
+statistical data in `src/data/` (names, types, work levels, passives, breeding pairs) is
+included for interoperability with the game and sourced as described under Credits.
+
 ## License
 
 [MIT](LICENSE).
 
-The license covers the code in this repository. It does not cover Palworld game data or
-artwork, which belong to Pocketpair, Inc. — the portraits are fetched at build time rather
-than redistributed here, and the extracted data is included for interoperability.
+The license covers the code in this repository only. It does not cover Palworld's game data or
+artwork, which belong to Pocketpair, Inc.

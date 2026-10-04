@@ -35,11 +35,17 @@ export interface RosterPal {
   gender: 'male' | 'female' | null;
   level: number;
   exp: number;
+  /** Condenser rank, 1 = un-condensed through 5 = four stars. */
   rank: number;
+  /** Pal Souls invested, 0-10 each. */
   souls: { hp: number; attack: number; defense: number; craftSpeed: number };
+  /** Talent values 0-100. The game tracks three, not four. */
   ivs: { hp: number; attack: number; defense: number };
   passives: string[];
-  /** Absent from a roster.json imported before skills were read — treat as none. */
+  /** Active skill code names, `EPalWazaID::` stripped. `equipped` is the (up to)
+   *  three battle slots; `learned` is MasteredWaza, which in practice does *not*
+   *  repeat the equipped ones — the full set is the union of the two. Absent from
+   *  a roster.json imported before skills were read — treat as none. */
   skills?: { equipped: string[]; learned: string[] };
   location: { kind: LocationKind; containerId: string | null; slot: number | null };
   source: 'level' | 'dps' | 'global';

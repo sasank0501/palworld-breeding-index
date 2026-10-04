@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { expandRoute, solveReach, summariseOwned, type Combos } from './breeding.ts';
+import { solveReach, summariseOwned, type Combos } from './breeding.ts';
 
 const own = (palId: string, male = true, female = true) => ({ palId, count: 1, male, female });
 
@@ -98,21 +98,5 @@ describe('summariseOwned', () => {
       { palId: '1.0', count: 2, male: true, female: false },
       { palId: '2.0', count: 1, male: false, female: true },
     ]);
-  });
-});
-
-describe('expandRoute', () => {
-  it('orders steps so parents are bred before their child', () => {
-    const combos: Combos = { C: [['A', 'B']], D: [['C', 'A']] };
-    const r = solveReach({ owned: [own('A'), own('B')], combos, allIds: ['A', 'B', 'C', 'D'], unbreedable: [] });
-    expect(expandRoute('D', r)).toEqual([
-      { child: 'C', parents: ['A', 'B'] },
-      { child: 'D', parents: ['C', 'A'] },
-    ]);
-  });
-
-  it('returns nothing for an already-owned target', () => {
-    const r = solveReach({ owned: [own('A')], combos: {}, allIds: ['A'], unbreedable: [] });
-    expect(expandRoute('A', r)).toEqual([]);
   });
 });

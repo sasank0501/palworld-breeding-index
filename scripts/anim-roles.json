@@ -1,0 +1,10 @@
+{
+  "_comment": "Animations each pal model carries, in order. Each role is a label shown in the app and the game's sequence names to try for it (AS_<Pal>_<name>), first match wins. Read by scripts/pal-textures (what to extract) and scripts/build-pal-models.mjs (what to bake in). Rest stays first: it is the chibi's default loop.",
+  "roles": [
+    { "role": "Rest", "candidates": ["Rest02", "Rest01", "Rest03"] },
+    { "role": "Idle", "candidates": ["Idle"] },
+    { "role": "Walk", "candidates": ["Walk"] },
+    { "role": "Sleep", "candidates": ["SleepLoop"] },
+    { "role": "Petting", "candidates": ["Petting"] }
+  ]
+}

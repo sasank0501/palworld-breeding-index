@@ -17,9 +17,10 @@
  *
  * Each pal is written twice: <Name>.glb at game proportions, and <Name>.chibi.glb
  * with a big head, happy eyes and a slight grin. When the pal's animations have
- * been staged (`dotnet run -- --anim AS_<Name>_Idle` etc.), the normal model loops
- * ANIMS.normal and the chibi loops ANIMS.chibi; without them both stand in the
- * bind pose.
+ * been staged (`dotnet run -- --batch`), each model carries one clip per role in
+ * scripts/anim-roles.json (Rest, Idle, Walk, Sleep, Petting), named by role. The
+ * normal model plays Idle first, the chibi Rest first; without staged animations
+ * both stand in the bind pose.
  *
  * Output is gitignored (public/pal-models/). These are Pocketpair's assets extracted
  * from a copy of the game you own — personal use only, never commit them.
@@ -27,6 +28,12 @@
  *   node scripts/build-pal-models.mjs                 every staged mesh
  *   node scripts/build-pal-models.mjs KingBahamut     just one
  *   node scripts/build-pal-models.mjs --size 2048     texture edge (default 1024)
+ *   node scripts/build-pal-models.mjs --lite          the small set the portfolio build hosts
+ *
+ * --lite writes public/pal-models-lite/ instead: chibi only (no normal model), dex
+ * species only, 512px textures unless --size says otherwise, and meshopt-compressed
+ * geometry and animation. The manifest marks entries `normal: false`, so the viewer
+ * hides its Normal toggle. `npm run build:resume` ships this set as pal-models/.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -34,6 +41,8 @@ import { fileURLToPath } from 'node:url';
 
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS, EXTTextureWebP, KHRTextureTransform } from '@gltf-transform/extensions';
+import { meshopt } from '@gltf-transform/functions';
+import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
 import sharp from 'sharp';
 
 import { bindMismatch, readPsa, toGltf } from './lib/psa.mjs';
@@ -41,11 +50,13 @@ import { buildSpeciesIndex } from '../src/save/species.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STAGED = path.join(ROOT, 'scripts', 'pal-textures', 'out');
-const DEST = path.join(ROOT, 'public', 'pal-models');
 
 const args = process.argv.slice(2);
+const LITE = args.includes('--lite');
+if (LITE) args.splice(args.indexOf('--lite'), 1);
+const DEST = path.join(ROOT, 'public', LITE ? 'pal-models-lite' : 'pal-models');
 const sizeAt = args.indexOf('--size');
-const SIZE = sizeAt >= 0 ? Number(args.splice(sizeAt, 2)[1]) : 1024;
+const SIZE = sizeAt >= 0 ? Number(args.splice(sizeAt, 2)[1]) : LITE ? 512 : 1024;
 const only = args[0] ?? null;
 
 /** Every file under dir, recursively. */
@@ -103,7 +114,9 @@ async function build(glbPath) {
   const top = path.join(STAGED, name);
   const files = fileIndex(top);
   const lookup = (base) => files.get(base.toLowerCase()) ?? null;
-  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+  const io = new NodeIO()
+    .registerExtensions(ALL_EXTENSIONS)
+    .registerDependencies({ 'meshopt.decoder': MeshoptDecoder, 'meshopt.encoder': MeshoptEncoder });
   const doc = await io.read(glbPath);
   doc.createExtension(EXTTextureWebP).setRequired(true);
 
@@ -201,35 +214,47 @@ async function build(glbPath) {
 
   fs.mkdirSync(DEST, { recursive: true });
   const out = path.join(DEST, `${name}.glb`);
-  const normalAnim = attachLoop(doc, name, ANIMS.normal);
-  await io.write(out, doc);
-  disposeAnimation(normalAnim);
+  // The lite set is chibi only, so the normal model is skipped outright.
+  let normalClips = [];
+  if (!LITE) {
+    const normal = attachRoles(doc, name, ORDER.normal);
+    normalClips = normal.map((a) => a.getName());
+    await io.write(out, doc);
+    normal.forEach(disposeAnimation);
+  }
 
   const { missing, legScale, jaw, shift, head } = chibify(doc, name);
   const chibiOpts = { legScale, shift, after: jaw ? { [jaw]: axisAngle([0, 0, 1], CHIBI.jawDegrees) } : {} };
-  // First animation = what the live viewer autoplays (the sitting rest).
-  const chibiAnim = attachLoop(doc, name, ANIMS.chibi, chibiOpts);
-  // Second, for stills only: the standing Idle. The rest loops turn and tuck
-  // the body, so a frame of one rarely shows the face; Idle stands facing
-  // forward. render-portraits selects it by name.
-  if (chibiAnim?.getName() !== 'Idle') attachLoop(doc, name, ['Idle'], chibiOpts);
+  // First clip = what the live viewer autoplays (the sitting rest). Idle is also
+  // what render-portraits holds for the stills: the rest loops turn and tuck the
+  // body, so a frame of one rarely shows the face, and Idle stands facing forward.
+  const chibiClips = attachRoles(doc, name, ORDER.chibi, chibiOpts).map((a) => a.getName());
   const chibiOut = path.join(DEST, `${name}.chibi.glb`);
+  if (LITE) {
+    await MeshoptEncoder.ready;
+    await doc.transform(meshopt({ encoder: MeshoptEncoder, level: 'medium' }));
+  }
   await io.write(chibiOut, doc);
 
   recordInManifest(name, {
     v: Date.now(),
     chibi: true,
-    anim: normalAnim?.getName() ?? null,
-    chibiAnim: chibiAnim?.getName() ?? null,
+    anim: normalClips[0] ?? null,
+    chibiAnim: chibiClips[0] ?? null,
+    // The clips each model carries, in play order, for the app's animation picker.
+    clips: chibiClips,
+    ...(LITE ? {} : { normalClips }),
     // Head size relative to the body, shown in the Chibi review tab and tuned
     // per pal through scripts/chibi-overrides.json.
     head: Math.round(head * 100) / 100,
+    ...(LITE ? { normal: false } : {}),
   });
 
   const mb = (f) => (fs.statSync(f).size / 1048576).toFixed(2);
-  const anims = [normalAnim, chibiAnim].map((a) => a?.getName() ?? 'bind pose').join(' / ');
+  const anims = chibiClips.length ? chibiClips.join(' ') : 'bind pose';
   const note = missing.length ? `  (skipped, not on this pal: ${missing.join(', ')})` : '';
-  console.log(`  ${name}.glb  ${mb(out)} MB · chibi ${mb(chibiOut)} MB · ${anims}${note}`);
+  const sizes = LITE ? `${name}  chibi ${mb(chibiOut)} MB` : `${name}.glb  ${mb(out)} MB · chibi ${mb(chibiOut)} MB`;
+  console.log(`  ${sizes} · ${anims}${note}`);
 }
 
 /**
@@ -248,13 +273,24 @@ function recordInManifest(name, entry) {
 }
 
 /* ---------- animation ----------------------------------------------------
-   Which staged sequence each model loops, in order of preference. The chibi
-   prefers a sitting rest: its idle and first rest pose both tip the head
-   forward, and on a 2.2x head that hides the face. */
-const ANIMS = {
-  normal: ['Idle'],
-  chibi: ['Rest02', 'Rest01', 'Idle'],
+   One clip per role from scripts/anim-roles.json, shared with the extractor so
+   the two cannot drift. Each role lists the game's sequence names to try. The
+   chibi starts on the sitting rest: its idle and first rest pose both tip the
+   head forward, and on a 2.2x head that hides the face. */
+const ROLES = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts', 'anim-roles.json'), 'utf8')).roles;
+const roleNames = ROLES.map((r) => r.role);
+const ORDER = {
+  normal: ['Idle', ...roleNames.filter((r) => r !== 'Idle')],
+  chibi: roleNames,
 };
+
+/** Attach one clip per role, in `order`, each named after its role. Missing roles are skipped. */
+function attachRoles(doc, name, order, opts = {}) {
+  return order
+    .map((role) => ROLES.find((r) => r.role === role))
+    .map((r) => attachLoop(doc, name, r.candidates, opts, r.role))
+    .filter(Boolean);
+}
 
 let animFiles = null;
 
@@ -298,7 +334,7 @@ function findAnim(name, prefs) {
 const PLACED = 0.05;
 const MOVES = 0.01;
 
-function attachLoop(doc, name, prefs, { legScale = 1, after = {}, shift = {} } = {}) {
+function attachLoop(doc, name, prefs, { legScale = 1, after = {}, shift = {} } = {}, label = null) {
   const file = findAnim(name, prefs);
   if (!file) return null;
 
@@ -317,8 +353,9 @@ function attachLoop(doc, name, prefs, { legScale = 1, after = {}, shift = {} } =
   const times = Float32Array.from({ length: frames }, (_, f) => f / psa.seq.rate);
   const input = doc.createAccessor().setType('SCALAR').setArray(times).setBuffer(buffer);
 
+  // Named by role when there is one ("Sleep" for AS_X_SleepLoop); otherwise
   // "AS_Kitsunebi_Idle" -> "Idle", whether or not the file is a borrowed base one.
-  const anim = doc.createAnimation(path.basename(file, '.psa').split('_').pop());
+  const anim = doc.createAnimation(label ?? path.basename(file, '.psa').split('_').pop());
   const track = (node, pathName, values, type) => {
     const output = doc.createAccessor().setType(type).setArray(values).setBuffer(buffer);
     const sampler = doc.createAnimationSampler().setInput(input).setOutput(output).setInterpolation('LINEAR');
@@ -672,16 +709,34 @@ if (!fs.existsSync(STAGED)) {
   process.exit(1);
 }
 
-// One mesh per export folder; the folder is the pal's name (see build()).
+// One mesh per export folder; the folder is the pal's name (see build()). The
+// lite set keeps only dex species: the full manifest also holds gym and boss-rush
+// copies, skins and weapon props that the Pal Box never shows.
+const meshName = (f) => path.relative(STAGED, f).split(path.sep)[0];
+const liteSpecies = LITE
+  ? buildSpeciesIndex(JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'data', 'pals.json'), 'utf8')))
+  : null;
+// A dex species with no mesh of its own borrows one (Lyleen Noct draws LilyQueen_Ice,
+// which is no species itself), so a borrowed mesh is kept when a dex species points at it.
+const aliasFile = path.join(STAGED, 'aliases.json');
+const borrowed = new Set();
+if (liteSpecies && fs.existsSync(aliasFile)) {
+  for (const [pal, target] of Object.entries(JSON.parse(fs.readFileSync(aliasFile, 'utf8')))) {
+    if (liteSpecies.lookup(pal)) borrowed.add(target);
+  }
+}
 const meshes = walk(STAGED).filter(
-  (f) => /[\\/]SK_[^\\/]+\.glb$/.test(f) && (!only || path.relative(STAGED, f).split(path.sep)[0] === only),
+  (f) =>
+    /[\\/]SK_[^\\/]+\.glb$/.test(f) &&
+    (!only || meshName(f) === only) &&
+    (!liteSpecies || liteSpecies.lookup(meshName(f)) || borrowed.has(meshName(f))),
 );
 if (!meshes.length) {
   console.error(only ? `No staged SK_${only}.glb` : 'No staged meshes');
   process.exit(1);
 }
 
-console.log(`building ${meshes.length} model(s), textures at ${SIZE}px`);
+console.log(`building ${meshes.length} ${LITE ? 'lite ' : ''}model(s), textures at ${SIZE}px -> ${path.relative(ROOT, DEST)}`);
 let failed = 0;
 for (const m of meshes) {
   try {
@@ -692,7 +747,7 @@ for (const m of meshes) {
   }
 }
 
-if (!only) {
+if (!only || LITE) {
   applyAliases();
   coverage();
 }

@@ -129,5 +129,3 @@ export class Reader {
 
 const HEX: string[] = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'));
 
-/** All-zero guid, used by the game to mean "unset". */
-export const NULL_GUID = '00000000-0000-0000-0000-000000000000';

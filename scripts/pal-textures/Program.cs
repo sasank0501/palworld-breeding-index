@@ -24,12 +24,12 @@ using SkiaSharp;
 //   dotnet run -- --anim <AS_Name>     export one animation sequence as .psa
 //   dotnet run -- --batch [A,B,…]      every monster mesh + its animations, resumable
 
-const string DefaultPaks = @"D:\SteamLibrary\steamapps\common\Palworld\Pal\Content\Paks";
-
-var paks = Environment.GetEnvironmentVariable("PALWORLD_PAKS") ?? DefaultPaks;
-if (!Directory.Exists(paks))
+// `npm run build-portraits` finds the install (Steam library folders) and sets
+// this; running the tool by hand needs it set to the Pal/Content/Paks directory.
+var paks = Environment.GetEnvironmentVariable("PALWORLD_PAKS");
+if (string.IsNullOrWhiteSpace(paks) || !Directory.Exists(paks))
 {
-    Console.Error.WriteLine($"Paks folder not found: {paks}");
+    Console.Error.WriteLine($"Paks folder not found: {paks ?? "(PALWORLD_PAKS is not set)"}");
     Console.Error.WriteLine("Set PALWORLD_PAKS to the Pal/Content/Paks directory.");
     return 1;
 }
@@ -310,7 +310,8 @@ int Anim(string? needle)
 }
 
 // Every pal in one mount: the mesh (+ textures and material JSON, as --mesh) and
-// the animations build-pal-models.mjs loops. Mounting the pak is the slow part,
+// one animation per role in ../anim-roles.json (Rest, Idle, Walk, Sleep, Petting),
+// which build-pal-models.mjs bakes into the models. Mounting the pak is the slow part,
 // so this does it once for all ~300 monsters instead of once per pal.
 //
 // The pak is the source list — every pal mesh is an SK_<Name> under
@@ -325,7 +326,12 @@ int Anim(string? needle)
 //   dotnet run -- --batch SheepBall,JetDragon  just these
 int Batch(string? filter)
 {
-    string[] wanted = ["Idle", "Rest02", "Rest01"];
+    // Which animations to stage: role -> sequence names to try, first match wins.
+    // Shared with build-pal-models.mjs so the two cannot drift.
+    var rolesFile = Path.Combine("..", "anim-roles.json");
+    var roles = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(rolesFile))!["roles"]!.AsArray()
+        .Select(r => (role: (string)r!["role"]!, candidates: r!["candidates"]!.AsArray().Select(c => (string)c!).ToArray()))
+        .ToList();
     var only = filter?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -377,36 +383,53 @@ int Batch(string? filter)
         }
         catch (Exception e) { error = e.Message; }
 
-        // Animations: own first, then progressively shorter base names.
+        // Animations, per role: each candidate in order, and for each the pal's
+        // own sequence first, then progressively shorter base names (variants
+        // borrow their base species'). The same search build-pal-models does.
         var animsUsed = new Dictionary<string, string>();
-        foreach (var anim in wanted)
+        foreach (var (role, candidates) in roles)
         {
-            for (var stem = name; stem is not null; stem = stem.Contains('_') ? stem[..stem.LastIndexOf('_')] : null)
+            string? animPath = null, used = null;
+            foreach (var anim in candidates)
             {
-                if (!anims.TryGetValue($"AS_{stem}_{anim}", out var animPath)) continue;
-                animsUsed[anim] = stem;
-                var psa = Path.Combine(animDir, animPath[..animPath.LastIndexOf('.')] + ".psa");
-                if (File.Exists(psa)) break;
-                try
-                {
-                    var seq = provider.LoadPackageObject<UAnimSequence>(animPath[..animPath.LastIndexOf('.')]);
-                    var session = new ExportSession(null!);
-                    session.Add(seq);
-                    session.RunAsync(animDir, animOptions, null, CancellationToken.None).GetAwaiter().GetResult();
-                }
-                catch (Exception e) { animsUsed[anim] = $"FAILED: {e.Message}"; }
-                break;
+                for (var stem = name; stem is not null && animPath is null; stem = stem.Contains('_') ? stem[..stem.LastIndexOf('_')] : null)
+                    if (anims.TryGetValue($"AS_{stem}_{anim}", out var hit)) { animPath = hit; used = $"{stem}:{anim}"; }
+                if (animPath is not null) break;
             }
+            if (animPath is null) continue;
+
+            animsUsed[role] = used!;
+            var psa = Path.Combine(animDir, animPath[..animPath.LastIndexOf('.')] + ".psa");
+            if (File.Exists(psa)) continue;
+            try
+            {
+                var seq = provider.LoadPackageObject<UAnimSequence>(animPath[..animPath.LastIndexOf('.')]);
+                var session = new ExportSession(null!);
+                session.Add(seq);
+                session.RunAsync(animDir, animOptions, null, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            catch (Exception e) { animsUsed[role] = $"FAILED: {e.Message}"; }
         }
 
         if (error is null) done++; else failed++;
         report.Add(new { name, error, anims = animsUsed });
-        var animNote = animsUsed.Count == 0 ? "no anims" : string.Join(" ", animsUsed.Select(a => a.Value == name ? a.Key : $"{a.Key}<-{a.Value}"));
+        var animNote = animsUsed.Count == 0
+            ? "no anims"
+            : string.Join(" ", animsUsed.Select(a => a.Value.StartsWith($"{name}:") ? a.Key : $"{a.Key}<-{a.Value.Split(':')[0]}"));
         Console.WriteLine($"[{done + failed,3}/{meshes.Count}] {(error is null ? "ok  " : "FAIL")} {name,-28} {animNote}{(error is null ? "" : "  " + error)}");
     }
 
-    File.WriteAllText(Path.Combine("out", "batch-report.json"),
-        System.Text.Json.JsonSerializer.Serialize(report, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+    // A filtered run (--batch A,B) updates those pals' entries and keeps the rest,
+    // rather than leaving a report that lists only A and B.
+    var reportPath = Path.Combine("out", "batch-report.json");
+    var merged = new SortedDictionary<string, System.Text.Json.Nodes.JsonNode?>(StringComparer.OrdinalIgnoreCase);
+    if (only is not null && File.Exists(reportPath))
+        foreach (var entry in System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(reportPath))!.AsArray())
+            if ((string?)entry?["name"] is { } n) merged[n] = entry!.DeepClone();
+    foreach (var entry in System.Text.Json.Nodes.JsonNode.Parse(System.Text.Json.JsonSerializer.Serialize(report))!.AsArray())
+        merged[(string)entry!["name"]!] = entry.DeepClone();
+    File.WriteAllText(reportPath,
+        new System.Text.Json.Nodes.JsonArray(merged.Values.ToArray()).ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
 
     // Blueprint-only pals: no SK_ of their own, so the Blueprint names another
     // pal's mesh. The names do not follow a pattern — Lyleen Noct (LilyQueen_Dark)

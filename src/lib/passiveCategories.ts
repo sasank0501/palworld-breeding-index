@@ -1,50 +1,8 @@
 /**
- * Two ways to group passives: by rank, the way paldb does it, and by what they
- * are actually for, derived from their effect text. The picker offers both.
- *
- * --- purpose ---
- *
- * passives.json stores effects as prose ("Work Speed +50%", "Max Stamina +25%
- * (rideable only)"), but the phrasing is highly regular — 55 normalised templates
- * across 104 ids — so a small ordered rule set tags every one of them. Deriving
- * the category beats hand-tagging 104 entries that would drift on the next data
- * refresh; `passivePlan.test.ts` asserts nothing falls through.
- *
- * Order matters: the first matching rule wins, so the narrow patterns (work,
- * mount) are tested before the broad combat catch-all.
+ * Passive ranks, the way paldb groups them, and the planner's presets.
  */
 
 import type { PassiveInfo } from '../types.ts';
-
-export type Category = 'work' | 'mount' | 'combat' | 'sustain' | 'utility';
-
-export const CATEGORY_LABELS: Record<Category, string> = {
-  work: 'Work',
-  mount: 'Mount & movement',
-  combat: 'Combat',
-  sustain: 'Sustain',
-  utility: 'Utility',
-};
-
-export const CATEGORY_ORDER: Category[] = ['combat', 'work', 'mount', 'sustain', 'utility'];
-
-const RULES: Array<[RegExp, Category]> = [
-  [/Work Speed|Work Suitability|Logging Efficiency|Mining Efficiency|Breeding Farm/i, 'work'],
-  // "Player Stamina Consumption" is a rider stat, so it belongs with movement.
-  [/Movement Speed|Max Stamina|movement speed on water|Mounted Jump|Stamina Consumption/i, 'mount'],
-  [/SAN|Hunger|Health Regeneration|restores Health|Absorbs/i, 'sustain'],
-  [/Sale price|buy price|Drop Items|Egg|nocturnal|night/i, 'utility'],
-  // Broad catch-all last: covers Attack/Defense, elemental damage both ways,
-  // "Incoming X damage", flinch/knockback immunity, cooldown and reload.
-  [/Attack|Defense|damage|Immune to|cooldown|Reload|Flinch|Knockback/i, 'combat'],
-];
-
-export function categorise(info: PassiveInfo | undefined): Category | null {
-  if (!info?.name) return null;
-  const text = info.effects.join(' ');
-  for (const [re, category] of RULES) if (re.test(text)) return category;
-  return null;
-}
 
 /* ---------- rank (paldb's grouping) --------------------------------------
    paldb lists passives by rank and nothing else: 5 down to 1, then the debuffs
@@ -58,17 +16,6 @@ export type Rank = 5 | 4 | 3 | 2 | 1 | -1 | -2 | -3;
 /** Descending, the way paldb orders its list. */
 export const RANK_ORDER: Rank[] = [5, 4, 3, 2, 1, -1, -2, -3];
 
-export const RANK_LABELS: Record<Rank, string> = {
-  5: 'Rank 5 · World Tree',
-  4: 'Rank 4',
-  3: 'Rank 3',
-  2: 'Rank 2',
-  1: 'Rank 1',
-  '-1': 'Rank -1 · debuff',
-  '-2': 'Rank -2 · debuff',
-  '-3': 'Rank -3 · debuff',
-};
-
 const RANKS = new Set<number>([5, 4, 3, 2, 1, -1, -2, -3]);
 
 /** The rank paldb would show, or null when the id is unverified in our data. */
@@ -80,24 +27,12 @@ export function rankOf(id: string, info: PassiveInfo | undefined): Rank | null {
   return null;
 }
 
-/** Rank drives the chip colour; unverified ids stay grey rather than pretending. */
-export function rankClass(rank: Rank | null): string {
-  if (rank === null) return 'rank-unknown';
-  return rank < 0 ? 'rank-neg' : `rank-${rank}`;
-}
-
 /**
  * Sortable rank: 5 down through the debuffs, with unverified ids last since
  * claiming a rank for them would be a guess.
  */
 export function rankSort(rank: Rank | null): number {
   return rank ?? -99;
-}
-
-/** Sign of a passive, for warning when a debuff is picked deliberately. */
-export function isNegative(info: PassiveInfo | undefined): boolean {
-  if (!info) return false;
-  return typeof info.tier === 'number' && info.tier < 0;
 }
 
 export interface Preset {

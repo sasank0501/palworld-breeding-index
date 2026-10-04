@@ -1,0 +1,190 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import type { Roster, RosterPal } from '../types.ts';
+import { nameOf } from './showcase/shared.tsx';
+import { Box } from './showcase/Box.tsx';
+import { Breeding } from './showcase/Breeding.tsx';
+import { Dex } from './showcase/Dex.tsx';
+import { Dossier } from './showcase/Dossier.tsx';
+import { PalSheet } from './showcase/PalSheet.tsx';
+import { Planner } from './showcase/Planner.tsx';
+import { useCtx } from './showcase/ctx.ts';
+import { DEX_ORDER, PalEgg } from './showcase/parts.tsx';
+import { SKINS, useSkin } from './showcase/skins.ts';
+import '../design/showcase.css';
+import '../design/showcase-views.css';
+
+/**
+ * The app. Home is the Paldex (all 289 species, with a spotlight on your strongest
+ * pals); My Pals, Breeding and Planner go deeper. It comes in four Palworld skins
+ * (Palpagos, Mount Obsidian, Sakurajima, Feybreak), all styled from tokens in
+ * src/design/showcase.css, so every view re-skins from one place.
+ *
+ * A species or a pal opens *in place of* the section, on a stack, so Back (or Esc)
+ * returns to exactly the list you came from, filters and scroll kept.
+ */
+type Section = 'dex' | 'box' | 'breeding' | 'planner';
+const SECTIONS: Array<[Section, string]> = [
+  ['dex', 'Paldex'],
+  ['box', 'My Pals'],
+  ['breeding', 'Breeding'],
+  ['planner', 'Planner'],
+];
+
+type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] };
+
+export default function Showcase({ roster }: { roster: Roster }) {
+  const [skin, setSkin] = useSkin();
+  const ctx = useCtx(roster);
+  const [section, setSection] = useState<Section>('dex');
+  const [stack, setStack] = useState<Entry[]>([]);
+  const [planTarget, setPlanTarget] = useState('');
+  const page = useRef<HTMLDivElement>(null);
+  const savedScroll = useRef(0);
+  const top = stack[stack.length - 1];
+
+  const push = useCallback((e: Entry) => {
+    setStack((s) => {
+      if (s.length === 0) savedScroll.current = page.current?.scrollTop ?? 0;
+      return [...s, e];
+    });
+    page.current?.scrollTo({ top: 0 });
+  }, []);
+
+  const back = useCallback(() => {
+    setStack((s) => s.slice(0, -1));
+  }, []);
+
+  // Back to the list: put the scroll where it was, once the list is visible again.
+  useEffect(() => {
+    if (stack.length === 0) requestAnimationFrame(() => page.current?.scrollTo({ top: savedScroll.current }));
+  }, [stack.length]);
+
+  const openSpecies = useCallback((id: string) => push({ kind: 'species', id }), [push]);
+  const openPal = useCallback((pal: RosterPal, list?: RosterPal[]) => push({ kind: 'pal', pal, list: list ?? [pal] }), [push]);
+
+  const go = (s: Section): void => {
+    setSection(s);
+    setStack([]);
+    savedScroll.current = 0;
+    page.current?.scrollTo({ top: 0 });
+  };
+
+  const plan = (id: string): void => {
+    setPlanTarget(id);
+    go('planner');
+  };
+
+  /** Previous / next within what you opened it from: the pal list, or dex order. */
+  const step = useCallback((delta: number) => {
+    setStack((s) => {
+      const t = s[s.length - 1];
+      if (!t) return s;
+      if (t.kind === 'pal') {
+        const i = t.list.findIndex((p) => p.instanceId === t.pal.instanceId);
+        const next = t.list[i + delta];
+        return next ? [...s.slice(0, -1), { ...t, pal: next }] : s;
+      }
+      const i = DEX_ORDER.findIndex((d) => d.id === t.id);
+      const next = DEX_ORDER[i + delta];
+      return next ? [...s.slice(0, -1), { kind: 'species', id: next.id }] : s;
+    });
+    page.current?.scrollTo({ top: 0 });
+  }, []);
+
+  useEffect(() => {
+    if (!top) return;
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.target instanceof HTMLInputElement) return;
+      if (e.key === 'Escape') back();
+      else if (e.key === 'ArrowRight') step(1);
+      else if (e.key === 'ArrowLeft') step(-1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [top, back, step]);
+
+  const sectionLabel = SECTIONS.find(([k]) => k === section)?.[1] ?? '';
+
+  return (
+    <div className="sc-shell" data-skin={skin}>
+      <div className="sc-fx" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+
+      <div className="sc-page" ref={page}>
+        <nav className="sc-nav" aria-label="Showcase">
+          <span className="sc-brand" aria-hidden="true">
+            <PalEgg size={30} />
+            Paldex
+          </span>
+          <div className="sc-tabs" role="tablist">
+            {SECTIONS.map(([k, label]) => (
+              <button key={k} role="tab" aria-selected={section === k && !top} className={section === k ? 'on' : ''} onClick={() => go(k)}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="sc-skins" role="group" aria-label="Skin">
+            {SKINS.map((s) => (
+              <button
+                key={s.id}
+                className={skin === s.id ? 'on' : ''}
+                aria-pressed={skin === s.id}
+                title={`${s.name} — ${s.blurb}`}
+                onClick={() => setSkin(s.id)}
+                style={{ '--a': s.swatch[0], '--b': s.swatch[1], '--c': s.swatch[2] } as React.CSSProperties}
+              >
+                <span className="sr-only">{s.name}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {top && (
+          <div className="sc-subbar">
+            <button className="sc-link back" onClick={back}>
+              ← {stack.length > 1 ? 'Back' : sectionLabel}
+            </button>
+            <span className="sc-crumbs">
+              {stack.map((e, i) => (
+                <span key={i}>{e.kind === 'species' ? nameOf(e.id) : e.pal.nickname ?? nameOf(e.pal.palId ?? '')}</span>
+              ))}
+            </span>
+            <span className="sc-stepper">
+              <button onClick={() => step(-1)} aria-label="Previous">
+                ‹
+              </button>
+              <button onClick={() => step(1)} aria-label="Next">
+                ›
+              </button>
+            </span>
+          </div>
+        )}
+
+        {top?.kind === 'species' && (
+          <Dossier ctx={ctx} id={top.id} onSpecies={openSpecies} onPal={(p) => openPal(p, ctx.byPal.get(top.id))} onPlan={plan} />
+        )}
+        {top?.kind === 'pal' && (
+          <PalSheet
+            pal={top.pal}
+            index={top.list.findIndex((p) => p.instanceId === top.pal.instanceId)}
+            total={top.list.length}
+            onStep={step}
+            onSpecies={openSpecies}
+          />
+        )}
+
+        {/* Kept mounted (just hidden) under a dossier, so filters and scroll survive Back. */}
+        <div hidden={!!top}>
+          {section === 'dex' && <Dex ctx={ctx} onSpecies={openSpecies} onPal={(p) => openPal(p, [p])} />}
+          {section === 'box' && <Box ctx={ctx} onPal={openPal} />}
+          {section === 'breeding' && <Breeding ctx={ctx} onSpecies={openSpecies} />}
+          {section === 'planner' && <Planner ctx={ctx} initialTarget={planTarget} onSpecies={openSpecies} onPal={(p) => openPal(p, [p])} />}
+        </div>
+      </div>
+    </div>
+  );
+}
