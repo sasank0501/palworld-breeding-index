@@ -11,6 +11,10 @@ runs, and no game art is hosted.
 - **No compromise on quality or accessibility.** WCAG 2.2 AA, and it works in Chrome, Edge, Firefox and
   Safari. We check whether a feature exists and fall back when it doesn't; we never check which
   browser it is.
+- **The 3D is required, not an opt-in.** Every visitor gets the 3D pal models; loading the art is
+  part of the first visit, not a setting or an extra. Silhouettes and placeholders exist only as a
+  loading state while the 3D arrives, never as a mode to stay in. No browser gets a 2D-only path:
+  where a storage API is missing (Firefox private: no OPFS), the fallback still delivers the 3D.
 - **The public site hosts no Pocketpair files.** The portfolio page is a separate site with the art, a
   disclaimer and a takedown policy.
 - **Nothing the user made is lost without a way back.** Data is saved continuously, can be backed up,
