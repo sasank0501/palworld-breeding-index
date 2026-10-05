@@ -1,0 +1,100 @@
+/* The import screen (src/routes/Import.tsx). Uses the current skin's tokens from
+   showcase.css, so it looks like the app it opens into. */
+
+.imp-shell { min-height: 100%; overflow-y: auto; }
+/* width: 100% plus padding must not overflow on a phone. */
+.imp, .imp * { box-sizing: border-box; }
+
+.imp {
+  width: min(680px, 100%);
+  margin: 0 auto;
+  padding: 48px 16px 64px;
+  display: grid;
+  gap: 28px;
+}
+
+.imp-head { display: grid; gap: 10px; }
+/* Kicker and lede sit straight on the skin background, not on a panel, where the soft ink is too faint (3.2:1 on Palpagos sky). */
+.imp-kicker { margin: 0; font: 600 13px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+.imp h1 { margin: 0; font: var(--d-weight) clamp(30px, 6vw, 44px) / 1.05 var(--font-display); letter-spacing: var(--d-track); text-wrap: balance; }
+.imp-lede { margin: 0; font-size: 18px; line-height: 1.55; color: var(--ink); max-width: 60ch; }
+
+.imp h2 { margin: 0; font: var(--d-weight) 20px/1.2 var(--font-display); }
+.imp h2:focus { outline: none; }
+.imp h2:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+
+.imp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: step; }
+.imp-steps li {
+  counter-increment: step;
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px 18px 64px;
+  position: relative;
+  background: var(--panel);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.imp-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--panel-2);
+  border: var(--border);
+  font: 700 16px/1 var(--font-display);
+}
+.imp-steps p { margin: 0; line-height: 1.5; }
+
+.imp-path { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.imp-path code {
+  flex: 1 1 260px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 10px 12px;
+  border-radius: var(--radius-s);
+  background: var(--panel-2);
+  font: 500 14px/1.4 var(--font-mono);
+  user-select: all;
+}
+.imp-small { padding: 9px 16px; font-size: 14px; }
+.imp-note { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-soft); }
+
+.imp-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.imp-worlds { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.imp-world {
+  width: 100%;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  padding: 16px 20px;
+  background: var(--panel);
+  color: var(--ink);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font: inherit;
+  cursor: pointer;
+}
+.imp-world:hover { box-shadow: var(--shadow-hover); }
+.imp-world:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.imp-world-name { font: var(--d-weight) 20px/1.2 var(--font-display); }
+.imp-world-meta { font-size: 15px; color: var(--ink-soft); }
+.imp-world-id { font: 12px/1.3 var(--font-mono); color: var(--ink-soft); overflow-wrap: anywhere; }
+
+.imp-status { display: grid; gap: 10px; padding: 20px; background: var(--panel); border: var(--border); border-radius: var(--radius); }
+.imp-status p { margin: 0; }
+.imp-error { border-color: var(--bad); }
+.imp-bar { height: 8px; border-radius: 99px; background: var(--panel-2); overflow: hidden; }
+.imp-bar span { display: block; height: 100%; width: 35%; border-radius: 99px; background: var(--accent); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .imp-bar span { animation: imp-slide 1.4s ease-in-out infinite; }
+  @keyframes imp-slide { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
+}

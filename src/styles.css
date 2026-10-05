@@ -60,6 +60,19 @@ body {
   line-height: 1.35;
 }
 
+/* "Open a different save": a link-looking button in the footer line. */
+.legal-link {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.legal-link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
 .fullpage {
   display: grid;
   place-items: center;

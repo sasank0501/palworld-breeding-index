@@ -80,6 +80,9 @@ function copyPublic(resume: boolean): Plugin {
 
 export default defineConfig(({ mode }) => ({
   plugins: [react(), copyPublic(mode === 'resume')],
+  // The save-import worker loads the Oodle decoder (ooz-wasm) with a dynamic
+  // import, which the default classic-script worker bundle cannot do.
+  worker: { format: 'es' },
   server: {
     watch: {
       // scripts/ holds build-time tooling, none of which the app imports. The
@@ -90,6 +93,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    // ES2022 for top-level await, which ooz-wasm uses. Every browser with module
+    // workers (Chrome 80+, Firefox 114+, Safari 15+), which the importer needs anyway, has it.
+    target: 'es2022',
     // combos.json is ~700KB raw; it is dynamically imported so it lands in its own
     // chunk rather than blocking first paint. Raise the warning bar accordingly.
     chunkSizeWarningLimit: 900,
