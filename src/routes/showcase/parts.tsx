@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import { PalModel } from '../../design/PalModel.tsx';
-import { Portrait } from '../../components/PalCards.tsx';
+import { ArtPlaceholder } from '../../components/ArtPlaceholder.tsx';
+import { HATCH_AFTER_MS, Portrait } from '../../components/PalCards.tsx';
 import { rarityFor, rarityTier, type RarityTier } from '../../design/palExtras.ts';
 import type { RosterPal } from '../../types.ts';
 import { DEX, PASSIVES, SpeciesArt, TraitGlyph, TraitName, byRank, rankFor, traitClass, useCodename } from './shared.tsx';
@@ -85,33 +86,56 @@ export function ElementChips({ id, labels = false }: { id: string; labels?: bool
 
 export const tierOf = (id: string | null): RarityTier => rarityTier(rarityFor(id));
 
+/** The squash and grow, start to finish (showcase.css, "Hatch"). */
+const HATCH_MS = 550;
+
 /**
- * A 3D chibi when this build has one, else the still, else initials. The still sits
- * underneath until the model has loaded, so the stage is never an empty box while a
- * model downloads (model-viewer draws nothing until then). `picker` adds the
- * animation buttons (Rest, Idle, Walk, Sleep, Petting) under the model.
+ * A pal's 3D chibi, hatching out of an egg (style D, "quick", the same as every
+ * picture). While the model loads, the egg (tinted by element) sits in its place;
+ * on load it squashes and the pal grows in. A model that loads within 150 ms (a
+ * return visit, from disk) skips the show and just appears. No model for this
+ * pal: its still, or the egg when there is no art at all. `picker` adds the
+ * animation buttons under the model.
  */
 export function Stage({ id, pal, picker = false }: { id: string; pal?: RosterPal; picker?: boolean }) {
   const codename = useCodename(id);
   const box = useRef<HTMLDivElement>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [phase, setPhaseState] = useState<'waiting' | 'hatching' | 'done' | 'none'>('waiting');
+  const current = useRef(phase);
+  const setPhase = useCallback((p: typeof phase) => {
+    current.current = p;
+    setPhaseState(p);
+  }, []);
   const still = pal ? <Portrait pal={pal} /> : <SpeciesArt id={id} />;
+  const onNone = useCallback(() => setPhase('none'), [setPhase]);
 
   useEffect(() => {
-    setLoaded(false);
+    setPhase('waiting');
+    const started = performance.now();
     const el = box.current;
     if (!el) return;
-    // model-viewer's 'load' may not bubble, so listen in the capture phase.
-    const onLoad = (): void => setLoaded(true);
+    let timer = 0;
+    // model-viewer's 'load' may not bubble, so listen in the capture phase. It also
+    // fires again when the chibi/normal toggle swaps the file: only the first counts.
+    const onLoad = (): void => {
+      if (current.current !== 'waiting') return;
+      if (performance.now() - started < HATCH_AFTER_MS) return setPhase('done');
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setPhase('hatching');
+      timer = window.setTimeout(() => setPhase('done'), reduced ? 250 : HATCH_MS);
+    };
     el.addEventListener('load', onLoad, true);
-    return () => el.removeEventListener('load', onLoad, true);
-  }, [id, pal?.instanceId]);
+    return () => {
+      el.removeEventListener('load', onLoad, true);
+      window.clearTimeout(timer);
+    };
+  }, [id, pal?.instanceId, setPhase]);
 
   return (
-    <div className={`sc-stage${loaded ? ' is-loaded' : ''}`} ref={box}>
-      {codename && <div className="sc-stage-still">{still}</div>}
-      {codename ? (
-        <PalModel characterId={pal?.characterId ?? codename} name={DEX[id]?.name ?? id} fallback={null} picker={picker} />
+    <div className={`sc-stage is-${phase}`} ref={box}>
+      {codename && (phase === 'waiting' || phase === 'hatching') && <ArtPlaceholder element={DEX[id]?.types?.[0]} pending />}
+      {codename && phase !== 'none' ? (
+        <PalModel characterId={pal?.characterId ?? codename} name={DEX[id]?.name ?? id} fallback={null} picker={picker} onNone={onNone} />
       ) : (
         still
       )}

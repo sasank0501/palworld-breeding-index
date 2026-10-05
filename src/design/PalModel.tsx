@@ -105,11 +105,14 @@ export function PalModel({
   name,
   fallback,
   picker = false,
+  onNone,
 }: {
   characterId: string;
   name: string;
   fallback: ReactNode;
   picker?: boolean;
+  /** Told when there turns out to be no model to show (none built, or it failed to load). */
+  onNone?: () => void;
 }) {
   const [state, setState] = useState<State>('probing');
   const [entry, setEntry] = useState<ModelEntry | null>(null);
@@ -160,6 +163,10 @@ export function PalModel({
       live = false;
     };
   }, [state, entry, chibi, model]);
+
+  useEffect(() => {
+    if (state === 'none') onNone?.();
+  }, [state, onNone]);
 
   const clips = (chibi ? entry?.clips : entry?.normalClips) ?? [];
   // A clip picked on the chibi carries over to the normal model if it has it too.

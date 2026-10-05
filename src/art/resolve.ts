@@ -151,14 +151,19 @@ export function useArtState(): ArtState | null {
  */
 export function useArtUrl(path: string | null | undefined, v?: number): string | null | undefined {
   const version = useArtVersion();
-  const [url, setUrl] = useState<string | null | undefined>(undefined);
+  // The answer is remembered with the question it answers: when the path (or the
+  // art) changes, the old URL must not be handed out for even one render, or a
+  // picture flashes the wrong file and its hatch decides on stale data.
+  const key = `${version}|${path ?? ''}|${v ?? ''}`;
+  const [got, setGot] = useState<{ key: string; url: string | null } | null>(null);
   useEffect(() => {
     let live = true;
-    setUrl(path ? undefined : null);
-    if (path) void artUrl(path, v).then((u) => live && setUrl(u));
+    if (!path) setGot({ key, url: null });
+    else void artUrl(path, v).then((url) => live && setGot({ key, url }));
     return () => {
       live = false;
     };
-  }, [path, v, version]);
-  return url;
+  }, [key, path, v]);
+  if (!path) return null;
+  return got?.key === key ? got.url : undefined;
 }

@@ -5,9 +5,10 @@
  * 3D is required (docs/WEBSITE-PLAN.md), and the app asks for the art until it
  * has it. Decorative, so hidden from screen readers; the name beside it speaks.
  */
-export function ArtPlaceholder({ element }: { element?: string }) {
+export function ArtPlaceholder({ element, pending = false }: { element?: string; pending?: boolean }) {
+  // pending: the art is still being looked up; the egg fades in only if that takes a while.
   return (
-    <span className={`art-egg${element ? ` e-${element}` : ''}`} aria-hidden="true">
+    <span className={`art-egg${element ? ` e-${element}` : ''}${pending ? ' is-pending' : ''}`} aria-hidden="true">
       <svg viewBox="0 0 40 40">
         <path className="egg-shell" d="M20 3C12 3 6.500 15 6.500 24.500 6.500 32 12.500 37 20 37s13.500-5 13.500-12.500C33.500 15 28 3 20 3z" />
         <path className="egg-band" d="M7.200 21.500l4.300 3.200 4.300-3.400 4.200 3.400 4.300-3.400 4.300 3.400 4.200-3.200" />

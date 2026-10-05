@@ -296,6 +296,40 @@
 .art-egg .egg-band { fill: none; stroke: var(--elem, var(--ink-soft)); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .art-egg .egg-spot { fill: var(--elem, var(--ink-soft)); opacity: 0.55; }
 
+/*
+ * Hatch, style D "quick" (ArtImage in PalCards.tsx, Stage in parts.tsx). While art
+ * is being looked up the egg fades in only after 150 ms, so fast art never shows
+ * it. When the art arrives after that, the egg squashes and the picture or model
+ * grows in its place. Paldex tiles ripple: each starts 15 ms after the one before
+ * (--i is the tile's place, from stagger()). Only transform and opacity move.
+ */
+.art-egg.is-pending { animation: art-in 0.25s ease-out 0.15s both; }
+.art-hatch { display: grid; place-items: center; width: 100%; height: 100%; --j: calc(min(var(--i, 0), 40) * 15ms); }
+.art-hatch > * { grid-area: 1 / 1; }
+.sc-stage > .art-egg { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.sc-stage.is-waiting .dl-model { opacity: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .art-hatch > .art-egg svg,
+  .sc-stage.is-hatching > .art-egg svg { animation: art-squash 0.35s ease-in var(--j, 0ms) forwards; transform-origin: 50% 90%; }
+  .art-hatch > img { animation: art-grow 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) calc(var(--j, 0ms) + 0.15s) both; }
+  .sc-stage.is-hatching .dl-model { animation: art-grow 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) 0.15s both; transform-origin: 50% 75%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-hatch > .art-egg,
+  .sc-stage.is-hatching > .art-egg { animation: art-out 0.25s ease-out forwards; }
+  .art-hatch > img,
+  .sc-stage.is-hatching .dl-model { animation: art-in 0.25s ease-out both; }
+}
+@keyframes art-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes art-out { to { opacity: 0; } }
+@keyframes art-squash {
+  0% { transform: scale(1); opacity: 1; }
+  45% { transform: scale(1.08, 0.86); opacity: 1; }
+  100% { transform: scale(0.6, 1.1); opacity: 0; }
+}
+@keyframes art-grow { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
 /* An icon whose finished art is still being extracted (Phase 6): a silhouette. */
 .art-silhouette { filter: brightness(0) opacity(0.3); }
 .sc-shell[data-skin='obsidian'] .art-silhouette,

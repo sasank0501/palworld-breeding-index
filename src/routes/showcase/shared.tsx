@@ -92,11 +92,13 @@ onArtChange(() => (stills = null));
  * the 3D model manifest is keyed. Null until the stills index has loaded, or when
  * this build has no art.
  */
-export function useCodename(id: string): string | null {
+export function useCodename(id: string): string | null | undefined {
   const version = useArtVersion();
-  const [name, setName] = useState<string | null>(null);
+  // undefined while the index loads, so pictures know to wait rather than give up.
+  const [name, setName] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     let live = true;
+    setName(undefined);
     const base = DEX[id]?.img?.replace(/^.*\//, '').replace(/\.[a-z0-9]+$/i, '');
     void loadCodenames().then((m) => live && setName(base ? (m.get(compact(base)) ?? null) : null));
     return () => {

@@ -506,11 +506,6 @@
   .sc-doss-stage .sc-stage { animation: sc-fade 0.8s both 0.2s; }
 }
 
-/* the still stands in until the 3D model has loaded, then fades away */
-.sc-stage-still { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity 0.5s; }
-.sc-stage-still img { width: 80%; height: 80%; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.28)); }
-.sc-stage.is-loaded .sc-stage-still { opacity: 0; pointer-events: none; }
-
 /* ---------- animation picker (PalModel `picker`), on the species and pal stages ---------- */
 
 .sc-stage .dl-anims {

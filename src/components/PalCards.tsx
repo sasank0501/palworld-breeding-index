@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { artJson, onArtChange, useArtState, useArtUrl, useArtVersion } from '../art/resolve.ts';
 import { ArtPlaceholder } from './ArtPlaceholder.tsx';
@@ -38,12 +38,17 @@ export function loadStills(): Promise<StillIndex> {
 // A pack loaded or removed: the index is read again.
 onArtChange(() => (stillsPromise = null));
 
-/** The still for a codename, as a path in the art, once the index has loaded. */
-export function useStillPath(codename: string | null): { path: string; v: number } | null | undefined {
+/**
+ * The still for a codename, as a path in the art: undefined while the index (or
+ * the codename itself, when passed undefined) is still loading, null for none.
+ */
+export function useStillPath(codename: string | null | undefined): { path: string; v: number } | null | undefined {
   const version = useArtVersion();
   const [hit, setHit] = useState<{ path: string; v: number } | null | undefined>(undefined);
   useEffect(() => {
     let live = true;
+    setHit(undefined);
+    if (codename === undefined) return;
     void loadStills().then((index) => {
       const e = codename ? index[codename] : undefined;
       if (live) setHit(e ? { path: `pal-portraits/${e.file}.webp`, v: e.v } : null);
@@ -55,26 +60,74 @@ export function useStillPath(codename: string | null): { path: string; v: number
   return hit;
 }
 
+/** Art that takes longer than this shows the egg first, then hatches; faster art just appears. */
+export const HATCH_AFTER_MS = 150;
+/** Longest a tile's hatch can take, its place in the ripple included (showcase.css, "Hatch"). */
+const TILE_HATCH_MS = 1200;
+
 /**
  * A pal or species picture, best first: the chibi still, then the flat 2D icon,
  * then the element-tinted egg. While an extraction is still filling the pack
  * (Phase 6), an icon without its still shows as a silhouette: art on its way, not
  * the finished look. The 3D model, where there is one, replaces all of this.
+ *
+ * If the egg was on screen when the picture arrives, it hatches (style D, "quick"):
+ * the egg squashes and the picture grows in its place, each Paldex tile a beat
+ * after the one before. Under 150 ms (art from disk on a return visit) there is
+ * no egg and no show.
  */
 export function ArtImage({ still, icon, element }: { still: { path: string; v: number } | null | undefined; icon?: string | null; element?: string }) {
   const art = useArtState();
   const stillUrl = useArtUrl(still?.path ?? null, still?.v);
   const iconUrl = useArtUrl(icon ?? null);
   const [failed, setFailed] = useState<string | null>(null);
+  const [hatching, setHatching] = useState<string | null>(null);
+  const since = useRef(performance.now());
+  const shown = useRef<string | null | undefined>(undefined);
 
-  if (stillUrl && failed !== stillUrl) {
-    return <img className="still" src={stillUrl} alt="" loading="lazy" onError={() => setFailed(stillUrl)} />;
-  }
-  if (iconUrl && failed !== iconUrl) {
-    const arriving = art?.kind === 'local' && !art.info.complete;
-    return <img className={arriving ? 'art-silhouette' : undefined} src={iconUrl} alt="" loading="lazy" onError={() => setFailed(iconUrl)} />;
-  }
-  return <ArtPlaceholder element={element} />;
+  const pending = still === undefined || stillUrl === undefined || (!stillUrl && iconUrl === undefined);
+  const url = pending ? undefined : stillUrl && failed !== stillUrl ? stillUrl : iconUrl && failed !== iconUrl ? iconUrl : null;
+
+  // A different species in the same spot (the pal sheet's next/previous) starts
+  // over. Keyed on the icon, not the still: the still's path changes when art
+  // arrives, and that is exactly the moment to hatch, not to reset.
+  useLayoutEffect(() => {
+    since.current = performance.now();
+    shown.current = undefined;
+    setHatching(null);
+  }, [icon]);
+
+  // Decided before paint, so the picture never flashes up ahead of its hatch.
+  useLayoutEffect(() => {
+    if (url === undefined || url === shown.current) return;
+    const before = shown.current;
+    shown.current = url;
+    const eggWasUp = before === null || (before === undefined && performance.now() - since.current > HATCH_AFTER_MS);
+    if (!url || !eggWasUp) return;
+    setHatching(url);
+    const t = window.setTimeout(() => setHatching(null), TILE_HATCH_MS);
+    return () => window.clearTimeout(t);
+  }, [url]);
+
+  if (url === undefined) return <ArtPlaceholder element={element} pending />;
+  if (url === null) return <ArtPlaceholder element={element} />;
+  const arriving = url === iconUrl && art?.kind === 'local' && !art.info.complete;
+  const img = (
+    <img
+      className={url === stillUrl ? 'still' : arriving ? 'art-silhouette' : undefined}
+      src={url}
+      alt=""
+      loading="lazy"
+      onError={() => setFailed(url)}
+    />
+  );
+  if (hatching !== url) return img;
+  return (
+    <span className="art-hatch">
+      <ArtPlaceholder element={element} />
+      {img}
+    </span>
+  );
 }
 
 /** A pal's art: its chibi still, then its dex icon, then the egg. */
