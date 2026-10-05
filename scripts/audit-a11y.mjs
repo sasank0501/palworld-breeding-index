@@ -32,8 +32,10 @@ const browser = await chromium.launch({ executablePath: EDGE, headless: true });
 const results = []; // { skin, scheme, scene, violations }
 const notes = {};
 
-async function fresh(opts = {}) {
+async function fresh(opts = {}, skin) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, ...opts });
+  // The skin is a stored preference (src/routes/showcase/skins.ts); set it before the first paint.
+  if (skin) await ctx.addInitScript((s) => localStorage.setItem('palworld-sc-skin', s), skin);
   const page = await ctx.newPage();
   page.on('pageerror', (e) => (notes.pageErrors ??= []).push(String(e)));
   await page.goto(APP, { waitUntil: 'networkidle' });
@@ -42,13 +44,9 @@ async function fresh(opts = {}) {
   return { ctx, page };
 }
 
-async function setSkin(page, skin) {
-  await page.evaluate((s) => {
-    const names = { pal: 'Palpagos', obsidian: 'Mount Obsidian', sakura: 'Sakurajima', feybreak: 'Feybreak' };
-    const b = [...document.querySelectorAll('.sc-skins button')].find((x) => x.textContent.includes(names[s]));
-    b?.click();
-  }, skin);
-  await page.waitForTimeout(400);
+async function checkSkin(page, skin) {
+  const got = await page.evaluate(() => document.querySelector('.sc-shell')?.getAttribute('data-skin'));
+  if (got !== skin) throw new Error(`asked for skin ${skin}, the page shows ${got}`);
 }
 
 async function tab(page, label) {
@@ -64,8 +62,8 @@ async function scan(page, meta) {
 
 for (const scheme of ['dark', 'light']) {
   for (const skin of SKINS) {
-    const { ctx, page } = await fresh({ colorScheme: scheme });
-    await setSkin(page, skin);
+    const { ctx, page } = await fresh({ colorScheme: scheme }, skin);
+    await checkSkin(page, skin);
     const m = (scene) => ({ skin, scheme, scene });
     await scan(page, m('dex'));
     await page.locator('.sc-dex').first().click();
