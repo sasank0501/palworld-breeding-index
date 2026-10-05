@@ -91,6 +91,20 @@ before anything else is built on it.
 4. Goal: open the `.utoc`, export Lamball's mesh and one animation in a browser tab.
 5. Measure: download size, memory use, seconds per pal.
 
+**Progress.** Code in `spikes/cue4parse-wasm/`. Run: `dotnet publish -c Release`, then
+`node serve.mjs bin/Release/net10.0/publish/wwwroot 5190` and open `http://localhost:5190/`.
+
+- **Part 1 — CUE4Parse in the browser: passed (2026-10-04).** Builds with the
+  `Microsoft.NET.Sdk.WebAssembly` SDK and no workload. Runs in a module Web Worker in Edge and
+  Firefox; the .NET runtime starts in 0.5 s (Edge) / 0.8 s (Firefox) served locally. One processor;
+  `Parallel.For` runs inline, so no threading changes needed so far. Download: 44 MB raw, **14 MB
+  Brotli**, with nothing trimmed yet (BouncyCastle, the largest file, is likely unused here).
+  The desktop build has no Oodle or zlib native DLL and still extracts, so the read path looks
+  fully managed; texture decoding (AssetRipper.TextureDecoder) and PNG (ImageSharp) are managed too.
+- **Part 2 — files into CUE4Parse:** next. `StreamedFileProvider` + a `Stream` that reads
+  `file.slice()` synchronously via `FileReaderSync` in the worker; usmap from bytes; mount and list.
+- **Part 3 — export Lamball and measure:** after Part 2.
+
 **Done when:** a written verdict in this file. **Go** (browser path) or **No-go** (fallback to an
 unsigned single-file `.exe` that writes the same pack).
 **Learn:** WebAssembly, .NET in the browser, JS ↔ WASM calls, Web Workers, synchronous vs.

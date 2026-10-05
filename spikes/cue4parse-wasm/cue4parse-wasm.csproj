@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <!--
+    Spike (docs/WEBSITE-PLAN.md, Phase 1): can CUE4Parse run in a browser?
+    Built for the browser-wasm runtime; no wasm-tools workload needed because
+    nothing here is AOT-compiled or relinked.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- CUE4Parse finds export types by reflection; trimming would strip them. -->
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CUE4Parse" Version="1.2.2.202609" />
+    <PackageReference Include="CUE4Parse-Conversion" Version="1.2.2.202609" />
+  </ItemGroup>
+</Project>

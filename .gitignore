@@ -58,3 +58,7 @@ scripts/.cache/
 # it only if present (import.meta.glob), so a clone without it still builds.
 src/routes/ChibiReview.tsx
 src/design/chibi.css
+
+# Phase 1 spike build output
+spikes/*/bin/
+spikes/*/obj/
