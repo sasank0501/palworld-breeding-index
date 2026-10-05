@@ -15,7 +15,7 @@ import { useCtx } from './showcase/ctx.ts';
 import { DEX_ORDER, PalEgg } from './showcase/parts.tsx';
 import { Settings } from './showcase/Settings.tsx';
 import { useSkin } from './showcase/skins.ts';
-import { showInSpotlight } from '../userdata/edit.ts';
+import { HiddenPals } from './showcase/HiddenPals.tsx';
 import '../design/showcase.css';
 import '../design/showcase-views.css';
 
@@ -36,7 +36,7 @@ const SECTIONS: Array<[Section, string]> = [
   ['planner', 'Planner'],
 ];
 
-type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] } | { kind: 'plans' };
+type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] } | { kind: 'plans' } | { kind: 'hidden' };
 
 /** Focus the visible page's main heading (made focusable for this, not for Tab). */
 function focusHeading(): void {
@@ -100,7 +100,8 @@ export default function Showcase({
     if (stack.length > was) requestAnimationFrame(focusHeading);
     else if (stack.length < was) {
       const opener = openers.current.splice(stack.length).at(0);
-      requestAnimationFrame(() => (opener?.isConnected ? opener.focus({ preventScroll: true }) : focusHeading()));
+      // The opener may be gone, or hidden (a button in the closed settings panel).
+      requestAnimationFrame(() => (opener?.isConnected && opener.getClientRects().length ? opener.focus({ preventScroll: true }) : focusHeading()));
     }
   }, [stack.length]);
 
@@ -130,7 +131,7 @@ export default function Showcase({
   const step = useCallback((delta: number) => {
     setStack((s) => {
       const t = s[s.length - 1];
-      if (!t || t.kind === 'plans') return s;
+      if (!t || t.kind === 'plans' || t.kind === 'hidden') return s;
       if (t.kind === 'pal') {
         const i = t.list.findIndex((p) => p.instanceId === t.pal.instanceId);
         const next = t.list[i + delta];
@@ -195,8 +196,8 @@ export default function Showcase({
             skin={skin}
             onSkin={setSkin}
             onOpenSave={onOpenSave}
-            spotlightHidden={Object.entries(ctx.user.data?.hidden ?? {}).map(([id, h]) => ({ id, label: h.label ?? 'A pal' }))}
-            onShowInSpotlight={(id) => ctx.user.edit((d) => showInSpotlight(d, id))}
+            spotlightHidden={Object.keys(ctx.user.data?.hidden ?? {}).length}
+            onSeeHidden={() => push({ kind: 'hidden' })}
           />
         </nav>
 
@@ -211,10 +212,10 @@ export default function Showcase({
               </button>
               <span className="sc-crumbs">
                 {stack.map((e, i) => (
-                  <span key={i}>{e.kind === 'plans' ? 'Saved plans' : e.kind === 'species' ? nameOf(e.id) : e.pal.nickname ?? nameOf(e.pal.palId ?? '')}</span>
+                  <span key={i}>{e.kind === 'plans' ? 'Saved plans' : e.kind === 'hidden' ? 'Hidden from the spotlight' : e.kind === 'species' ? nameOf(e.id) : e.pal.nickname ?? nameOf(e.pal.palId ?? '')}</span>
                 ))}
               </span>
-              {top.kind !== 'plans' && (
+              {top.kind !== 'plans' && top.kind !== 'hidden' && (
                 <span className="sc-stepper">
                   <button onClick={() => step(-1)} aria-label="Previous">
                     ‹
@@ -239,6 +240,7 @@ export default function Showcase({
               }}
             />
           )}
+          {top?.kind === 'hidden' && <HiddenPals ctx={ctx} onPal={(p) => openPal(p, [p])} />}
           {top?.kind === 'pal' && (
             <PalSheet
               pal={top.pal}

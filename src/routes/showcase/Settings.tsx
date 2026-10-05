@@ -43,15 +43,15 @@ export function Settings({
   skin,
   onSkin,
   onOpenSave,
-  spotlightHidden = [],
-  onShowInSpotlight,
+  spotlightHidden = 0,
+  onSeeHidden,
 }: {
   skin: Skin;
   onSkin: (s: Skin) => void;
   onOpenSave?: () => void;
-  /** Pals the player took out of the Paldex spotlight, to bring back from here. */
-  spotlightHidden?: Array<{ id: string; label: string }>;
-  onShowInSpotlight?: (id: string) => void;
+  /** How many pals are hidden from the Paldex spotlight; the list is its own page. */
+  spotlightHidden?: number;
+  onSeeHidden?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -180,24 +180,22 @@ export function Settings({
         <ArtSettings />
 
         <h2>Spotlight</h2>
-        {spotlightHidden.length === 0 ? (
-          <p className="sc-sethint">Every pal can appear in the Paldex spotlight. “Hide” there takes a pal out of it.</p>
-        ) : (
-          <>
-            <p className="sc-sethint">
-              {spotlightHidden.length} {spotlightHidden.length === 1 ? 'pal' : 'pals'} hidden from the spotlight.
-            </p>
-            <ul className="sc-sethidden">
-              {spotlightHidden.map((h) => (
-                <li key={h.id}>
-                  <span>{h.label}</span>
-                  <button type="button" className="sc-setitem" onClick={() => onShowInSpotlight?.(h.id)} aria-label={`Show ${h.label} in the spotlight again`}>
-                    Show again
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </>
+        <p className="sc-sethint">
+          {spotlightHidden === 0
+            ? 'Every pal can appear in the Paldex spotlight. “Hide” there takes a pal out of it.'
+            : `${spotlightHidden} ${spotlightHidden === 1 ? 'pal' : 'pals'} hidden from the spotlight.`}
+        </p>
+        {spotlightHidden > 0 && onSeeHidden && (
+          <button
+            type="button"
+            className="sc-setitem"
+            onClick={() => {
+              close(false);
+              onSeeHidden();
+            }}
+          >
+            See hidden pals <span>{spotlightHidden}</span>
+          </button>
         )}
 
         <h2>Your data</h2>

@@ -120,7 +120,14 @@
 .sc-plans-what span { font-size: 14px; color: var(--ink-soft); }
 .sc-plans-list time { font: 600 13px var(--font-mono); color: var(--ink-soft); }
 .sc-plans-actions { display: flex; gap: 8px; }
+/* Hidden from the spotlight (HiddenPals.tsx): the plans list, with a picture first. */
+.sc-hidden-list li { grid-template-columns: 56px minmax(0, 1fr) auto; }
+.sc-hidden-art { width: 56px; height: 56px; display: grid; place-items: center; }
+.sc-hidden-art img { width: 100%; height: 100%; object-fit: contain; }
+
 @media (max-width: 600px) {
+  .sc-hidden-list li { grid-template-columns: 56px minmax(0, 1fr); }
+  .sc-hidden-list .sc-plans-actions { grid-column: 1 / -1; }
   .sc-plans-list li { grid-template-columns: minmax(0, 1fr); }
 }
 
