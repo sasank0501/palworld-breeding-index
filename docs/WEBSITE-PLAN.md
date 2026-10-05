@@ -193,7 +193,8 @@ IndexedDB. axe: clean apart from the accent-button contrast already in `docs/A11
   site, then lists both worlds); a wrong folder gives the plain message. **Edge refused the save folder
   in `showDirectoryPicker`** ("can't open this folder because it contains system files"): Chromium
   blocks that picker for all of AppData, where every Steam save lives. Fixed: saves always use
-  `<input webkitdirectory>`; re-verified in Edge. Still to try by hand: keyboard only, NVDA.
+  `<input webkitdirectory>`; re-verified in Edge, then by hand in Edge, Firefox, Brave and a private
+  window. Keyboard-only pass on the import screen: works as intended. Still to try: NVDA.
 - **Consequence for Phase 6:** the same block covers Program Files, the default Steam install
   (`C:Program Files (x86)Steam`). Use the classic input for the game folder too, or offer
   `showDirectoryPicker` only when it succeeds and fall back on refusal.
