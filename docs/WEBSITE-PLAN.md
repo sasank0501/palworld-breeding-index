@@ -212,6 +212,19 @@ The design from 2026-10-04: favourites, notes, plans, preferences.
 restore brings everything back; the restore dialog works fully with the keyboard.
 **Learn:** data modelling, schema migrations, merge rules, transactions.
 
+**Status (2026-10-04): data layer done; UI waits for review.** `src/userdata/`:
+`schema.ts` (format v1, migrations, checks), `edit.ts` (favourite, note, plan; merge; pals no longer
+in the save), `store.ts` (`WorldStore`: IndexedDB `palworld-index-userdata`, 300 ms debounce, flush on
+`visibilitychange`/`pagehide`, merge-on-write, `BroadcastChannel`, `persist()` on first item,
+memory-only fallback, unreadable data set aside), `backup.ts` (download, preview + merge/replace
+restore, Chrome/Edge file sync with reconnect), `useWorldData.ts` (React). The skin now also goes
+into the store, so backups carry it. Deletes leave dated tombstones so a merge can't revive them.
+18 tests (fake-indexeddb). Checked in Edge: choosing a skin writes `prefs`.
+
+- **Still to do, with you:** where the controls go: the favourite star, notes on the pal sheet,
+  saving a plan from the Planner, the "no longer in your save" list, and backup/restore controls
+  (a `<dialog>` for the restore preview). Then the keyboard/NVDA pass on them.
+
 ### Phase 4 — Art loader
 
 1. Pack format: `pack.json` (pack format version, game version) + `pal-models/` + `pal-portraits/`.
