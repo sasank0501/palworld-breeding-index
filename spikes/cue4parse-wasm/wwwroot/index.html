@@ -1,10 +1,28 @@
 <!doctype html>
 <meta charset="utf-8" />
 <title>CUE4Parse spike</title>
+<style>body { font: 15px system-ui, sans-serif; margin: 24px; } label { display: block; margin: 8px 0; } pre { background: #eef; padding: 12px; white-space: pre-wrap; }</style>
+<h1>CUE4Parse spike</h1>
+<label>Pal-Windows.pak <input type="file" id="pak" /></label>
+<label>Mappings (.usmap) <input type="file" id="usmap" accept=".usmap" /></label>
+<label>Mesh <input id="mesh" size="70" value="Pal/Content/Pal/Model/Character/Monster/SheepBall/SK_SheepBall" /></label>
+<button id="go" disabled>Mount and load</button>
 <pre id="out">starting worker…</pre>
 <script type="module">
   const out = document.getElementById('out');
+  const log = (o) => { out.textContent += '\n' + JSON.stringify(o, null, 2); };
+  window.spike = {};
   const w = new Worker('./main.js', { type: 'module' });
-  w.onmessage = (e) => { out.textContent = JSON.stringify(e.data, null, 2); window.spikeResult = e.data; };
-  w.onerror = (e) => { out.textContent = 'worker error: ' + e.message; window.spikeResult = { error: e.message }; };
+  w.onmessage = (e) => {
+    window.spike[e.data.step] = e.data;
+    if (e.data.step === 'hello') { out.textContent = 'worker ready'; document.getElementById('go').disabled = false; }
+    log(e.data);
+  };
+  w.onerror = (e) => { window.spike.error = { error: e.message }; log({ error: e.message }); };
+  document.getElementById('go').onclick = () => {
+    const pak = document.getElementById('pak').files[0], usmap = document.getElementById('usmap').files[0];
+    if (!pak || !usmap) return log({ error: 'pick the pak and the usmap first' });
+    // A File crosses to the worker as a handle; no bytes are copied here.
+    w.postMessage({ pak, usmap, mesh: document.getElementById('mesh').value });
+  };
 </script>

@@ -104,9 +104,27 @@ before anything else is built on it.
   bytes in) and **Oodle** compression. The desktop extractor has no Oodle DLL because CUE4Parse
   uses **OodleSharp**, a C# port of the Oodle decompressor, so decompression runs in WebAssembly
   as-is. Texture decoding (AssetRipper.TextureDecoder) and PNG (ImageSharp) are managed too.
-- **Part 2 — files into CUE4Parse:** next. `StreamedFileProvider` with one `Stream` over the
-  pak that reads `file.slice()` synchronously via `FileReaderSync` in the worker; usmap from bytes;
-  mount (reads the footer, then the 7.4 MB index) and list packages.
+- **Part 2 — the pak through file.slice(): passed (2026-10-04).** `StreamedFileProvider` with one
+  `JsFileStream` whose `Read` calls `readRange()` in the worker over `[JSImport]`; `readRange` uses
+  `file.slice()` + `FileReaderSync`. Usmap from bytes through a small `UsmapTypeMappingsProvider`
+  subclass.
+
+  | | Edge | Firefox |
+  |---|---|---|
+  | Mount: files indexed | 185,141 | 185,141 |
+  | Mount time | 0.6 s | 0.95 s |
+  | Mount reads | 3 reads, 15.3 MB of 39 GB | same |
+  | Usmap load (2.3 MB) | 0.18 s | 0.22 s |
+  | Lamball `SK_SheepBall` decode | 0.12 s, 5 reads, 90 KB | 0.14 s |
+  | Managed heap after mount | 107 MB | 107 MB |
+
+  The mesh matches the desktop export exactly: 3 sections, 3,792 vertices, 27 bones, materials
+  Eye/Mouth/Body. Its `.uexp` is Oodle-compressed (89,650 -> 198,824 B, four 64 KB blocks), so
+  OodleSharp works under WebAssembly. Mount reads: footer (262 B at the end), primary index (7.4 MB),
+  directory index (7.9 MB). **Bug met:** `SubmitKey()`/`Mount()` block on their async versions
+  (`Task.Result`), which the single-threaded runtime refuses ("Cannot wait on monitors on this
+  runtime"). Fix: `SubmitKeyAsync`/`MountAsync`, awaited up to a JS Promise. Expect the same for any
+  other sync-over-async call in Part 3.
 - **Part 3 — export Lamball and measure:** after Part 2.
 
 **Done when:** a written verdict in this file. **Go** (browser path) or **No-go** (fallback to an
