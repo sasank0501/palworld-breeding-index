@@ -88,7 +88,7 @@ before anything else is built on it.
 1. A new C# project referencing CUE4Parse, built for `browser-wasm`.
 2. A file reader for CUE4Parse whose reads call `file.slice()` in JavaScript, inside a Worker.
 3. Replace the native dependencies: Oodle → `ooz-wasm`; texture decoding → a pure C# or JS BCn decoder.
-4. Goal: open the `.utoc`, export Lamball's mesh and one animation in a browser tab.
+4. Goal: mount `Pal-Windows.pak`, export Lamball's mesh and one animation in a browser tab.
 5. Measure: download size, memory use, seconds per pal.
 
 **Progress.** Code in `spikes/cue4parse-wasm/`. Run: `dotnet publish -c Release`, then
@@ -99,10 +99,14 @@ before anything else is built on it.
   Firefox; the .NET runtime starts in 0.5 s (Edge) / 0.8 s (Firefox) served locally. One processor;
   `Parallel.For` runs inline, so no threading changes needed so far. Download: 44 MB raw, **14 MB
   Brotli**, with nothing trimmed yet (BouncyCastle, the largest file, is likely unused here).
-  The desktop build has no Oodle or zlib native DLL and still extracts, so the read path looks
-  fully managed; texture decoding (AssetRipper.TextureDecoder) and PNG (ImageSharp) are managed too.
-- **Part 2 — files into CUE4Parse:** next. `StreamedFileProvider` + a `Stream` that reads
-  `file.slice()` synchronously via `FileReaderSync` in the worker; usmap from bytes; mount and list.
+  **The game's files:** Palworld is not IoStore (`.utoc`/`.ucas`). It is one **39 GB
+  `Pal-Windows.pak`**, pak version 11, with its index at the end (7.4 MB, starting 39,236,438,058
+  bytes in) and **Oodle** compression. The desktop extractor has no Oodle DLL because CUE4Parse
+  uses **OodleSharp**, a C# port of the Oodle decompressor, so decompression runs in WebAssembly
+  as-is. Texture decoding (AssetRipper.TextureDecoder) and PNG (ImageSharp) are managed too.
+- **Part 2 — files into CUE4Parse:** next. `StreamedFileProvider` with one `Stream` over the
+  pak that reads `file.slice()` synchronously via `FileReaderSync` in the worker; usmap from bytes;
+  mount (reads the footer, then the 7.4 MB index) and list packages.
 - **Part 3 — export Lamball and measure:** after Part 2.
 
 **Done when:** a written verdict in this file. **Go** (browser path) or **No-go** (fallback to an
