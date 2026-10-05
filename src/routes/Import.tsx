@@ -5,6 +5,7 @@ import type { WorldMeta } from '../save/importWorld.ts';
 import type { FromWorker, ToWorker, WorldSummary } from '../save/import.worker.ts';
 import { pickSaveFolder, SAVE_PATH_HINT } from '../save/pick.ts';
 import { useSkin } from './showcase/skins.ts';
+import { ImportBackdrop } from './ImportBackdrop.tsx';
 import '../design/showcase.css';
 import '../design/import.css';
 
@@ -206,6 +207,8 @@ export default function Import({
           </div>
         )}
       </main>
+      {/* After the card: the rows are fixed behind it anyway, and on a phone the Pause button flows below it. */}
+      <ImportBackdrop />
     </div>
   );
 }

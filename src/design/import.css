@@ -5,13 +5,77 @@
 /* width: 100% plus padding must not overflow on a phone. */
 .imp, .imp * { box-sizing: border-box; }
 
+.imp-shell { position: relative; isolation: isolate; }
+
+/* Everything that matters sits on one solid card above the drifting background
+   (ImportBackdrop.tsx), so no text is ever read over moving shapes. */
 .imp {
-  width: min(680px, 100%);
-  margin: 0 auto;
-  padding: 48px 16px 64px;
+  position: relative;
+  z-index: 1;
+  width: min(720px, calc(100% - 32px));
+  margin: 40px auto 72px;
+  padding: 36px 32px 40px;
   display: grid;
   gap: 28px;
+  background: var(--panel-solid);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
+@media (max-width: 600px) { .imp { width: calc(100% - 24px); margin: 12px auto 72px; padding: 24px 16px 28px; } }
+
+/* The drifting rows: fixed to the window, behind the card, faint. */
+.imp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 0;
+  overflow: hidden;
+  opacity: 0.24;
+  pointer-events: none;
+}
+.imp-row { height: 96px; display: flex; align-items: center; }
+.imp-track { display: flex; gap: 48px; width: max-content; }
+.imp-track > * { flex: none; width: 64px; height: 64px; }
+.imp-sil { object-fit: contain; filter: brightness(0); }
+.sc-shell[data-skin='obsidian'] .imp-sil,
+.sc-shell[data-skin='feybreak'] .imp-sil { filter: brightness(0) invert(1); }
+.imp-egg .egg-shell { fill: color-mix(in srgb, var(--elem) 14%, var(--panel-solid)); stroke: var(--elem); stroke-width: 2.2; }
+.imp-egg .egg-band { fill: none; stroke: var(--elem); stroke-width: 2.2; stroke-linejoin: round; }
+@media (prefers-reduced-motion: no-preference) {
+  .imp-track { animation: imp-drift var(--dur) linear var(--delay) infinite; }
+  .imp-row.rev .imp-track { animation-direction: reverse; }
+  .imp-backdrop.is-paused .imp-track { animation-play-state: paused; }
+}
+@keyframes imp-drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Pause, for motion that runs longer than 5 seconds (WCAG 2.2.2). */
+.imp-pause {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--panel-solid);
+  color: var(--ink);
+  font: 800 14px var(--font-body);
+  cursor: pointer;
+}
+.imp-pause svg { fill: var(--ink); }
+/* On a phone a floating button would cover the card's text: it sits below the card instead. */
+@media (max-width: 600px) {
+  .imp-pause { position: relative; right: auto; bottom: auto; display: flex; margin: -48px auto 32px; }
+}
+.imp-pause:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
 .imp-head { display: grid; gap: 10px; }
 /* Kicker and lede sit straight on the skin background, not on a panel, where the soft ink is too faint (3.2:1 on Palpagos sky). */
@@ -30,7 +94,7 @@
   gap: 8px;
   padding: 18px 20px 18px 64px;
   position: relative;
-  background: var(--panel);
+  background: var(--panel-2);
   border: var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -58,7 +122,9 @@
   overflow-wrap: anywhere;
   padding: 10px 12px;
   border-radius: var(--radius-s);
-  background: var(--panel-2);
+  /* The step boxes are panel-2 now, so the path box takes the card's own colour to stand out. */
+  background: var(--panel-solid);
+  border: 1px solid var(--hair);
   font: 500 14px/1.4 var(--font-mono);
   user-select: all;
 }

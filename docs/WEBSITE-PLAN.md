@@ -319,6 +319,16 @@ Either way: resumable, cancellable, honest progress, and a check that the mappin
 **Done when:** a fresh browser profile goes from the landing page to the full 3D Paldex using only a
 game folder and a save.
 
+**Decided 2026-10-05: type mappings (`.usmap`) come from community sources, with safety nets.**
+UE5 stores data without field names; the mappings file supplies them, must match the game version,
+and can only be made by injecting a dumper (UE4SS, Dumper-7) into the running game, so the site can
+never make one. Plan: fetch from a community repo at runtime (GitHub serves it with
+`Access-Control-Allow-Origin: *`), with a second source as backup; verify it by decoding a known table
+before extracting; cache it with the art pack; if every source fails (e.g. right after a patch), ask
+the player for a file, with instructions. We host nothing of Pocketpair's. Hosting it ourselves stays a
+later option if the community sources lag. Note: the elliotks/Palworld-FModel repo used locally was
+archived in Feb 2025, so sources do go stale.
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:
