@@ -25,7 +25,24 @@
 /* My Pals can hold ~2,000 cards. The browser skips drawing the ones off screen
    (they stay on the page, so Find, focus and screen readers still reach them);
    "auto" remembers each card's real height once it has been drawn. */
-.sc-dexgrid > .sc-palwrap { content-visibility: auto; contain-intrinsic-size: auto 290px; }
+/* content-visibility also clips each card to its wrapper (paint containment), which
+   cut off the hover lift and its shadow or glow. So the wrapper gets invisible room
+   around the card (padding, cancelled by negative margins so the grid is unchanged),
+   ignores the mouse so that room never blocks a neighbour, and rises while hovered. */
+.sc-dexgrid > .sc-palwrap {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 290px;
+  --room-t: 36px;
+  --room-x: 32px;
+  --room-b: 48px;
+  padding: var(--room-t) var(--room-x) var(--room-b);
+  margin: calc(-1 * var(--room-t)) calc(-1 * var(--room-x)) calc(-1 * var(--room-b));
+  pointer-events: none;
+}
+.sc-dexgrid > .sc-palwrap > * { pointer-events: auto; }
+.sc-dexgrid > .sc-palwrap > .sc-cardstar { top: calc(4px + var(--room-t)); right: calc(4px + var(--room-x)); }
+.sc-dexgrid > .sc-palwrap:hover,
+.sc-dexgrid > .sc-palwrap:focus-within { z-index: 2; }
 /* The invisible marker that loads the next batch, and the end of the list. */
 .sc-more-marker { height: 1px; }
 .sc-listend { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 32px 0 8px; }
