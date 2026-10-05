@@ -22,6 +22,14 @@
 
 /* On a card: the card is a button, so the star sits beside it in a wrapper, over its corner. */
 .sc-palwrap { position: relative; display: flex; }
+/* My Pals can hold ~2,000 cards. The browser skips drawing the ones off screen
+   (they stay on the page, so Find, focus and screen readers still reach them);
+   "auto" remembers each card's real height once it has been drawn. */
+.sc-dexgrid > .sc-palwrap { content-visibility: auto; contain-intrinsic-size: auto 290px; }
+/* The invisible marker that loads the next batch, and the end of the list. */
+.sc-more-marker { height: 1px; }
+.sc-listend { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 32px 0 8px; }
+.sc-listend p { margin: 0; font-weight: 800; font-size: 17px; }
 .sc-palwrap > .sc-dex { flex: 1; min-width: 0; }
 .sc-cardstar { position: absolute; top: 4px; right: 4px; z-index: 3; }
 /* Arrive with the card (showcase.css .sc-dex uses the same --i stagger), not before it. */
