@@ -189,8 +189,14 @@ plus `current`). Results on the real save: Edge (full UI, fallback input) and Fi
 fed Files) both produce a roster identical to the CLI's, 1,990 pals, in about 1 s. Reload opens from
 IndexedDB. axe: clean apart from the accent-button contrast already in `docs/A11Y.md` item 1.
 
-- Not automated: `showDirectoryPicker` (headless can't drive the native dialog) and Firefox's folder
-  input (its WebDriver BiDi refuses folder uploads). **Try both by hand**, plus NVDA on the screen.
+- **Hand test (Sasank, 2026-10-04):** Firefox's folder input works end to end (it asks to trust the
+  site, then lists both worlds); a wrong folder gives the plain message. **Edge refused the save folder
+  in `showDirectoryPicker`** ("can't open this folder because it contains system files"): Chromium
+  blocks that picker for all of AppData, where every Steam save lives. Fixed: saves always use
+  `<input webkitdirectory>`; re-verified in Edge. Still to try by hand: keyboard only, NVDA.
+- **Consequence for Phase 6:** the same block covers Program Files, the default Steam install
+  (`C:Program Files (x86)Steam`). Use the classic input for the game folder too, or offer
+  `showDirectoryPicker` only when it succeeds and fall back on refusal.
 - Xbox / Game Pass: detected and explained, not read. Possible later phase: an adapter that turns the
   `wgs` container into the same in-memory files (needs a real Xbox save to build against).
 

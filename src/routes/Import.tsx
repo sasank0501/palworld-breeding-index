@@ -134,7 +134,10 @@ export default function Import({
                 </button>
               </div>
               <span className="sr-only" aria-live="polite">{copied ? 'Path copied' : ''}</span>
-              <p className="imp-note">Choose SaveGames itself; every world inside is found for you. Your browser may ask to confirm. Files are only read, never changed.</p>
+              <p className="imp-note">
+                Choose SaveGames itself; every world inside is found for you. Your browser will ask to confirm, and may call it an
+                upload: the files stay on this computer and are only read, never changed.
+              </p>
             </li>
           </ol>
         )}
