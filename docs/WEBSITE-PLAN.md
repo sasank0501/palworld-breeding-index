@@ -284,6 +284,11 @@ Firefox and Safari, and in a Firefox private window through the fallback.
 - **The 3D is asked for, not offered:** with no art, an "Add the game art" notice sits above every
   page until there is some. The settings panel has a "Game art" section (status, replace, remove).
 
+Also built alongside Phase 4 (2026-10-05): the spotlight's Hide button, its Potential / Passives
+order and a "Hidden from the spotlight" page (user data format 2); My Pals loads as you scroll (an
+IntersectionObserver marker 600 px ahead adds 60 at a time, each batch announced; `content-visibility:
+auto` keeps all 1,990 cards at a 16.7 ms median frame, against 66.5 ms without, so no virtualization).
+
 Measured (Edge, headless): the 190 MB pack loads in 34 s; storage use 190 MB; every Paldex picture
 and the species page's 3D model come from `blob:` URLs, and still do after a reload. axe: no
 violations with the notice and the settings section open, in all four themes. Safari can't be tested
