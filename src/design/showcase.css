@@ -333,6 +333,13 @@
 }
 @keyframes art-grow { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
+/* Spotlight: its order switch beside the kicker, and the Undo line after "Not this one". */
+.sc-spot-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 8px; }
+.sc-spot-top .sc-kicker { margin: 0; }
+.sc-spot-order button { min-height: 32px; padding: 4px 12px; font-size: 13px; }
+.sc-spot-undo { min-height: 1.5em; margin: 10px 0 0; font-size: 14px; color: var(--ink-soft); }
+.sc-spot-undo .sc-link { font-weight: 800; }
+
 /* An icon whose finished art is still being extracted (Phase 6): a silhouette. */
 .art-silhouette { filter: brightness(0) opacity(0.3); }
 .sc-shell[data-skin='obsidian'] .art-silhouette,
@@ -779,7 +786,8 @@
 .sc-iv-total { margin: 2px 0 0; font-size: 13px; color: var(--ink-soft); }
 .sc-iv-total b { font: var(--d-weight) 22px var(--font-display); color: var(--ink); }
 
-.sc-spot-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 4px; }
+.sc-spot-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; margin-top: 4px; }
+.sc-spot-actions .sc-dots { flex-basis: 100%; }
 
 .sc-dots { display: inline-flex; gap: 7px; }
 .sc-dots button { width: 11px; height: 11px; padding: 0; border: 2px solid var(--ink-soft); border-radius: 50%; background: transparent; cursor: pointer; transition: all 0.25s; }

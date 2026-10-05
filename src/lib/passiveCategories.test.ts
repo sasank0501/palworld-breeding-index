@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import passivesJson from '../data/passives.json';
 import type { PassiveInfo } from '../types.ts';
-import { PRESETS, RANK_ORDER, rankOf, rankSort } from './passiveCategories.ts';
+import { passiveScore, PRESETS, RANK_ORDER, rankOf, rankSort } from './passiveCategories.ts';
 
 const PASSIVES = passivesJson as unknown as Record<string, PassiveInfo>;
 
@@ -59,4 +59,14 @@ describe('presets', () => {
     for (const preset of PRESETS) expect(preset.passives.length).toBeLessThanOrEqual(4);
   });
 
+});
+
+describe('passiveScore', () => {
+  it('values one strong passive over several weak ones, and lets flaws pull a pal down', () => {
+    expect(passiveScore([4])).toBeGreaterThan(passiveScore([1, 1, 1]));
+    expect(passiveScore([5])).toBeGreaterThan(passiveScore([4]));
+    expect(passiveScore([4, 4, -1])).toBeLessThan(passiveScore([4, 4]));
+    expect(passiveScore([1, -1])).toBeLessThan(0);
+    expect(passiveScore([null, null])).toBe(0);
+  });
 });

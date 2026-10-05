@@ -72,7 +72,7 @@ export async function readPrefs(): Promise<Prefs> {
   }
 }
 
-export async function writePrefs(change: Partial<Pick<Prefs, 'skin'>>): Promise<void> {
+export async function writePrefs(change: Partial<Pick<Prefs, 'skin' | 'spotlight'>>): Promise<void> {
   try {
     await set('prefs', { ...(await readPrefs()), ...change, at: new Date().toISOString() }, store());
   } catch {

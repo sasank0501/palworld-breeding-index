@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { displayName, ivTotal, speciesName } from '../../components/PalCards.tsx';
+import { passiveScore } from '../../lib/passiveCategories.ts';
 import type { RosterPal } from '../../types.ts';
-import { DEX, UNBREEDABLE, SpeciesArt, fmt, nameOf } from './shared.tsx';
+import { hideFromSpotlight, showInSpotlight } from '../../userdata/edit.ts';
+import { readPrefs, writePrefs } from '../../userdata/store.ts';
+import { DEX, UNBREEDABLE, SpeciesArt, fmt, nameOf, rankFor } from './shared.tsx';
 import { statusOf, type Ctx } from './ctx.ts';
 import {
   ELEMENTS,
@@ -36,6 +39,14 @@ const VIEWS: Array<[View, string]> = [
 
 const SPOTLIGHT = 8;
 
+type SpotOrder = 'potential' | 'passives';
+const passivesOf = (p: RosterPal): number => passiveScore(p.passives.map(rankFor));
+/** Best first. Potential: IV total. Passives: the passive score, IVs breaking ties. */
+const ORDERS: Record<SpotOrder, (a: RosterPal, b: RosterPal) => number> = {
+  potential: (a, b) => ivTotal(b) - ivTotal(a) || b.level - a.level,
+  passives: (a, b) => passivesOf(b) - passivesOf(a) || ivTotal(b) - ivTotal(a) || b.level - a.level,
+};
+
 /**
  * Home: the Paldex as a showcase. A spotlight on your strongest pals up top, then
  * all 289 species as a collectible grid: discovered ones in colour, ones you can
@@ -65,11 +76,25 @@ export function Dex({
     [roster, byPal],
   );
 
+  // The spotlight's order is a device preference; hidden pals belong to the world.
+  const [order, setOrder] = useState<SpotOrder>('potential');
+  useEffect(() => {
+    void readPrefs().then((p) => p.spotlight && setOrder(p.spotlight));
+  }, []);
+  const chooseOrder = (o: SpotOrder): void => {
+    setOrder(o);
+    void writePrefs({ spotlight: o });
+  };
+  const hidden = ctx.user.data?.hidden;
+
   const spotlight = useMemo(() => {
-    // Your best pal of each species, best of those first.
-    const best = [...byPal.values()].map((list) => list[0]);
-    return best.sort((a, b) => ivTotal(b) - ivTotal(a) || b.level - a.level).slice(0, SPOTLIGHT);
-  }, [byPal]);
+    // Your best pal of each species (leaving out any you hid), best of those first.
+    const better = ORDERS[order];
+    const best = [...byPal.values()]
+      .map((list) => list.filter((p) => !hidden?.[p.instanceId]).sort(better)[0])
+      .filter((p): p is RosterPal => !!p);
+    return best.sort(better).slice(0, SPOTLIGHT);
+  }, [byPal, hidden, order]);
 
   const elementCounts = useMemo(() => {
     const m = new Map<Element, number>();
@@ -139,7 +164,16 @@ export function Dex({
           </div>
         </div>
 
-        {spotlight.length > 0 && <Spotlight pals={spotlight} onOpen={onPal} />}
+        {spotlight.length > 0 && (
+          <Spotlight
+            pals={spotlight}
+            order={order}
+            onOrder={chooseOrder}
+            onOpen={onPal}
+            onHide={(p) => ctx.user.edit((d) => hideFromSpotlight(d, p.instanceId, undefined, displayName(p)))}
+            onUnhide={(p) => ctx.user.edit((d) => showInSpotlight(d, p.instanceId))}
+          />
+        )}
       </header>
 
       <section className="sc-section" aria-label="All species">
@@ -221,16 +255,49 @@ function DexTile({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: numb
   );
 }
 
-function Spotlight({ pals, onOpen }: { pals: RosterPal[]; onOpen: (p: RosterPal) => void }) {
+/**
+ * The spotlight: your best pals, one per species, cycling. "Not this one" takes
+ * the pal out (saved with the world, listed in the settings to bring back) and the
+ * next best moves up into its place; Undo is offered for a few seconds. The order
+ * switch ranks by IV total or by passives.
+ */
+function Spotlight({
+  pals,
+  order,
+  onOrder,
+  onOpen,
+  onHide,
+  onUnhide,
+}: {
+  pals: RosterPal[];
+  order: SpotOrder;
+  onOrder: (o: SpotOrder) => void;
+  onOpen: (p: RosterPal) => void;
+  onHide: (p: RosterPal) => void;
+  onUnhide: (p: RosterPal) => void;
+}) {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [undo, setUndo] = useState<RosterPal | null>(null);
   const pal = pals[i % pals.length];
 
   useEffect(() => {
-    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (paused || undo || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const t = window.setInterval(() => setI((n) => (n + 1) % pals.length), 9000);
     return () => window.clearInterval(t);
-  }, [paused, pals.length]);
+  }, [paused, undo, pals.length]);
+
+  // Undo stays on offer for 8 seconds after a pal is hidden.
+  useEffect(() => {
+    if (!undo) return;
+    const t = window.setTimeout(() => setUndo(null), 8000);
+    return () => window.clearTimeout(t);
+  }, [undo]);
+
+  const hide = (): void => {
+    onHide(pal);
+    setUndo(pal);
+  };
 
   const id = pal.palId ?? '';
   const iv = ivTotal(pal);
@@ -247,9 +314,32 @@ function Spotlight({ pals, onOpen }: { pals: RosterPal[]; onOpen: (p: RosterPal)
       </div>
 
       <div className="sc-spot-info" key={`i-${pal.instanceId}`}>
-        <p className="sc-kicker">
-          Top potential · {i + 1} of {pals.length}
-        </p>
+        <div className="sc-spot-top">
+          <p className="sc-kicker">
+            {order === 'passives' ? 'Best passives' : 'Top potential'} · {(i % pals.length) + 1} of {pals.length}
+          </p>
+          <span className="sc-seg sc-spot-order" role="group" aria-label="Rank the spotlight by">
+            {(
+              [
+                ['potential', 'Potential'],
+                ['passives', 'Passives'],
+              ] as const
+            ).map(([o, label]) => (
+              <button
+                key={o}
+                type="button"
+                className={order === o ? 'on' : ''}
+                aria-pressed={order === o}
+                onClick={() => {
+                  onOrder(o);
+                  setI(0);
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </span>
+        </div>
         <h2 className="sc-spot-name">{displayName(pal)}</h2>
         <p className="sc-spot-sub">
           {pal.nickname ? `${speciesName(pal)} · ` : ''}Lv {pal.level} · <ElementChips id={id} labels />
@@ -284,6 +374,9 @@ function Spotlight({ pals, onOpen }: { pals: RosterPal[]; onOpen: (p: RosterPal)
           <button className="sc-btn" onClick={() => onOpen(pal)}>
             Open pal
           </button>
+          <button className="sc-btn ghost" onClick={hide} title="Leave this pal out of the spotlight; the next best takes its place">
+            Not this one
+          </button>
           <span className="sc-dots" role="group" aria-label="Choose spotlight">
             {pals.map((p, n) => (
               <button
@@ -295,6 +388,23 @@ function Spotlight({ pals, onOpen }: { pals: RosterPal[]; onOpen: (p: RosterPal)
             ))}
           </span>
         </div>
+        <p className="sc-spot-undo" role="status">
+          {undo && (
+            <>
+              {displayName(undo)} won't appear here.{' '}
+              <button
+                type="button"
+                className="sc-link"
+                onClick={() => {
+                  onUnhide(undo);
+                  setUndo(null);
+                }}
+              >
+                Undo
+              </button>
+            </>
+          )}
+        </p>
       </div>
     </aside>
   );

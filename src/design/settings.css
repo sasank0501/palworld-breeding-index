@@ -116,3 +116,8 @@
 .sc-dialog p { margin: 0 0 10px; line-height: 1.5; }
 .sc-dialog ul { margin: 0 0 12px; padding-left: 1.2em; line-height: 1.6; }
 .sc-dialog-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* Spotlight: pals left out of it, each with Show again. */
+.sc-sethidden { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.sc-sethidden li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-left: 4px; font-weight: 700; }
+.sc-sethidden .sc-setitem { width: auto; flex: none; }

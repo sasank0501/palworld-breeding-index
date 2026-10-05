@@ -42,6 +42,15 @@ export function deletePlan(d: WorldData, id: string, at = now()): WorldData {
   return remove(d, 'plans', id, at);
 }
 
+/** Take a pal out of the Paldex spotlight; the next best one takes its place. */
+export function hideFromSpotlight(d: WorldData, instanceId: string, at = now(), label?: string): WorldData {
+  return put(d, 'hidden', instanceId, label ? { at, label } : { at });
+}
+
+export function showInSpotlight(d: WorldData, instanceId: string, at = now()): WorldData {
+  return remove(d, 'hidden', instanceId, at);
+}
+
 /** A new plan id: random, so plans made in two tabs or on two machines never collide. */
 export const newPlanId = (): string =>
   globalThis.crypto?.randomUUID?.() ?? `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
@@ -56,7 +65,7 @@ export function mergeWorlds(a: WorldData, b: WorldData): WorldData {
   const deleted: Record<string, string> = { ...a.deleted };
   for (const [k, at] of Object.entries(b.deleted)) if (!deleted[k] || at > deleted[k]) deleted[k] = at;
 
-  const out: WorldData = { ...a, deleted, favourites: {}, notes: {}, plans: {} };
+  const out: WorldData = { ...a, deleted, favourites: {}, notes: {}, plans: {}, hidden: {} };
   for (const c of COLLECTIONS) {
     const merged: Record<string, { at: string }> = {};
     for (const src of [a[c], b[c]] as Array<Record<string, { at: string }>>) {

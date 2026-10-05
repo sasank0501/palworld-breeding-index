@@ -1,7 +1,7 @@
 /**
  * What the player makes in the app, as opposed to what is read from the save:
- * favourites, notes and saved plans (one document per world), plus device-wide
- * preferences. This is the only data that cannot be rebuilt by importing again,
+ * favourites, notes, saved plans and pals hidden from the spotlight (one document
+ * per world), plus device-wide preferences. This is the only data that cannot be rebuilt by importing again,
  * so it is versioned, checked on the way in, and merged item by item.
  *
  * Every item points at something that survives a re-import: a pal's instanceId
@@ -14,7 +14,8 @@
  */
 
 export const APP = 'palworld-index';
-export const SCHEMA = 1;
+/** 2 (2026-10-05): worlds gained `hidden`, prefs gained `spotlight`. */
+export const SCHEMA = 2;
 
 /**
  * `label` (optional, so format 1 still holds): the pal's name when it was marked,
@@ -23,6 +24,8 @@ export const SCHEMA = 1;
 export interface Favourite { at: string; label?: string }
 export interface Note { text: string; at: string; label?: string }
 export interface Plan { species: string; passives: string[]; name?: string; at: string }
+/** A pal the player took out of the Paldex spotlight ("Not this one"). */
+export interface Hidden { at: string; label?: string }
 
 export interface WorldData {
   app: typeof APP;
@@ -33,6 +36,8 @@ export interface WorldData {
   favourites: Record<string, Favourite>;
   notes: Record<string, Note>;
   plans: Record<string, Plan>;
+  /** Keyed by instanceId: pals left out of the spotlight. */
+  hidden: Record<string, Hidden>;
   /** Tombstones: "favourites:<id>" -> when it was deleted. */
   deleted: Record<string, string>;
 }
@@ -42,6 +47,8 @@ export interface Prefs {
   kind: 'prefs';
   schema: number;
   skin?: string;
+  /** How the Paldex spotlight ranks pals: by IV total, or by their passives. */
+  spotlight?: 'potential' | 'passives';
   at: string;
 }
 
@@ -54,7 +61,7 @@ export interface Backup {
   worlds: WorldData[];
 }
 
-export const COLLECTIONS = ['favourites', 'notes', 'plans'] as const;
+export const COLLECTIONS = ['favourites', 'notes', 'plans', 'hidden'] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
 export const emptyWorld = (world: string): WorldData => ({
@@ -65,6 +72,7 @@ export const emptyWorld = (world: string): WorldData => ({
   favourites: {},
   notes: {},
   plans: {},
+  hidden: {},
   deleted: {},
 });
 
@@ -78,7 +86,12 @@ export const emptyPrefs = (at = new Date(0).toISOString()): Prefs => ({ app: APP
  * keep loading forever. Steps take and return plain JSON, any document kind.
  */
 export type Migration = (doc: Record<string, unknown>) => Record<string, unknown>;
-export const MIGRATIONS: Record<number, Migration> = {};
+export const MIGRATIONS: Record<number, Migration> = {
+  // 1 -> 2: a world gains its (empty) list of pals hidden from the spotlight.
+  // Prefs only gained an optional field; backups carry their worlds, which are
+  // upgraded one by one.
+  1: (d) => (d.kind === 'world' && (typeof d.hidden !== 'object' || d.hidden === null) ? { ...d, hidden: {} } : d),
+};
 
 export function migrate<T>(doc: Record<string, unknown>, steps: Record<number, Migration> = MIGRATIONS, target = SCHEMA): T {
   let d = doc;
@@ -115,6 +128,8 @@ export function checkWorld(d: unknown, where = 'world'): WorldData {
     if (!isObj(p) || typeof p.species !== 'string' || !Array.isArray(p.passives) || !p.passives.every((x) => typeof x === 'string') || !isTime(p.at))
       throw new Error(`${where}: plan ${id} is damaged`);
   }
+  for (const [id, h] of Object.entries(d.hidden as object))
+    if (!isObj(h) || !isTime(h.at) || (h.label !== undefined && typeof h.label !== 'string')) throw new Error(`${where}: hidden pal ${id} is damaged`);
   for (const [k, at] of Object.entries(d.deleted as object)) if (!isTime(at)) throw new Error(`${where}: deletion record ${k} is damaged`);
   return d as unknown as WorldData;
 }
@@ -122,6 +137,7 @@ export function checkWorld(d: unknown, where = 'world'): WorldData {
 export function checkPrefs(d: unknown): Prefs {
   if (!isObj(d) || d.app !== APP || d.kind !== 'prefs' || !isTime(d.at)) throw new Error('the preferences are damaged');
   if (d.skin !== undefined && typeof d.skin !== 'string') throw new Error('the saved skin is damaged');
+  if (d.spotlight !== undefined && d.spotlight !== 'potential' && d.spotlight !== 'passives') throw new Error('the spotlight setting is damaged');
   return d as unknown as Prefs;
 }
 

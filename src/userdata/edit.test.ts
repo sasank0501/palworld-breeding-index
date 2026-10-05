@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import { deletePlan, forgetMissing, forgetPal, mergeWorlds, missingPals, savePlan, setNote, summarise, toggleFavourite } from './edit.ts';
-import { emptyWorld, migrate, parseBackup, type Backup, type WorldData } from './schema.ts';
+import {
+  deletePlan,
+  forgetMissing,
+  forgetPal,
+  hideFromSpotlight,
+  mergeWorlds,
+  missingPals,
+  savePlan,
+  setNote,
+  showInSpotlight,
+  summarise,
+  toggleFavourite,
+} from './edit.ts';
+import { checkWorld, emptyWorld, migrate, parseBackup, SCHEMA, type Backup, type WorldData } from './schema.ts';
 
 const T = (n: number) => new Date(Date.UTC(2026, 9, 4, 12, 0, n)).toISOString();
 const W = '7AC316124DFCFF911FA76DB2D14AD4D3';
@@ -98,6 +110,17 @@ describe('labels', () => {
   });
 });
 
+describe('the spotlight list', () => {
+  it('hides a pal, shows it again, and a merge keeps the newer choice', () => {
+    const hidden = hideFromSpotlight(emptyWorld(W), 'pal-a', T(1), 'Knocklem');
+    expect(hidden.hidden['pal-a']).toEqual({ at: T(1), label: 'Knocklem' });
+    const shown = showInSpotlight(hidden, 'pal-a', T(2));
+    expect(shown.hidden).toEqual({});
+    // An older copy that still has it hidden doesn't bring it back.
+    expect(mergeWorlds(shown, hidden).hidden).toEqual({});
+  });
+});
+
 describe('migrations and backups', () => {
   it('upgrades step by step and refuses files from a newer version', () => {
     const steps = { 0: (d: Record<string, unknown>) => ({ ...d, renamed: d.old }), 1: (d: Record<string, unknown>) => ({ ...d, extra: true }) };
@@ -106,10 +129,19 @@ describe('migrations and backups', () => {
   });
 
   const world: WorldData = setNote(emptyWorld(W), 'pal-a', 'hi', T(1));
-  const backup: Backup = { app: 'palworld-index', kind: 'backup', schema: 1, exportedAt: T(2), prefs: null, worlds: [world] };
+  const backup: Backup = { app: 'palworld-index', kind: 'backup', schema: SCHEMA, exportedAt: T(2), prefs: null, worlds: [world] };
 
   it('reads back what it wrote', () => {
     expect(parseBackup(JSON.stringify(backup))).toEqual(backup);
+  });
+
+  it('upgrades a format-1 world and backup: worlds gain an empty spotlight list', () => {
+    const { hidden: _drop, ...v1 } = { ...emptyWorld(W), schema: 1 };
+    const upgraded = checkWorld(migrate<WorldData>(v1));
+    expect(upgraded.hidden).toEqual({});
+    expect(upgraded.schema).toBe(SCHEMA);
+    const oldFile = { app: 'palworld-index', kind: 'backup', schema: 1, exportedAt: T(2), prefs: null, worlds: [v1] };
+    expect(parseBackup(JSON.stringify(oldFile)).worlds[0].hidden).toEqual({});
   });
 
   it('rejects files that are not backups, with a plain reason', () => {

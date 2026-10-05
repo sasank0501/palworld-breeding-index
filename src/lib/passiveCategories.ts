@@ -35,6 +35,18 @@ export function rankSort(rank: Rank | null): number {
   return rank ?? -99;
 }
 
+/**
+ * How much a passive is worth when ranking pals by their passives (the Paldex
+ * spotlight's "Passives" order). Steeper than the rank itself: one rank IV passive
+ * is worth more than two rank I ones, and a flaw costs more than a rank I gains.
+ * Unverified passives count for nothing rather than a guess.
+ */
+const PASSIVE_WEIGHT: Record<Rank, number> = { 5: 10, 4: 6, 3: 3, 2: 2, 1: 1, [-1]: -2, [-2]: -4, [-3]: -6 };
+
+export function passiveScore(ranks: Array<Rank | null>): number {
+  return ranks.reduce<number>((sum, r) => sum + (r === null ? 0 : PASSIVE_WEIGHT[r]), 0);
+}
+
 export interface Preset {
   id: string;
   label: string;

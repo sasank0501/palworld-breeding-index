@@ -39,7 +39,20 @@ const ago = (iso: string | null): string => {
  * picker behave as they always do for keyboard and screen-reader users. Esc or a
  * click outside closes it; closing returns focus to the gear.
  */
-export function Settings({ skin, onSkin, onOpenSave }: { skin: Skin; onSkin: (s: Skin) => void; onOpenSave?: () => void }) {
+export function Settings({
+  skin,
+  onSkin,
+  onOpenSave,
+  spotlightHidden = [],
+  onShowInSpotlight,
+}: {
+  skin: Skin;
+  onSkin: (s: Skin) => void;
+  onOpenSave?: () => void;
+  /** Pals the player took out of the Paldex spotlight, to bring back from here. */
+  spotlightHidden?: Array<{ id: string; label: string }>;
+  onShowInSpotlight?: (id: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [sync, setSync] = useState<FileSyncState>('off');
@@ -165,6 +178,27 @@ export function Settings({ skin, onSkin, onOpenSave }: { skin: Skin; onSkin: (s:
         </fieldset>
 
         <ArtSettings />
+
+        <h2>Spotlight</h2>
+        {spotlightHidden.length === 0 ? (
+          <p className="sc-sethint">Every pal can appear in the Paldex spotlight. “Not this one” there leaves a pal out.</p>
+        ) : (
+          <>
+            <p className="sc-sethint">
+              {spotlightHidden.length} {spotlightHidden.length === 1 ? 'pal is' : 'pals are'} left out of the spotlight.
+            </p>
+            <ul className="sc-sethidden">
+              {spotlightHidden.map((h) => (
+                <li key={h.id}>
+                  <span>{h.label}</span>
+                  <button type="button" className="sc-setitem" onClick={() => onShowInSpotlight?.(h.id)} aria-label={`Show ${h.label} in the spotlight again`}>
+                    Show again
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
         <h2>Your data</h2>
         <p className="sc-sethint">Favourites, notes and saved plans live in this browser. Back them up to keep them safe.</p>

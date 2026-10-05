@@ -15,6 +15,7 @@ import { useCtx } from './showcase/ctx.ts';
 import { DEX_ORDER, PalEgg } from './showcase/parts.tsx';
 import { Settings } from './showcase/Settings.tsx';
 import { useSkin } from './showcase/skins.ts';
+import { showInSpotlight } from '../userdata/edit.ts';
 import '../design/showcase.css';
 import '../design/showcase-views.css';
 
@@ -190,7 +191,13 @@ export default function Showcase({
               </button>
             ))}
           </div>
-          <Settings skin={skin} onSkin={setSkin} onOpenSave={onOpenSave} />
+          <Settings
+            skin={skin}
+            onSkin={setSkin}
+            onOpenSave={onOpenSave}
+            spotlightHidden={Object.entries(ctx.user.data?.hidden ?? {}).map(([id, h]) => ({ id, label: h.label ?? 'A pal' }))}
+            onShowInSpotlight={(id) => ctx.user.edit((d) => showInSpotlight(d, id))}
+          />
         </nav>
 
         <main id="main" tabIndex={-1}>
