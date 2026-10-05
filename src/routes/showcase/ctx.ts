@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { ivTotal } from '../../components/PalCards.tsx';
 import { solveReach, summariseOwned, type Combos, type OwnedSpecies, type Reach } from '../../lib/breeding.ts';
 import type { Roster, RosterPal } from '../../types.ts';
+import { useWorldData } from '../../userdata/useWorldData.ts';
 import { DEX, META, useCombos } from './shared.tsx';
 
 const ALL_IDS = Object.keys(DEX);
@@ -18,6 +19,8 @@ export interface Ctx {
   /** Null until combos.json (~700 KB, loaded lazily) has arrived. */
   combos: Combos | null;
   reach: Reach | null;
+  /** The player's favourites, notes and plans for this world (null while loading). */
+  user: ReturnType<typeof useWorldData>;
 }
 
 export function useCtx(roster: Roster): Ctx {
@@ -43,7 +46,9 @@ export function useCtx(roster: Roster): Ctx {
     [combos, owned],
   );
 
-  return { roster, byPal, owned, have, combos, reach };
+  const user = useWorldData(roster.world);
+
+  return { roster, byPal, owned, have, combos, reach, user };
 }
 
 export type Status = 'owned' | 'ready' | 'far' | 'lost' | 'unknown';

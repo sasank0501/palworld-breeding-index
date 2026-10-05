@@ -3,6 +3,9 @@ import { WorkIcon, displayName, ivTotal, speciesName } from '../../components/Pa
 import { WORK_LEVEL_CAP, workBonuses, workName, workOrder } from '../../data/work.ts';
 import { FOOD_SLOTS, foodFor, levelProgress, partnerSkillFor } from '../../design/palExtras.ts';
 import type { ActiveSkill, RosterPal } from '../../types.ts';
+import { isFavourite, toggleFavourite } from '../../userdata/edit.ts';
+import type { Ctx } from './ctx.ts';
+import { FavStar } from './Fav.tsx';
 import { DEX, LOCATION, PASSIVES, TraitName, byRank, traitClass, traitGlyph } from './shared.tsx';
 import { ElementChips, Stage, elementOf, stagger, tierOf, title } from './parts.tsx';
 
@@ -16,8 +19,11 @@ export function PalSheet({
   total,
   onStep,
   onSpecies,
+  user,
 }: {
   pal: RosterPal;
+  /** The player's data for this world, for the star and the note. */
+  user?: Ctx['user'];
   /** Position in the list it was opened from, for the previous/next arrows. */
   index: number;
   total: number;
@@ -67,11 +73,16 @@ export function PalSheet({
           <p className="sc-kicker sc-in" style={stagger(1)}>
             Lv {pal.level} · {tierOf(id)} · {LOCATION[pal.location.kind] ?? pal.location.kind}
           </p>
-          <h1 className="sc-doss-name sc-in" style={stagger(2)}>
-            {name}
-            {pal.isBoss && <span className="sc-tag alpha">Alpha</span>}
-            {pal.isLucky && <span className="sc-tag lucky">Lucky</span>}
-          </h1>
+          <div className="sc-doss-titlerow sc-in" style={stagger(2)}>
+            <h1 className="sc-doss-name">
+              {name}
+              {pal.isBoss && <span className="sc-tag alpha">Alpha</span>}
+              {pal.isLucky && <span className="sc-tag lucky">Lucky</span>}
+            </h1>
+            {user?.data && pal.instanceId && (
+              <FavStar name={name} on={isFavourite(user.data, pal.instanceId)} onToggle={() => user.edit((d) => toggleFavourite(d, pal.instanceId))} />
+            )}
+          </div>
           <div className="sc-in sc-doss-sub" style={stagger(3)}>
             <ElementChips id={id} labels />
             <button className="sc-link" onClick={() => onSpecies(id)}>

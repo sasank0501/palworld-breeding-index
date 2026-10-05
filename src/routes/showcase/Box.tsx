@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 
 import { Portrait, displayName, ivTotal, passiveLabel, speciesName } from '../../components/PalCards.tsx';
 import type { RosterPal } from '../../types.ts';
+import { isFavourite, toggleFavourite } from '../../userdata/edit.ts';
+import { FavStar } from './Fav.tsx';
 import { rankFor } from './shared.tsx';
 import type { Ctx } from './ctx.ts';
 import { TraitChips, elementOf, stagger, tierOf } from './parts.tsx';
@@ -35,6 +37,8 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
   const [drawer, setDrawer] = useState('all');
   const [alpha, setAlpha] = useState(false);
   const [lucky, setLucky] = useState(false);
+  const [favOnly, setFavOnly] = useState(false);
+  const { data: user, edit } = ctx.user;
   const [shown, setShown] = useState(PAGE);
 
   const list = useMemo(() => {
@@ -43,6 +47,7 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
       if (drawer !== 'all' && p.location.kind !== drawer) return false;
       if (alpha && !p.isBoss) return false;
       if (lucky && !p.isLucky) return false;
+      if (favOnly && !(user && p.instanceId && isFavourite(user, p.instanceId))) return false;
       return !q || `${displayName(p)} ${speciesName(p)} ${p.passives.map(passiveLabel).join(' ')}`.toLowerCase().includes(q);
     });
     out.sort((a, b) => {
@@ -58,7 +63,7 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
       }
     });
     return out;
-  }, [roster, query, sort, drawer, alpha, lucky]);
+  }, [roster, query, sort, drawer, alpha, lucky, favOnly, user]);
 
   const reset = (): void => setShown(PAGE);
 
@@ -129,14 +134,28 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
           <button className={`sc-flag lucky${lucky ? ' on' : ''}`} aria-pressed={lucky} onClick={() => { setLucky(!lucky); reset(); }}>
             Lucky
           </button>
+          <button className={`sc-flag${favOnly ? ' on' : ''}`} aria-pressed={favOnly} onClick={() => { setFavOnly(!favOnly); reset(); }}>
+            ★ Favourites
+          </button>
           <span className="sc-count">{list.length.toLocaleString('en')} shown</span>
         </div>
 
-        <div className="sc-dexgrid" key={`${query}|${sort}|${drawer}|${alpha}|${lucky}`}>
+        <div className="sc-dexgrid" key={`${query}|${sort}|${drawer}|${alpha}|${lucky}|${favOnly}`}>
           {list.slice(0, shown).map((p, i) => (
-            <PalTile key={p.instanceId || `${p.characterId}-${i}`} pal={p} index={i} onOpen={() => onPal(p, list)} />
+            <div className="sc-palwrap" key={p.instanceId || `${p.characterId}-${i}`}>
+              <PalTile pal={p} index={i} onOpen={() => onPal(p, list)} />
+              {user && p.instanceId && (
+                <FavStar
+                  className="sc-cardstar"
+                  style={stagger(Math.min(i, 40))}
+                  name={displayName(p)}
+                  on={isFavourite(user, p.instanceId)}
+                  onToggle={() => edit((d) => toggleFavourite(d, p.instanceId))}
+                />
+              )}
+            </div>
           ))}
-          {list.length === 0 && <p className="sc-empty">No pal matches that.</p>}
+          {list.length === 0 && <p className="sc-empty">{favOnly ? 'No favourites yet. Tap the star on a pal to add one.' : 'No pal matches that.'}</p>}
         </div>
         {shown < list.length && (
           <button className="sc-btn ghost more" onClick={() => setShown((n) => n + PAGE)}>

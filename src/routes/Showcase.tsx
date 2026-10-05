@@ -162,6 +162,7 @@ export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpe
             total={top.list.length}
             onStep={step}
             onSpecies={openSpecies}
+            user={ctx.user}
           />
         )}
 
