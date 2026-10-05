@@ -16,8 +16,12 @@
 export const APP = 'palworld-index';
 export const SCHEMA = 1;
 
-export interface Favourite { at: string }
-export interface Note { text: string; at: string }
+/**
+ * `label` (optional, so format 1 still holds): the pal's name when it was marked,
+ * so the "no longer in your save" list can still name a pal that has left the save.
+ */
+export interface Favourite { at: string; label?: string }
+export interface Note { text: string; at: string; label?: string }
 export interface Plan { species: string; passives: string[]; name?: string; at: string }
 
 export interface WorldData {
@@ -100,9 +104,11 @@ export function checkWorld(d: unknown, where = 'world'): WorldData {
   if (!isObj(d) || d.app !== APP || d.kind !== 'world') throw new Error(`${where} is not a Palworld Breeding Index world`);
   if (typeof d.world !== 'string' || !d.world) throw new Error(`${where} has no world id`);
   for (const c of [...COLLECTIONS, 'deleted'] as const) if (!isObj(d[c])) throw new Error(`${where} is missing its ${c}`);
-  for (const [id, f] of Object.entries(d.favourites as object)) if (!isObj(f) || !isTime(f.at)) throw new Error(`${where}: favourite ${id} is damaged`);
+  for (const [id, f] of Object.entries(d.favourites as object))
+    if (!isObj(f) || !isTime(f.at) || (f.label !== undefined && typeof f.label !== 'string')) throw new Error(`${where}: favourite ${id} is damaged`);
   for (const [id, n] of Object.entries(d.notes as object)) {
-    if (!isObj(n) || typeof n.text !== 'string' || !isTime(n.at)) throw new Error(`${where}: note ${id} is damaged`);
+    if (!isObj(n) || typeof n.text !== 'string' || !isTime(n.at) || (n.label !== undefined && typeof n.label !== 'string'))
+      throw new Error(`${where}: note ${id} is damaged`);
     if (n.text.length > MAX_NOTE) throw new Error(`${where}: note ${id} is longer than ${MAX_NOTE.toLocaleString()} characters`);
   }
   for (const [id, p] of Object.entries(d.plans as object)) {

@@ -29,7 +29,7 @@ type Load =
   | { state: 'loading' }
   | { state: 'import' }
   | { state: 'error'; message: string }
-  | { state: 'ready'; roster: Roster; source: 'saved' | 'dev' | 'demo' };
+  | { state: 'ready'; roster: Roster; source: 'saved' | 'dev' | 'demo'; justImported?: boolean };
 
 /**
  * public/roster.json is produced by `npm run import-save` and is gitignored, so a
@@ -87,7 +87,7 @@ export default function App() {
     // Shown at once; storing it is a convenience for the next visit and may fail
     // (private windows), which only means importing again next time.
     void saveWorld({ roster, meta, importedAt: new Date().toISOString() });
-    setLoad({ state: 'ready', roster, source: 'saved' });
+    setLoad({ state: 'ready', roster, source: 'saved', justImported: true });
   };
 
   const openAnother = () => {
@@ -120,7 +120,7 @@ export default function App() {
           <ChibiReview />
         </Suspense>
       ) : (
-        <Showcase roster={load.roster} onOpenSave={openAnother} />
+        <Showcase roster={load.roster} onOpenSave={openAnother} justImported={load.justImported} />
       )}
       <footer className="legal">
         Unofficial fan project. Palworld and its characters, names and artwork are © Pocketpair, Inc.; not affiliated

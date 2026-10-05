@@ -24,13 +24,14 @@ function remove(d: WorldData, c: Collection, id: string, at: string): WorldData 
 
 export const isFavourite = (d: WorldData, instanceId: string) => instanceId in d.favourites;
 
-export function toggleFavourite(d: WorldData, instanceId: string, at = now()): WorldData {
-  return isFavourite(d, instanceId) ? remove(d, 'favourites', instanceId, at) : put(d, 'favourites', instanceId, { at });
+/** `label`: the pal's name, kept so it can still be named once it has left the save. */
+export function toggleFavourite(d: WorldData, instanceId: string, at = now(), label?: string): WorldData {
+  return isFavourite(d, instanceId) ? remove(d, 'favourites', instanceId, at) : put(d, 'favourites', instanceId, label ? { at, label } : { at });
 }
 
 /** Empty or whitespace-only text deletes the note. */
-export function setNote(d: WorldData, instanceId: string, text: string, at = now()): WorldData {
-  return text.trim() ? put(d, 'notes', instanceId, { text, at }) : remove(d, 'notes', instanceId, at);
+export function setNote(d: WorldData, instanceId: string, text: string, at = now(), label?: string): WorldData {
+  return text.trim() ? put(d, 'notes', instanceId, label ? { text, at, label } : { text, at }) : remove(d, 'notes', instanceId, at);
 }
 
 export function savePlan(d: WorldData, id: string, plan: Omit<Plan, 'at'>, at = now()): WorldData {
@@ -74,13 +75,24 @@ export function mergeWorlds(a: WorldData, b: WorldData): WorldData {
 export const mergePrefs = (a: Prefs, b: Prefs): Prefs => (b.at > a.at ? b : a);
 
 /** Pals the player marked that are no longer in the save (sold, condensed, released). */
-export function missingPals(d: WorldData, instanceIds: Iterable<string>): Array<{ instanceId: string; favourite: boolean; note?: string }> {
+export function missingPals(
+  d: WorldData,
+  instanceIds: Iterable<string>,
+): Array<{ instanceId: string; favourite: boolean; note?: string; label?: string }> {
   const present = new Set(instanceIds);
   const ids = new Set([...Object.keys(d.favourites), ...Object.keys(d.notes)]);
   return [...ids]
     .filter((id) => !present.has(id))
     .sort()
-    .map((id) => ({ instanceId: id, favourite: id in d.favourites, note: d.notes[id]?.text }));
+    .map((id) => {
+      const label = d.favourites[id]?.label ?? d.notes[id]?.label;
+      return { instanceId: id, favourite: id in d.favourites, note: d.notes[id]?.text, ...(label ? { label } : {}) };
+    });
+}
+
+/** Forget the marks on one pal (favourite and note). */
+export function forgetPal(d: WorldData, instanceId: string, at = now()): WorldData {
+  return remove(remove(d, 'favourites', instanceId, at), 'notes', instanceId, at);
 }
 
 /** Forget the marks on pals that left the save: the player's explicit clean-up. */

@@ -84,3 +84,10 @@ export function WorkIcon({ job, className }: { job: string; className?: string }
     />
   );
 }
+
+/** How a pal is named once it may have left the save: "Fluff (Lamball)", or "Lamball". */
+export function palLabel(pal: RosterPal): string {
+  const name = displayName(pal);
+  const species = speciesName(pal);
+  return name === species ? species : `${name} (${species})`;
+}

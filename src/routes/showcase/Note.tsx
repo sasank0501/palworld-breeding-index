@@ -12,7 +12,7 @@ const MAX = 10_000; // the user-data format refuses longer notes
  * Esc). Saving an empty note deletes it. Focus moves into the box when editing
  * starts and back to the button that started it when editing ends.
  */
-export function PalNote({ instanceId, name, user }: { instanceId: string; name: string; user: Ctx['user'] }) {
+export function PalNote({ instanceId, name, label, user }: { instanceId: string; name: string; label: string; user: Ctx['user'] }) {
   const text = user.data?.notes[instanceId]?.text ?? '';
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(text);
@@ -38,7 +38,7 @@ export function PalNote({ instanceId, name, user }: { instanceId: string; name: 
   };
   const finish = (save: boolean) => {
     if (save) {
-      user.edit((d) => setNote(d, instanceId, draft.trim()));
+      user.edit((d) => setNote(d, instanceId, draft.trim(), undefined, label));
       setSaid(draft.trim() ? 'Note saved.' : 'Note deleted.');
     }
     setEditing(false);

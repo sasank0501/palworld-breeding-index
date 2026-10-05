@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { deletePlan, forgetMissing, mergeWorlds, missingPals, savePlan, setNote, summarise, toggleFavourite } from './edit.ts';
+import { deletePlan, forgetMissing, forgetPal, mergeWorlds, missingPals, savePlan, setNote, summarise, toggleFavourite } from './edit.ts';
 import { emptyWorld, migrate, parseBackup, type Backup, type WorldData } from './schema.ts';
 
 const T = (n: number) => new Date(Date.UTC(2026, 9, 4, 12, 0, n)).toISOString();
@@ -83,6 +83,18 @@ describe('pals that left the save', () => {
     const clean = forgetMissing(d, ['kept'], T(2));
     expect(Object.keys(clean.favourites)).toEqual(['kept']);
     expect(clean.notes).toEqual({});
+  });
+});
+
+describe('labels', () => {
+  it('keep a name for a pal that has left the save, and forgetPal clears both marks', () => {
+    let d = toggleFavourite(emptyWorld(W), 'gone', T(1), 'Fluff (Lamball)');
+    d = setNote(d, 'gone', 'first catch', T(1), 'Fluff (Lamball)');
+    expect(missingPals(d, [])).toEqual([{ instanceId: 'gone', favourite: true, note: 'first catch', label: 'Fluff (Lamball)' }]);
+    const clean = forgetPal(d, 'gone', T(2));
+    expect(clean.favourites).toEqual({});
+    expect(clean.notes).toEqual({});
+    expect(Object.keys(clean.deleted).sort()).toEqual(['favourites:gone', 'notes:gone']);
   });
 });
 

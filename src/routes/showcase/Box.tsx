@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { Portrait, displayName, ivTotal, passiveLabel, speciesName } from '../../components/PalCards.tsx';
+import { Portrait, displayName, ivTotal, palLabel, passiveLabel, speciesName } from '../../components/PalCards.tsx';
 import type { RosterPal } from '../../types.ts';
 import { isFavourite, toggleFavourite } from '../../userdata/edit.ts';
 import { FavStar } from './Fav.tsx';
@@ -150,7 +150,7 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
                   style={stagger(Math.min(i, 40))}
                   name={displayName(p)}
                   on={isFavourite(user, p.instanceId)}
-                  onToggle={() => edit((d) => toggleFavourite(d, p.instanceId))}
+                  onToggle={() => edit((d) => toggleFavourite(d, p.instanceId, undefined, palLabel(p)))}
                 />
               )}
             </div>

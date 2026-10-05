@@ -1,5 +1,5 @@
 import skillsJson from '../../data/skills.json';
-import { WorkIcon, displayName, ivTotal, speciesName } from '../../components/PalCards.tsx';
+import { WorkIcon, displayName, ivTotal, palLabel, speciesName } from '../../components/PalCards.tsx';
 import { WORK_LEVEL_CAP, workBonuses, workName, workOrder } from '../../data/work.ts';
 import { FOOD_SLOTS, foodFor, levelProgress, partnerSkillFor } from '../../design/palExtras.ts';
 import type { ActiveSkill, RosterPal } from '../../types.ts';
@@ -81,7 +81,7 @@ export function PalSheet({
               {pal.isLucky && <span className="sc-tag lucky">Lucky</span>}
             </h1>
             {user?.data && pal.instanceId && (
-              <FavStar name={name} on={isFavourite(user.data, pal.instanceId)} onToggle={() => user.edit((d) => toggleFavourite(d, pal.instanceId))} />
+              <FavStar name={name} on={isFavourite(user.data, pal.instanceId)} onToggle={() => user.edit((d) => toggleFavourite(d, pal.instanceId, undefined, palLabel(pal)))} />
             )}
           </div>
           <div className="sc-in sc-doss-sub" style={stagger(3)}>
@@ -116,7 +116,7 @@ export function PalSheet({
             </p>
           </div>
 
-          {user && pal.instanceId && <PalNote instanceId={pal.instanceId} name={name} user={user} />}
+          {user && pal.instanceId && <PalNote instanceId={pal.instanceId} name={name} label={palLabel(pal)} user={user} />}
 
           <dl className="sc-facts sc-in" style={stagger(5)}>
             <div>

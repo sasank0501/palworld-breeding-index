@@ -7,6 +7,7 @@ import { Breeding } from './showcase/Breeding.tsx';
 import { Dex } from './showcase/Dex.tsx';
 import { Dossier } from './showcase/Dossier.tsx';
 import { PalSheet } from './showcase/PalSheet.tsx';
+import { MissingNotice } from './showcase/Missing.tsx';
 import { Planner } from './showcase/Planner.tsx';
 import { SavedPlans } from './showcase/SavedPlans.tsx';
 import { useCtx } from './showcase/ctx.ts';
@@ -35,12 +36,24 @@ const SECTIONS: Array<[Section, string]> = [
 
 type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] } | { kind: 'plans' };
 
-export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpenSave?: () => void }) {
+export default function Showcase({
+  roster,
+  onOpenSave,
+  justImported = false,
+}: {
+  roster: Roster;
+  onOpenSave?: () => void;
+  /** True right after an import, to check for marked pals that left the save. */
+  justImported?: boolean;
+}) {
   const [skin, setSkin] = useSkin();
   const ctx = useCtx(roster);
   const [section, setSection] = useState<Section>('dex');
   const [stack, setStack] = useState<Entry[]>([]);
   const [planTarget, setPlanTarget] = useState('');
+  const [checkMissing, setCheckMissing] = useState(justImported);
+  useEffect(() => setCheckMissing(justImported), [justImported, roster]);
+  const missingDone = useCallback(() => setCheckMissing(false), []);
   const [planToOpen, setPlanToOpen] = useState<{ species: string; passives: string[]; key: number } | null>(null);
   const page = useRef<HTMLDivElement>(null);
   const savedScroll = useRef(0);
@@ -134,6 +147,8 @@ export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpe
           </div>
           <Settings skin={skin} onSkin={setSkin} onOpenSave={onOpenSave} />
         </nav>
+
+        {checkMissing && <MissingNotice ctx={ctx} onDone={missingDone} />}
 
         {top && (
           <div className="sc-subbar">
