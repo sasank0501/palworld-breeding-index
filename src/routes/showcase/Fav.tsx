@@ -2,9 +2,9 @@ import '../../design/userdata.css';
 
 /**
  * The favourite star, on pal cards and the pal sheet. A real toggle button
- * (aria-pressed), 44 px to tap. Starred is a gold star on an ink disc rather than
- * gold alone: gold on a white card is too faint (1.4:1) to show the state, and
- * WCAG asks 3:1 for a control's state.
+ * (aria-pressed), 44 px to tap. Just the star: outline when off, solid in the
+ * theme's accent when on (userdata.css). Gold was the first idea, but gold on a
+ * white card is too faint (1.4:1) to show the state; WCAG asks 3:1.
  */
 export function FavStar({
   on,
