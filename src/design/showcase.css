@@ -308,6 +308,9 @@
 .art-hatch > * { grid-area: 1 / 1; }
 .sc-stage > .art-egg { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .sc-stage.is-waiting .dl-model { opacity: 0; }
+/* A species already hatched this visit waits on its still instead of the egg. */
+.sc-stage > .sc-stage-still { position: absolute; inset: 0; display: grid; place-items: center; }
+.sc-stage-still img { width: 80%; height: 80%; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.28)); }
 
 @media (prefers-reduced-motion: no-preference) {
   .art-hatch > .art-egg svg,

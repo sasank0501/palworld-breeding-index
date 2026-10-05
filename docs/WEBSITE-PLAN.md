@@ -278,6 +278,8 @@ Firefox and Safari, and in a Firefox private window through the fallback.
 - **Hatch (picked 2026-10-05, style D "quick", from four on the "Paldex Hatch Styles" canvas):**
   when art arrives after the egg has been up (over 150 ms), the egg squashes and the picture or
   model grows in its place, about 0.5 s; Paldex tiles ripple 15 ms apart; reduced motion: a fade.
+  Each species hatches once per visit: switching back to it shows its still while the model
+  decodes, then the model (Firefox, normal window: art loads and every model shows, no errors).
   No extra download, and it plays only after loading is done.
 - **The 3D is asked for, not offered:** with no art, an "Add the game art" notice sits above every
   page until there is some. The settings panel has a "Game art" section (status, replace, remove).

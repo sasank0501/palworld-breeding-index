@@ -88,14 +88,20 @@ export const tierOf = (id: string | null): RarityTier => rarityTier(rarityFor(id
 
 /** The squash and grow, start to finish (showcase.css, "Hatch"). */
 const HATCH_MS = 550;
+/**
+ * Species that have hatched during this visit. Each hatches once: after that,
+ * switching back to it (the spotlight, next/previous, reopening its page) shows its
+ * still while the model decodes, then the model, with no egg. A reload starts over.
+ */
+const hatched = new Set<string>();
 
 /**
  * A pal's 3D chibi, hatching out of an egg (style D, "quick", the same as every
  * picture). While the model loads, the egg (tinted by element) sits in its place;
  * on load it squashes and the pal grows in. A model that loads within 150 ms (a
  * return visit, from disk) skips the show and just appears. No model for this
- * pal: its still, or the egg when there is no art at all. `picker` adds the
- * animation buttons under the model.
+ * pal: its still, or the egg when there is no art at all. Each species hatches
+ * once per visit (`hatched`). `picker` adds the animation buttons under the model.
  */
 export function Stage({ id, pal, picker = false }: { id: string; pal?: RosterPal; picker?: boolean }) {
   const codename = useCodename(id);
@@ -108,6 +114,7 @@ export function Stage({ id, pal, picker = false }: { id: string; pal?: RosterPal
   }, []);
   const still = pal ? <Portrait pal={pal} /> : <SpeciesArt id={id} />;
   const onNone = useCallback(() => setPhase('none'), [setPhase]);
+  const seen = hatched.has(id);
 
   useEffect(() => {
     setPhase('waiting');
@@ -119,7 +126,9 @@ export function Stage({ id, pal, picker = false }: { id: string; pal?: RosterPal
     // fires again when the chibi/normal toggle swaps the file: only the first counts.
     const onLoad = (): void => {
       if (current.current !== 'waiting') return;
-      if (performance.now() - started < HATCH_AFTER_MS) return setPhase('done');
+      const first = !hatched.has(id);
+      hatched.add(id);
+      if (!first || performance.now() - started < HATCH_AFTER_MS) return setPhase('done');
       const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
       setPhase('hatching');
       timer = window.setTimeout(() => setPhase('done'), reduced ? 250 : HATCH_MS);
@@ -133,7 +142,10 @@ export function Stage({ id, pal, picker = false }: { id: string; pal?: RosterPal
 
   return (
     <div className={`sc-stage is-${phase}`} ref={box}>
-      {codename && (phase === 'waiting' || phase === 'hatching') && <ArtPlaceholder element={DEX[id]?.types?.[0]} pending />}
+      {codename && phase === 'waiting' && seen && <div className="sc-stage-still">{still}</div>}
+      {codename && (phase === 'waiting' || phase === 'hatching') && !(seen && phase === 'waiting') && (
+        <ArtPlaceholder element={DEX[id]?.types?.[0]} pending />
+      )}
       {codename && phase !== 'none' ? (
         <PalModel characterId={pal?.characterId ?? codename} name={DEX[id]?.name ?? id} fallback={null} picker={picker} onNone={onNone} />
       ) : (
