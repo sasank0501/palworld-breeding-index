@@ -28,6 +28,44 @@ function Progress({ stage }: { stage: Extract<LoadStage, { kind: 'loading' }> })
   );
 }
 
+/**
+ * Where the art folder is. Until Phase 6 it is the test pack built inside the
+ * project; then it becomes the player's game folder (a Steam path, copyable like
+ * the save path on the import screen).
+ */
+const PACK_COMMAND = 'npm run make-art-pack';
+
+function Where() {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    void navigator.clipboard
+      ?.writeText(PACK_COMMAND)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => undefined);
+  };
+  return (
+    <div className="sc-artwhere">
+      <p>
+        <b>Where to find it:</b> the <code>art-pack</code> folder inside the project folder. If it isn't there yet, build it
+        first by running this in the project folder:
+      </p>
+      <div className="sc-artcmd">
+        <code>{PACK_COMMAND}</code>
+        <button type="button" className="sc-btn ghost" onClick={copy}>
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+        <span className="sr-only" aria-live="polite">
+          {copied ? 'Command copied' : ''}
+        </span>
+      </div>
+      <p className="sc-sethint">Coming next: your Palworld game folder instead, read straight from the game.</p>
+    </div>
+  );
+}
+
 /** Shown above the page while this browser has no game art (or is adding it). */
 export function ArtNotice() {
   const art = useArtState();
@@ -49,6 +87,7 @@ export function ArtNotice() {
             Choose the art folder
           </button>
         )}
+        {stage.kind !== 'loading' && <Where />}
         {stage.kind === 'error' && (
           <p className="sc-arterr" role="alert">
             {stage.message}
