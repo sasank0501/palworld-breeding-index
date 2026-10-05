@@ -10,7 +10,8 @@ import { PalSheet } from './showcase/PalSheet.tsx';
 import { Planner } from './showcase/Planner.tsx';
 import { useCtx } from './showcase/ctx.ts';
 import { DEX_ORDER, PalEgg } from './showcase/parts.tsx';
-import { SKINS, useSkin } from './showcase/skins.ts';
+import { Settings } from './showcase/Settings.tsx';
+import { useSkin } from './showcase/skins.ts';
 import '../design/showcase.css';
 import '../design/showcase-views.css';
 
@@ -33,7 +34,7 @@ const SECTIONS: Array<[Section, string]> = [
 
 type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] };
 
-export default function Showcase({ roster }: { roster: Roster }) {
+export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpenSave?: () => void }) {
   const [skin, setSkin] = useSkin();
   const ctx = useCtx(roster);
   const [section, setSection] = useState<Section>('dex');
@@ -127,20 +128,7 @@ export default function Showcase({ roster }: { roster: Roster }) {
               </button>
             ))}
           </div>
-          <div className="sc-skins" role="group" aria-label="Skin">
-            {SKINS.map((s) => (
-              <button
-                key={s.id}
-                className={skin === s.id ? 'on' : ''}
-                aria-pressed={skin === s.id}
-                title={`${s.name} — ${s.blurb}`}
-                onClick={() => setSkin(s.id)}
-                style={{ '--a': s.swatch[0], '--b': s.swatch[1], '--c': s.swatch[2] } as React.CSSProperties}
-              >
-                <span className="sr-only">{s.name}</span>
-              </button>
-            ))}
-          </div>
+          <Settings skin={skin} onSkin={setSkin} onOpenSave={onOpenSave} />
         </nav>
 
         {top && (

@@ -120,7 +120,7 @@ export default function App() {
           <ChibiReview />
         </Suspense>
       ) : (
-        <Showcase roster={load.roster} />
+        <Showcase roster={load.roster} onOpenSave={openAnother} />
       )}
       <footer className="legal">
         Unofficial fan project. Palworld and its characters, names and artwork are © Pocketpair, Inc.; not affiliated

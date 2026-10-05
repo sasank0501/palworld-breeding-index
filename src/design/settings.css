@@ -1,0 +1,118 @@
+/* The settings menu in the top bar (src/routes/showcase/Settings.tsx), from the
+   current theme's tokens. */
+
+.sc-settings { position: relative; margin-left: auto; }
+
+.sc-gear {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: var(--border);
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+.sc-gear.on { background: var(--ink); color: var(--panel); }
+.sc-gear:focus-visible, .sc-setitem:focus-visible, .sc-themes label:focus-within {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sc-setpanel {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(360px, calc(100vw - 32px));
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 14px;
+  display: grid;
+  gap: 4px;
+  background: var(--panel);
+  color: var(--ink);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.sc-setpanel[hidden] { display: none; } /* display: grid above would otherwise override [hidden] */
+
+.sc-setpanel h2,
+.sc-themes legend {
+  margin: 10px 6px 4px;
+  padding: 0;
+  font: var(--d-weight) 17px/1.2 var(--font-display);
+  letter-spacing: var(--d-track);
+  text-transform: var(--d-case);
+}
+.sc-themes legend { margin-top: 0; }
+
+.sc-themes { margin: 0; padding: 0 0 6px; border: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.sc-themes label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  border: 2px solid var(--hair);
+  border-radius: var(--radius-s);
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+}
+.sc-themes label.on { border: 3px solid var(--ink); }
+.sc-themes input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.sc-themes .sw {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: conic-gradient(from 200deg, var(--c) 0 34%, var(--b) 34% 66%, var(--a) 66%);
+}
+
+.sc-sethint { margin: 0 6px 6px; font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
+
+.sc-setitem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--ink);
+  font: 700 15px/1.2 var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+.sc-setitem:hover { background: var(--panel-2); }
+.sc-setitem span { font-weight: 600; font-size: 13px; color: var(--ink-soft); }
+
+.sc-setmsg { margin: 4px 6px 0; min-height: 1em; font-size: 13px; color: var(--ink); }
+.sc-setmsg:empty { display: none; }
+
+.sc-dialog {
+  width: min(460px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 22px;
+  color: var(--ink);
+  background: var(--panel);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-family: var(--font-body);
+}
+.sc-dialog::backdrop { background: rgba(0, 0, 0, 0.45); }
+.sc-dialog h2 { margin: 0 0 8px; font: var(--d-weight) 22px/1.2 var(--font-display); }
+.sc-dialog p { margin: 0 0 10px; line-height: 1.5; }
+.sc-dialog ul { margin: 0 0 12px; padding-left: 1.2em; line-height: 1.6; }
+.sc-dialog-actions { display: flex; flex-wrap: wrap; gap: 10px; }

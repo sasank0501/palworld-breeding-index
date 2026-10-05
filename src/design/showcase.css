@@ -436,26 +436,6 @@
 .sc-shell[data-skin='obsidian'] .sc-tabs button.on { box-shadow: 0 0 18px -2px rgba(255, 106, 61, 0.7); }
 .sc-shell[data-skin='feybreak'] .sc-tabs button.on { box-shadow: 0 0 22px -4px rgba(79, 240, 210, 0.7); }
 
-.sc-skins {
-  display: flex;
-  gap: 8px;
-}
-
-.sc-skins button {
-  position: relative;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 2px solid var(--ink-soft);
-  border-radius: 50%;
-  background: conic-gradient(from 200deg, var(--c) 0 34%, var(--b) 34% 66%, var(--a) 66%);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.sc-skins button:hover { transform: scale(1.12) rotate(-8deg); }
-.sc-skins button.on { border-color: var(--ink); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--ink); }
-
 /* ============================ shared bits ============================ */
 
 .sc-kicker {
@@ -861,8 +841,6 @@
   .sc-brand { font-size: 22px; }
   .sc-tabs { order: 3; width: 100%; overflow-x: auto; margin: 0; }
   .sc-tabs button { padding: 7px 13px; font-size: 14px; white-space: nowrap; }
-  .sc-skins { margin-left: auto; }
-  .sc-skins button { width: 26px; height: 26px; }
   .sc-search input { width: 100%; }
   .sc-search { flex: 1 1 100%; }
   .sc-dexgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 10px; }
