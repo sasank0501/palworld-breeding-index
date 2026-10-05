@@ -125,7 +125,40 @@ before anything else is built on it.
   (`Task.Result`), which the single-threaded runtime refuses ("Cannot wait on monitors on this
   runtime"). Fix: `SubmitKeyAsync`/`MountAsync`, awaited up to a JS Promise. Expect the same for any
   other sync-over-async call in Part 3.
-- **Part 3 — export Lamball and measure:** after Part 2.
+- **Part 3 — export and measure: passed (2026-10-04).** The desktop's own `ExportSession` export
+  runs unchanged into .NET's in-memory file system. Checked against the desktop output for 7 pals
+  (Lamball, Jetragon, Blazamut, Anubis, Depresso, Alpaca, Ganesha):
+  - every `.glb` and `.psa` **byte-identical**; material JSON identical apart from line endings;
+  - textures: SkiaSharp (native) fails, so they are decoded with the managed AssetRipper decoder
+    (`TextureDecoder.UseAssetRipperTextureDecoder = true`) and encoded with ImageSharp. Same sizes;
+    colour and mask channels within ±2 of 255; BC5 normal maps ±1 on X/Y and up to 18 on the
+    reconstructed Z (the two decoders round sqrt(1-x²-y²) differently).
+
+  25 pals spread across the list, back to back (Edge; Firefox on 8 of them):
+
+  | Pipeline | Edge, per pal | Edge, 333 meshes | Firefox, 333 meshes |
+  |---|---|---|---|
+  | As the desktop (full-size PNG) | 9.6 s | 53 min | 59 min |
+  | 1024 mip, raw pixels, no PNG | 3.2 s | 18 min | 21.5 min |
+  | + mesh-only export (measured on 4 pals) | ≈ 1.5 s | ≈ 8–9 min | ≈ 10 min |
+
+  WebAssembly memory levels off at **594 MB** (full-size) or **412 MB** (1024 mips), provided each
+  pal's files are handed off and deleted (they live in Wasm memory, which never shrinks). PNG
+  encoding was 53% of the time; `ExportSession` with `exportMaterials` decodes every texture at full
+  size before Skia fails, which is most of the mesh step (2.4 s -> 0.3–0.8 s without it).
+
+  Gotchas found, all handled or listed for Phase 6:
+  - CUE4Parse joins output paths with `\`; on the browser's Unix-style FS that makes one file named
+    `\out\SheepBall\...` in `/`. Handled by normalising names.
+  - Some material files are `Ml_` (lowercase L), not `MI_`. Read materials by content.
+  - Variants (`_Ice`, `_Dark`, `_Fire`) borrow the base species' animations: port the desktop's
+    fallback.
+  - Phase 6: take the texture list from the material objects, not the exported JSON, so
+    `exportMaterials` can stay off.
+
+**Verdict: go.** Extraction in the browser works in Edge and Firefox, produces the desktop's files,
+fits in ~400–600 MB, and should take roughly 10 minutes once (plus model building and stills,
+measured in Phases 5–6). The `.exe` fallback is not needed.
 
 **Done when:** a written verdict in this file. **Go** (browser path) or **No-go** (fallback to an
 unsigned single-file `.exe` that writes the same pack).
