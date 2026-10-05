@@ -256,8 +256,8 @@ function DexTile({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: numb
 }
 
 /**
- * The spotlight: your best pals, one per species, cycling. "Not this one" takes
- * the pal out (saved with the world, listed in the settings to bring back) and the
+ * The spotlight: your best pals, one per species, cycling. "Hide" takes the pal
+ * out of the spotlight, never out of the save (saved with the world, listed in the settings to bring back) and the
  * next best moves up into its place; Undo is offered for a few seconds. The order
  * switch ranks by IV total or by passives.
  */
@@ -374,8 +374,13 @@ function Spotlight({
           <button className="sc-btn" onClick={() => onOpen(pal)}>
             Open pal
           </button>
-          <button className="sc-btn ghost" onClick={hide} title="Leave this pal out of the spotlight; the next best takes its place">
-            Not this one
+          <button
+            className="sc-btn ghost"
+            onClick={hide}
+            aria-label={`Hide ${displayName(pal)} from the spotlight`}
+            title="Hide from the spotlight. Your save isn't changed."
+          >
+            Hide
           </button>
           <span className="sc-dots" role="group" aria-label="Choose spotlight">
             {pals.map((p, n) => (
@@ -391,7 +396,7 @@ function Spotlight({
         <p className="sc-spot-undo" role="status">
           {undo && (
             <>
-              {displayName(undo)} won't appear here.{' '}
+              {displayName(undo)} hidden from the spotlight.{' '}
               <button
                 type="button"
                 className="sc-link"

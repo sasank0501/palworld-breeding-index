@@ -24,7 +24,7 @@ export const SCHEMA = 2;
 export interface Favourite { at: string; label?: string }
 export interface Note { text: string; at: string; label?: string }
 export interface Plan { species: string; passives: string[]; name?: string; at: string }
-/** A pal the player took out of the Paldex spotlight ("Not this one"). */
+/** A pal the player hid from the Paldex spotlight ("Hide"); the save is untouched. */
 export interface Hidden { at: string; label?: string }
 
 export interface WorldData {

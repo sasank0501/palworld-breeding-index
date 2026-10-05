@@ -181,11 +181,11 @@ export function Settings({
 
         <h2>Spotlight</h2>
         {spotlightHidden.length === 0 ? (
-          <p className="sc-sethint">Every pal can appear in the Paldex spotlight. “Not this one” there leaves a pal out.</p>
+          <p className="sc-sethint">Every pal can appear in the Paldex spotlight. “Hide” there takes a pal out of it.</p>
         ) : (
           <>
             <p className="sc-sethint">
-              {spotlightHidden.length} {spotlightHidden.length === 1 ? 'pal is' : 'pals are'} left out of the spotlight.
+              {spotlightHidden.length} {spotlightHidden.length === 1 ? 'pal' : 'pals'} hidden from the spotlight.
             </p>
             <ul className="sc-sethidden">
               {spotlightHidden.map((h) => (

@@ -333,7 +333,7 @@
 }
 @keyframes art-grow { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-/* Spotlight: its order switch beside the kicker, and the Undo line after "Not this one". */
+/* Spotlight: its order switch beside the kicker, and the Undo line after "Hide". */
 .sc-spot-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 8px; }
 .sc-spot-top .sc-kicker { margin: 0; }
 .sc-spot-order button { min-height: 32px; padding: 4px 12px; font-size: 13px; }
