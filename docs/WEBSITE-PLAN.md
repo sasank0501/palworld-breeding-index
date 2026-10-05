@@ -180,6 +180,20 @@ TypeScript plus `ooz-wasm`, so it can move into the page.
 has a plain-language message read out by a screen reader (`aria-live`).
 **Learn:** the File API, Workers and `postMessage`, IndexedDB basics.
 
+**Status (2026-10-04): done.** `src/save/importWorld.ts` is the one import both the CLI and the
+browser run (the refactored CLI's roster is identical to the old one's). `findWorlds` groups a picked
+folder into worlds, skips `backup/`, finds `GlobalPalStorage.sav` one level up, and names worlds from
+`LevelMeta.sav` (world name, host, level, in-game day). `import.worker.ts` copies every file into
+memory first, then parses; rosters live in IndexedDB (`palworld-index/rosters`, key `roster:<world>`,
+plus `current`). Results on the real save: Edge (full UI, fallback input) and Firefox (the worker,
+fed Files) both produce a roster identical to the CLI's, 1,990 pals, in about 1 s. Reload opens from
+IndexedDB. axe: clean apart from the accent-button contrast already in `docs/A11Y.md` item 1.
+
+- Not automated: `showDirectoryPicker` (headless can't drive the native dialog) and Firefox's folder
+  input (its WebDriver BiDi refuses folder uploads). **Try both by hand**, plus NVDA on the screen.
+- Xbox / Game Pass: detected and explained, not read. Possible later phase: an adapter that turns the
+  `wgs` container into the same in-memory files (needs a real Xbox save to build against).
+
 ### Phase 3 — User data layer
 
 The design from 2026-10-04: favourites, notes, plans, preferences.

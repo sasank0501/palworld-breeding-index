@@ -73,6 +73,14 @@ deployed from a private place and is not part of this repository.
 
 ## Importing your save
 
+**In the browser (the usual way).** Open the app, choose **Choose save folder**, and pick
+`%LOCALAPPDATA%PalSavedSaveGames`. Every world inside is listed by name; choose one. The
+save is parsed in a Web Worker on your machine and kept in this browser's IndexedDB, so the next
+visit opens straight to the Paldex. Nothing is uploaded. **Open a different save** in the footer
+goes back to the import screen. Steam saves only for now; Xbox / Game Pass saves are not read yet.
+
+**From the command line**, for development:
+
 ```bash
 npm run import-save              # newest world in the default save folder
 npm run import-save -- --list    # show worlds without importing
@@ -80,9 +88,8 @@ npm run import-save -- --world <id>
 npm run import-save -- --save-dir "D:\path\to\<steamid>\<worldid>"
 ```
 
-This writes `public/roster.json`, which the app loads on startup. Without it the app shows a
-"no roster imported yet" screen rather than an error — a fresh clone is expected to have no
-roster.
+This writes `public/roster.json`, which the dev server loads when no browser import is stored.
+Both paths run the same code (`src/save/importWorld.ts`) and produce the same roster.
 
 **Your save is never modified.** The importer copies the files it needs to a temp folder
 before parsing, so a mid-write file from a running game cannot be read halfway, and nothing
