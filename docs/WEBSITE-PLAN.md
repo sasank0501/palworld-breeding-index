@@ -257,6 +257,32 @@ into the store, so backups carry it. Deletes leave dated tombstones so a merge c
 Firefox and Safari, and in a Firefox private window through the fallback.
 **Learn:** OPFS, Service Workers and their lifecycle, streams.
 
+**Status (2026-10-05): built; Edge passes, Firefox to try by hand.** Decisions made while building:
+
+- **No Service Worker.** A hard reload (Ctrl+F5, Shift+Reload) skips it by spec, and Firefox private
+  windows only gained Service Worker support in Nightly 138, so the `blob:` fallback would carry real
+  traffic either way. One path instead: `src/art/resolve.ts` turns a path like
+  `pal-models/Anubis.chibi.glb` into a `blob:` URL from the stored pack (or the plain URL when the
+  server hosts the art: dev and the portfolio build). Three loaders changed (`PalModel`,
+  `loadStills`, the species art); a worker can still come later for offline use.
+- **A pack is a folder, not a zip.** Picked like the save (`<input webkitdirectory>`), so no zip
+  library. `npm run make-art-pack` builds one from this machine's art (`art-pack/`, gitignored:
+  866 files, 190 MB with the lite models). Phase 6 writes the same layout from the game.
+- **Storage:** OPFS where it opens (written in a worker through sync access handles), IndexedDB
+  where it doesn't (Firefox private). A pack is written under a fresh id and made current only once
+  complete; a stopped or failed load leaves the old pack untouched (`src/art/store-pack.ts`).
+  `navigator.storage.persist()` is asked after a load.
+- **Loading states** (3D required; these are only on the way to it): the element-tinted egg
+  (`ArtPlaceholder`, our own drawing) while there is no art, the flat icon as a silhouette while an
+  extraction is still filling the pack (Phase 6 sets `complete: false`), then the still, then 3D.
+- **The 3D is asked for, not offered:** with no art, an "Add the game art" notice sits above every
+  page until there is some. The settings panel has a "Game art" section (status, replace, remove).
+
+Measured (Edge, headless): the 190 MB pack loads in 34 s; storage use 190 MB; every Paldex picture
+and the species page's 3D model come from `blob:` URLs, and still do after a reload. axe: no
+violations with the notice and the settings section open, in all four themes. Safari can't be tested
+on this machine.
+
 ### Phase 5 — Stills rendered in the browser
 
 1. three.js on an `OffscreenCanvas` in a Worker; the same framing and lighting as `render-portraits`.

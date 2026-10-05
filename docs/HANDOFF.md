@@ -101,8 +101,9 @@ The player's data rides on the Showcase `ctx` (`ctx.user`, from `useWorldData`).
 
 1. ~~Accent-button contrast~~ **done 2026-10-05**: text tokens per theme, 2,702 → 0 contrast
    failures (A11Y item 1). The audit script had been scanning Palpagos four times; fixed.
-2. **Phase 4, the art loader:** pack format, OPFS + Service Worker, IndexedDB in Firefox private,
-   `blob:` URLs when the worker isn't running; plan the silhouette stage here.
+2. **Phase 4, the art loader: built 2026-10-05** (`src/art/`; details in WEBSITE-PLAN). No
+   Service Worker: one `blob:` URL path. `npm run make-art-pack`, then "Choose the art folder" in
+   the public build. Left: Firefox by hand, normal and private window.
 3. Follow-ups: "steps left" per saved plan; NVDA pass on the import screen and the Phase 3 controls.
 
 ## How things work now
