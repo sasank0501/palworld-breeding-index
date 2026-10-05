@@ -66,6 +66,18 @@ accessibility ones.
 
 **Done when:** a clean commit, an A11Y checklist exists, and the feature report is logged on Chrome
 and Firefox.
+
+**Status (2026-10-04): done.** Showcase committed; baseline in `docs/A11Y.md` (`npm run audit-a11y`);
+`src/lib/features.ts` logs a table in the dev console. Host: Cloudflare Pages, set up at deploy time.
+Feature report:
+
+| | Edge | Firefox | Firefox private |
+|---|---|---|---|
+| Folder / save-file pickers | yes | no | no |
+| `<input webkitdirectory>` | yes | yes | yes |
+| OPFS, streamed writes | yes | yes | **no** |
+| Service Worker API present | yes | yes | yes (registration still to test) |
+| IndexedDB, BroadcastChannel, OffscreenCanvas, WebGL2, WASM | yes | yes | yes |
 **Learn:** how to audit accessibility; feature detection vs. checking the browser name.
 
 ### Phase 1 — Extraction spike (time-boxed: 3 days)
@@ -123,7 +135,9 @@ restore brings everything back; the restore dialog works fully with the keyboard
 2. Write into OPFS, streamed (`createWritable`, or `createSyncAccessHandle` in a Worker).
 3. Service Worker answers `/pal-models/*` and `/pal-portraits/*` from OPFS. The existing components
    don't change.
-4. Fallback when the Service Worker isn't running (e.g. private windows): `blob:` URLs.
+4. Fallbacks, from the Phase 0 feature report: when the Service Worker isn't controlling the page,
+   `blob:` URLs. **Firefox private windows have no OPFS at all** (IndexedDB still works there), so the
+   pack goes into IndexedDB instead, and the page says it will be gone when the window closes.
 5. Test with your own `pal-models-lite` output zipped up, before any extractor exists.
 
 **Done when:** with the server's art folders deleted, the app shows full 3D from OPFS in Chrome,

@@ -14,6 +14,14 @@ const reviewModule = import.meta.env.DEV
   : undefined;
 const ChibiReview = reviewModule ? lazy(reviewModule) : null;
 
+// Which browser APIs this page can use (src/lib/features.ts), so trying the dev
+// server in another browser shows what will need a fallback there.
+if (import.meta.env.DEV) {
+  void import('./lib/features.ts').then(async ({ detectFeatures, describeFeatures }) => {
+    console.table(describeFeatures(await detectFeatures()));
+  });
+}
+
 type Load = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ready'; roster: Roster };
 
 export default function App() {

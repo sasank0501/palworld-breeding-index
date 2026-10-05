@@ -1,8 +1,12 @@
-# Handoff — 2026-10-02
+# Handoff — 2026-10-04
 
-Branch `paldb-ranks-and-theme`. Type-check, the 66 tests, `npm run build` and `npm run build:resume` pass.
+Branch `paldb-ranks-and-theme`. Type-check, the 69 tests, `npm run build` and `npm run build:resume` pass.
 
 ## Where things stand
+
+- **Next: the public website.** `docs/WEBSITE-PLAN.md` has the phases; Phase 0 is done. Phase 1 is
+  the in-browser extraction spike. Accessibility baseline and checklist: `docs/A11Y.md`
+  (`npm run audit-a11y` with the dev server running).
 
 - **The app is the Showcase** (`src/routes/Showcase.tsx`, views in `src/routes/showcase/`). It replaced the old Pal Box, Breeding gaps and Passive planner tabs, and the paper-style "Field register" experiment.
   - **Paldex** (home): completion ring, a rotating 3D spotlight of your top-potential pals, and all 289 species as tiles (owned in colour, breedable-now glowing, the rest silhouettes). Element and state filters.
