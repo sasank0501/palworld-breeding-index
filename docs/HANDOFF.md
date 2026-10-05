@@ -88,17 +88,19 @@ The player's data rides on the Showcase `ctx` (`ctx.user`, from `useWorldData`).
   path (the spike says it works); an `.exe` is not needed.
 - **Portfolio page:** a separate public page that hosts the art, with a disclaimer and a takedown
   policy.
-- **Silhouettes before the 3D** (revised after seeing the art-less build): placeholders we draw
-  ourselves first, then the game's 2D pal icons pulled quickly from the visitor's own pak as
-  silhouettes, then 3D filling in. To plan into Phase 4/6.
+- **The 3D is required, not an opt-in** (ground rule, confirmed 2026-10-05): every visitor gets the
+  3D models; there is no 2D-only mode. See the ground rules in `docs/WEBSITE-PLAN.md`.
+- **Silhouettes before the 3D** (revised after seeing the art-less build): a *loading state only*.
+  Placeholders we draw ourselves first, then the game's 2D pal icons pulled quickly from the
+  visitor's own pak as silhouettes, then 3D filling in. To plan into Phase 4/6.
 - **Xbox / Game Pass:** detected and explained, not read. A later optional phase could add an adapter
   that turns the `wgs` container into the same in-memory files (needs a real Xbox save to test).
 - **Before shipping:** make our own work and element icons (the current ones come from paldb).
 
 ## Next
 
-1. **Accent-button contrast** (A11Y item 1): a darker accent per theme for text, fill unchanged. It is
-   small and clears the most common failure on every screen.
+1. ~~Accent-button contrast~~ **done 2026-10-05**: text tokens per theme, 2,702 → 0 contrast
+   failures (A11Y item 1). The audit script had been scanning Palpagos four times; fixed.
 2. **Phase 4, the art loader:** pack format, OPFS + Service Worker, IndexedDB in Firefox private,
    `blob:` URLs when the worker isn't running; plan the silhouette stage here.
 3. Follow-ups: "steps left" per saved plan; NVDA pass on the import screen and the Phase 3 controls.
