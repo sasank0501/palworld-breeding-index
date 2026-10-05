@@ -1,6 +1,6 @@
 # Handoff — 2026-10-04
 
-Branch `paldb-ranks-and-theme`. Type-check, the 92 tests, `npm run build` and `npm run build:resume` pass.
+Branch `paldb-ranks-and-theme`. Type-check, the 93 tests, `npm run build` and `npm run build:resume` pass.
 
 ## Where things stand
 
@@ -9,7 +9,9 @@ Branch `paldb-ranks-and-theme`. Type-check, the 92 tests, `npm run build` and `n
   (`npm run audit-a11y` with the dev server running).
 - **Progress (2026-10-04):** Phase 1 spike verdict **go** (`spikes/cue4parse-wasm`); **Phase 2 done**:
   the app opens on an import screen (`src/routes/Import.tsx`) and reads the save in the browser.
-  **Phase 3 data layer done** (`src/userdata/`, no UI yet): next is placing its controls with Sasank.
+  **Phase 3 done**: `src/userdata/` plus its UI (settings gear, stars, notes, saved plans, the
+  missing-pals notice). Next by the plan: Phase 4 (art loader); also asked for: silhouettes /
+  placeholders before the 3D loads, and fixing the accent-button contrast (A11Y item 1).
 
 - **The app is the Showcase** (`src/routes/Showcase.tsx`, views in `src/routes/showcase/`). It replaced the old Pal Box, Breeding gaps and Passive planner tabs, and the paper-style "Field register" experiment.
   - **Paldex** (home): completion ring, a rotating 3D spotlight of your top-potential pals, and all 289 species as tiles (owned in colour, breedable-now glowing, the rest silhouettes). Element and state filters.

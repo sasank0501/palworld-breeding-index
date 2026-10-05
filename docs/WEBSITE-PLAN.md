@@ -228,9 +228,15 @@ restore, Chrome/Edge file sync with reconnect), `useWorldData.ts` (React). The s
 into the store, so backups carry it. Deletes leave dated tombstones so a merge can't revive them.
 18 tests (fake-indexeddb). Checked in Edge: choosing a skin writes `prefs`.
 
-- **Still to do, with you:** where the controls go: the favourite star, notes on the pal sheet,
-  saving a plan from the Planner, the "no longer in your save" list, and backup/restore controls
-  (a `<dialog>` for the restore preview). Then the keyboard/NVDA pass on them.
+- **UI done (2026-10-05),** from Sasank's picks on the design canvas "Paldex Data Controls":
+  a settings gear in the top bar (Themes, Your data: backup / restore dialog / backup file, Open a
+  different save; the theme buttons left the top bar); stars on My Pals cards and the pal sheet plus
+  a Favourites filter; "+ Add note" on the pal sheet; "Save this plan" and a "Saved plans" menu (5
+  recent) with a full Saved plans page; and a notice after an import listing marked pals that left
+  the save. Marks now keep a `label` so departed pals can be named. Each piece checked end to end in
+  Edge with axe: nothing new beyond the accent-button contrast (docs/A11Y.md item 1).
+- **Follow-ups:** a per-plan "steps left" status on the Saved plans page (needs the solver per
+  plan); NVDA pass on the new controls.
 
 ### Phase 4 — Art loader
 
