@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { readPrefs, writePrefs } from '../../userdata/store.ts';
 
 /**
  * The Showcase's skins, one per Palworld place the community knows. Each is a full
@@ -45,16 +47,38 @@ export const SKINS: SkinInfo[] = [
 
 const KEY = 'palworld-sc-skin';
 
-/** A per-browser preference; storage can be unavailable, so every access is guarded. */
+const isSkin = (v: unknown): v is Skin => SKINS.some((s) => s.id === v);
+
+/**
+ * A per-browser preference. localStorage answers synchronously, so the first
+ * paint is already in the right skin; the user-data store (src/userdata) keeps a
+ * copy that goes into backups, and fills in when localStorage was cleared or a
+ * backup was restored. Storage can be unavailable, so every access is guarded.
+ */
 export function useSkin(): [Skin, (s: Skin) => void] {
   const [skin, setSkin] = useState<Skin>(() => {
     try {
       const v = localStorage.getItem(KEY);
-      return SKINS.some((s) => s.id === v) ? (v as Skin) : 'pal';
+      return isSkin(v) ? v : 'pal';
     } catch {
       return 'pal';
     }
   });
+  useEffect(() => {
+    let live = true;
+    void readPrefs().then((p) => {
+      let local: string | null = null;
+      try {
+        local = localStorage.getItem(KEY);
+      } catch {
+        /* unavailable */
+      }
+      if (live && !local && isSkin(p.skin)) setSkin(p.skin);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
   const choose = (s: Skin): void => {
     setSkin(s);
     try {
@@ -62,6 +86,7 @@ export function useSkin(): [Skin, (s: Skin) => void] {
     } catch {
       /* not worth failing over */
     }
+    void writePrefs({ skin: s });
   };
   return [skin, choose];
 }
