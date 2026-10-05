@@ -74,7 +74,7 @@
   width: min(340px, calc(100vw - 32px));
   box-sizing: border-box;
   padding: 8px;
-  background: var(--panel);
+  background: var(--panel-solid);
   color: var(--ink);
   border: var(--border);
   border-radius: var(--radius);
@@ -111,7 +111,7 @@
 .sc-plans-title:focus { outline: none; }
 .sc-plans-title:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
 .sc-plans-sort { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; }
-.sc-plans-sort select { min-height: 44px; padding: 6px 10px; border: var(--border); border-radius: var(--radius-s); background: var(--panel); color: var(--ink); font: 600 14px var(--font-body); }
+.sc-plans-sort select { min-height: 44px; padding: 6px 10px; border: var(--border); border-radius: var(--radius-s); background: var(--panel-solid); color: var(--ink); font: 600 14px var(--font-body); }
 .sc-plans-list { list-style: none; margin: 0; padding: 6px 18px; display: grid; background: var(--panel); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
 .sc-plans-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 2px solid var(--panel-2); }
 .sc-plans-list li:first-child { border-top: 0; }

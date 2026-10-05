@@ -61,7 +61,7 @@ export function Breeding({ ctx, onSpecies }: { ctx: Ctx; onSpecies: (id: string)
       <section className="sc-section">
         <div className="sc-bar">
           <label className="sc-search">
-            <input value={query} placeholder="Find a species…" onChange={(e) => setQuery(e.target.value)} />
+            <input value={query} aria-label="Find a species" placeholder="Find a species…" onChange={(e) => setQuery(e.target.value)} />
           </label>
         </div>
         <div className="sc-elbar" role="group" aria-label="Element">

@@ -36,6 +36,14 @@ const SECTIONS: Array<[Section, string]> = [
 
 type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] } | { kind: 'plans' };
 
+/** Focus the visible page's main heading (made focusable for this, not for Tab). */
+function focusHeading(): void {
+  const h = [...document.querySelectorAll<HTMLElement>('#main h1')].find((el) => !el.closest('[hidden]'));
+  if (!h) return;
+  if (!h.hasAttribute('tabindex')) h.tabIndex = -1;
+  h.focus({ preventScroll: true });
+}
+
 export default function Showcase({
   roster,
   onOpenSave,
@@ -58,8 +66,11 @@ export default function Showcase({
   const page = useRef<HTMLDivElement>(null);
   const savedScroll = useRef(0);
   const top = stack[stack.length - 1];
+  /** What had focus when each page was opened, so Back can return to it. */
+  const openers = useRef<(HTMLElement | null)[]>([]);
 
   const push = useCallback((e: Entry) => {
+    openers.current.push(document.activeElement instanceof HTMLElement ? document.activeElement : null);
     setStack((s) => {
       if (s.length === 0) savedScroll.current = page.current?.scrollTop ?? 0;
       return [...s, e];
@@ -76,11 +87,33 @@ export default function Showcase({
     if (stack.length === 0) requestAnimationFrame(() => page.current?.scrollTo({ top: savedScroll.current }));
   }, [stack.length]);
 
+  // Focus follows the page (docs/A11Y.md item 7). The control that opened a page
+  // disappears with the list, and focus left on nothing makes a screen reader read
+  // the whole new page from the top. So: a new page focuses its heading, and Back
+  // returns focus to whatever opened the page.
+  const depth = useRef(stack.length);
+  useEffect(() => {
+    const was = depth.current;
+    depth.current = stack.length;
+    if (stack.length > was) requestAnimationFrame(focusHeading);
+    else if (stack.length < was) {
+      const opener = openers.current.splice(stack.length).at(0);
+      requestAnimationFrame(() => (opener?.isConnected ? opener.focus({ preventScroll: true }) : focusHeading()));
+    }
+  }, [stack.length]);
+
+  // Straight after an import the import screen is gone: start on the Paldex heading.
+  useEffect(() => {
+    if (justImported) requestAnimationFrame(focusHeading);
+  }, [justImported, roster]);
+
   const openSpecies = useCallback((id: string) => push({ kind: 'species', id }), [push]);
   const openPal = useCallback((pal: RosterPal, list?: RosterPal[]) => push({ kind: 'pal', pal, list: list ?? [pal] }), [push]);
 
   const go = (s: Section): void => {
     setSection(s);
+    openers.current = [];
+    depth.current = 0;
     setStack([]);
     savedScroll.current = 0;
     page.current?.scrollTo({ top: 0 });
@@ -133,6 +166,17 @@ export default function Showcase({
       </div>
 
       <div className="sc-page" ref={page}>
+        {/* Skips the top bar. It moves focus itself: the URL's hash belongs to the app (#chibi). */}
+        <a
+          className="sc-skip"
+          href="#main"
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('main')?.focus();
+          }}
+        >
+          Skip to content
+        </a>
         <nav className="sc-nav" aria-label="Showcase">
           <span className="sc-brand" aria-hidden="true">
             <PalEgg size={30} />
@@ -148,70 +192,72 @@ export default function Showcase({
           <Settings skin={skin} onSkin={setSkin} onOpenSave={onOpenSave} />
         </nav>
 
-        {checkMissing && <MissingNotice ctx={ctx} onDone={missingDone} />}
+        <main id="main" tabIndex={-1}>
+          {checkMissing && <MissingNotice ctx={ctx} onDone={missingDone} />}
 
-        {top && (
-          <div className="sc-subbar">
-            <button className="sc-link back" onClick={back}>
-              ← {stack.length > 1 ? 'Back' : sectionLabel}
-            </button>
-            <span className="sc-crumbs">
-              {stack.map((e, i) => (
-                <span key={i}>{e.kind === 'plans' ? 'Saved plans' : e.kind === 'species' ? nameOf(e.id) : e.pal.nickname ?? nameOf(e.pal.palId ?? '')}</span>
-              ))}
-            </span>
-            {top.kind !== 'plans' && (
-              <span className="sc-stepper">
-                <button onClick={() => step(-1)} aria-label="Previous">
-                  ‹
-                </button>
-                <button onClick={() => step(1)} aria-label="Next">
-                  ›
-                </button>
+          {top && (
+            <div className="sc-subbar">
+              <button className="sc-link back" onClick={back}>
+                ← {stack.length > 1 ? 'Back' : sectionLabel}
+              </button>
+              <span className="sc-crumbs">
+                {stack.map((e, i) => (
+                  <span key={i}>{e.kind === 'plans' ? 'Saved plans' : e.kind === 'species' ? nameOf(e.id) : e.pal.nickname ?? nameOf(e.pal.palId ?? '')}</span>
+                ))}
               </span>
-            )}
-          </div>
-        )}
+              {top.kind !== 'plans' && (
+                <span className="sc-stepper">
+                  <button onClick={() => step(-1)} aria-label="Previous">
+                    ‹
+                  </button>
+                  <button onClick={() => step(1)} aria-label="Next">
+                    ›
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
 
-        {top?.kind === 'species' && (
-          <Dossier ctx={ctx} id={top.id} onSpecies={openSpecies} onPal={(p) => openPal(p, ctx.byPal.get(top.id))} onPlan={plan} />
-        )}
-        {top?.kind === 'plans' && (
-          <SavedPlans
-            ctx={ctx}
-            onOpen={(p) => {
-              setPlanToOpen({ species: p.species, passives: p.passives, key: Date.now() });
-              go('planner');
-            }}
-          />
-        )}
-        {top?.kind === 'pal' && (
-          <PalSheet
-            pal={top.pal}
-            index={top.list.findIndex((p) => p.instanceId === top.pal.instanceId)}
-            total={top.list.length}
-            onStep={step}
-            onSpecies={openSpecies}
-            user={ctx.user}
-          />
-        )}
-
-        {/* Kept mounted (just hidden) under a dossier, so filters and scroll survive Back. */}
-        <div hidden={!!top}>
-          {section === 'dex' && <Dex ctx={ctx} onSpecies={openSpecies} onPal={(p) => openPal(p, [p])} />}
-          {section === 'box' && <Box ctx={ctx} onPal={openPal} />}
-          {section === 'breeding' && <Breeding ctx={ctx} onSpecies={openSpecies} />}
-          {section === 'planner' && (
-            <Planner
+          {top?.kind === 'species' && (
+            <Dossier ctx={ctx} id={top.id} onSpecies={openSpecies} onPal={(p) => openPal(p, ctx.byPal.get(top.id))} onPlan={plan} />
+          )}
+          {top?.kind === 'plans' && (
+            <SavedPlans
               ctx={ctx}
-              initialTarget={planTarget}
-              initialPlan={planToOpen}
-              onAllPlans={() => push({ kind: 'plans' })}
-              onSpecies={openSpecies}
-              onPal={(p) => openPal(p, [p])}
+              onOpen={(p) => {
+                setPlanToOpen({ species: p.species, passives: p.passives, key: Date.now() });
+                go('planner');
+              }}
             />
           )}
-        </div>
+          {top?.kind === 'pal' && (
+            <PalSheet
+              pal={top.pal}
+              index={top.list.findIndex((p) => p.instanceId === top.pal.instanceId)}
+              total={top.list.length}
+              onStep={step}
+              onSpecies={openSpecies}
+              user={ctx.user}
+            />
+          )}
+
+          {/* Kept mounted (just hidden) under a dossier, so filters and scroll survive Back. */}
+          <div hidden={!!top}>
+            {section === 'dex' && <Dex ctx={ctx} onSpecies={openSpecies} onPal={(p) => openPal(p, [p])} />}
+            {section === 'box' && <Box ctx={ctx} onPal={openPal} />}
+            {section === 'breeding' && <Breeding ctx={ctx} onSpecies={openSpecies} />}
+            {section === 'planner' && (
+              <Planner
+                ctx={ctx}
+                initialTarget={planTarget}
+                initialPlan={planToOpen}
+                onAllPlans={() => push({ kind: 'plans' })}
+                onSpecies={openSpecies}
+                onPal={(p) => openPal(p, [p])}
+              />
+            )}
+          </div>
+        </main>
       </div>
     </div>
   );

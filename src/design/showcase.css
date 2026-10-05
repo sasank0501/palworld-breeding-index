@@ -45,6 +45,27 @@
   --r-low: #6a7390;
   --r-neg: #d6483e;
 
+  /*
+   * Text versions of the colours above (docs/A11Y.md, item 1). A bright colour
+   * reads well as a fill, chip or border but can fall under the 4.5:1 that text
+   * needs. Text, and any fill that carries --accent-ink, uses these instead.
+   * The dark skins keep the bright colours; the light skins darken each one just
+   * enough to pass, keeping its hue.
+   */
+  --r-5-text: var(--r-5);
+  --r-4-text: var(--r-4);
+  --r-3-text: var(--r-3);
+  --r-low-text: var(--r-low);
+  --r-neg-text: var(--r-neg);
+  --good-text: var(--good);
+  --accent-strong: var(--accent);
+  --accent-2-ink: var(--accent-ink);
+  /* the Alpha tag and its filter: white on red */
+  --alpha: #dc3328;
+  /* Menus and dialogs that float over the page: always opaque, so nothing behind
+     shows through the text. Only Feybreak's glass panel is see-through. */
+  --panel-solid: var(--panel);
+
   position: relative;
   flex: 1;
   min-height: 0;
@@ -74,6 +95,14 @@
   --accent-ink: #ffffff;
   --good: #1faa59;
   --bad: #e0483e;
+  --accent-strong: #045fff;
+  --accent-2-ink: var(--ink);
+  --good-text: #15723c;
+  --r-5-text: #845e0b;
+  --r-4-text: #255eb5;
+  --r-3-text: #226f47;
+  --r-low-text: #596078;
+  --r-neg-text: #b12f26;
   --radius: 20px;
   --radius-s: 12px;
   --border: 3px solid var(--line);
@@ -147,7 +176,7 @@
   --panel: #fffafb;
   --panel-2: #ffeef3;
   --ink: #3a1a36;
-  --ink-soft: #7a5876;
+  --ink-soft: #745470;
   --hair: rgba(58, 26, 54, 0.14);
   --line: rgba(122, 52, 100, 0.42);
   --accent: #d6407a;
@@ -155,6 +184,14 @@
   --accent-ink: #ffffff;
   --good: #2f9a62;
   --bad: #d6483e;
+  --accent-strong: #ca2b68;
+  --accent-2-ink: var(--ink);
+  --good-text: #226f47;
+  --r-5-text: #845e0b;
+  --r-4-text: #255db2;
+  --r-3-text: #226f47;
+  --r-low-text: #596078;
+  --r-neg-text: #b12f26;
   --radius: 24px;
   --radius-s: 14px;
   --border: 2px solid var(--line);
@@ -179,6 +216,8 @@
     linear-gradient(180deg, #04141b 0%, #062029 60%, #0a1822 100%);
   --panel: rgba(14, 44, 54, 0.62);
   --panel-2: rgba(22, 64, 76, 0.55);
+  /* the glass panel as it looks over the night sky, made solid */
+  --panel-solid: #0a232c;
   --ink: #e6fbf8;
   --ink-soft: #8fb8b8;
   --hair: rgba(150, 255, 235, 0.16);
@@ -239,11 +278,28 @@
 .sc-shell .tier-epic { --tier: var(--t-epic); }
 .sc-shell .tier-legendary { --tier: var(--t-legendary); }
 
-.sc-shell .r-5 { --rk: var(--r-5); }
-.sc-shell .r-4 { --rk: var(--r-4); }
-.sc-shell .r-3 { --rk: var(--r-3); }
-.sc-shell .r-2, .sc-shell .r-1, .sc-shell .r-unk { --rk: var(--r-low); }
-.sc-shell .r-neg { --rk: var(--r-neg); }
+.sc-shell .r-5 { --rk: var(--r-5); --rk-text: var(--r-5-text); }
+.sc-shell .r-4 { --rk: var(--r-4); --rk-text: var(--r-4-text); }
+.sc-shell .r-3 { --rk: var(--r-3); --rk-text: var(--r-3-text); }
+.sc-shell .r-2, .sc-shell .r-1, .sc-shell .r-unk { --rk: var(--r-low); --rk-text: var(--r-low-text); }
+.sc-shell .r-neg { --rk: var(--r-neg); --rk-text: var(--r-neg-text); }
+
+/* "Skip to content": off screen until a keyboard user tabs to it. */
+.sc-skip {
+  position: absolute;
+  z-index: 100;
+  top: 8px;
+  left: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-s);
+  background: var(--accent-strong);
+  color: var(--accent-ink);
+  font: 800 15px var(--font-body);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.sc-skip:focus { transform: none; outline: 3px solid var(--ink); outline-offset: 2px; }
+.sc-shell main:focus { outline: none; }
 
 .sr-only {
   position: absolute;
@@ -427,7 +483,7 @@
 .sc-tabs button:hover { color: var(--ink); transform: translateY(-1px); }
 
 .sc-tabs button.on {
-  background: var(--accent);
+  background: var(--accent-strong);
   border-color: var(--line);
   color: var(--accent-ink);
 }
@@ -443,7 +499,7 @@
   font: 700 11px/1 var(--font-mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-strong);
 }
 
 .sc-shell[data-skin='pal'] .sc-kicker { color: var(--ink); opacity: 0.7; }
@@ -452,7 +508,7 @@
   flex: none;
   white-space: nowrap;
   padding: 11px 22px;
-  background: var(--accent);
+  background: var(--accent-strong);
   border: var(--border);
   border-radius: 999px;
   color: var(--accent-ink);
@@ -481,7 +537,7 @@
   text-transform: uppercase;
   vertical-align: 2px;
 }
-.sc-tag.alpha { background: #e0483e; color: #fff; }
+.sc-tag.alpha { background: var(--alpha); color: #fff; }
 .sc-tag.lucky { background: #f3c13a; color: #3a2a00; }
 
 .sc-elems { display: inline-flex; gap: 4px; vertical-align: middle; }
@@ -510,14 +566,14 @@
   gap: 5px;
   padding: 3px 10px 3px 8px;
   border-radius: 999px;
-  color: var(--rk);
+  color: var(--rk-text);
   background: color-mix(in srgb, var(--rk) 13%, transparent);
   border: 1px solid color-mix(in srgb, var(--rk) 45%, transparent);
   font: 800 12px/1.3 var(--font-body);
 }
 .sc-trait i { font-style: normal; font-size: 8px; letter-spacing: -0.05em; }
 .sc-trait.r-neg { text-decoration: line-through; text-decoration-thickness: 1px; }
-.sc-trait.more { color: var(--ink-soft); --rk: var(--ink-soft); }
+.sc-trait.more { color: var(--ink-soft); --rk: var(--ink-soft); --rk-text: var(--ink-soft); }
 .sc-trait.wanted { box-shadow: 0 0 0 2px var(--accent); }
 .sc-trait em { font-style: italic; font-weight: 600; }
 
@@ -698,7 +754,7 @@
 
 .sc-seg { display: inline-flex; padding: 4px; background: var(--panel); border: var(--border); border-radius: 999px; backdrop-filter: var(--blur); }
 .sc-seg button { padding: 7px 14px; background: none; border: 0; border-radius: 999px; color: var(--ink-soft); font: 800 13px var(--font-body); cursor: pointer; transition: all 0.2s; }
-.sc-seg button.on { background: var(--accent); color: var(--accent-ink); }
+.sc-seg button.on { background: var(--accent-strong); color: var(--accent-ink); }
 
 .sc-elbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
 .sc-elbar button {
@@ -750,7 +806,7 @@
   right: 8px;
   padding: 1px 8px;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-strong);
   color: var(--accent-ink);
   font: 800 11px/1.6 var(--font-mono);
 }
@@ -788,7 +844,7 @@
 
 .sc-dex-name { font: var(--d-weight) 17px/1.1 var(--font-display); letter-spacing: var(--d-track); text-transform: var(--d-case); overflow-wrap: anywhere; }
 .sc-dex-foot { display: flex; align-items: center; justify-content: space-between; min-height: 18px; font: 800 11px var(--font-mono); letter-spacing: 0.06em; color: var(--ink-soft); }
-.sc-dex-foot b.go { color: var(--accent-ink); background: var(--accent-2); padding: 1px 8px; border-radius: 999px; }
+.sc-dex-foot b.go { color: var(--accent-2-ink); background: var(--accent-2); padding: 1px 8px; border-radius: 999px; }
 .sc-dex-foot b.dim { opacity: 0.7; }
 
 /* element stripe under discovered pals */

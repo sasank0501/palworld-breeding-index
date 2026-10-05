@@ -48,6 +48,21 @@ export function traitGlyph(id: string): string {
   return r === null ? '?' : r < 0 ? '✕' : RANK_GLYPH[String(r)];
 }
 
+/**
+ * The rank glyph (◆, ●●●, ✕) is a picture: screen readers would say "black
+ * diamond" or nothing. It is hidden from them and, where no heading already says
+ * the rank, replaced by words ("rank IV", "flaw").
+ */
+export function TraitGlyph({ id, label = true }: { id: string; label?: boolean }) {
+  const r = rankFor(id);
+  return (
+    <>
+      <i aria-hidden="true">{traitGlyph(id)}</i>
+      {label && <span className="sr-only">{r === null ? 'unranked' : r < 0 ? 'flaw' : `rank ${roman(r)}`}: </span>}
+    </>
+  );
+}
+
 /** A passive with no verified name reads as a field note, not a raw save key. */
 export function TraitName({ id }: { id: string }) {
   return PASSIVES[id]?.name ? <>{PASSIVES[id].name}</> : <em>unidentified trait</em>;
@@ -112,7 +127,11 @@ export function SpeciesArt({ id }: { id: string }) {
   if (still && failed !== still) return <img src={still} alt="" loading="lazy" onError={() => setFailed(still)} />;
   if (dex?.img && failed !== dex.img)
     return <img src={`/${dex.img}`} alt="" loading="lazy" onError={() => setFailed(dex.img)} />;
-  return <span className="dl-art-fallback">{nameOf(id).slice(0, 2)}</span>;
+  return (
+    <span className="dl-art-fallback" aria-hidden="true">
+      {nameOf(id).slice(0, 2)}
+    </span>
+  );
 }
 
 /** combos.json is ~700 KB, so each section that needs it loads it lazily (and once). */

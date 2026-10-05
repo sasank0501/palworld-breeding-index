@@ -5,7 +5,7 @@ import { PalModel } from '../../design/PalModel.tsx';
 import { Portrait } from '../../components/PalCards.tsx';
 import { rarityFor, rarityTier, type RarityTier } from '../../design/palExtras.ts';
 import type { RosterPal } from '../../types.ts';
-import { DEX, PASSIVES, SpeciesArt, TraitName, byRank, rankFor, traitClass, traitGlyph, useCodename } from './shared.tsx';
+import { DEX, PASSIVES, SpeciesArt, TraitGlyph, TraitName, byRank, rankFor, traitClass, useCodename } from './shared.tsx';
 
 /** Small pieces shared by every Showcase section. */
 
@@ -131,7 +131,7 @@ export function TraitChips({ ids, want, max }: { ids: string[]; want?: string[];
           className={`sc-trait ${traitClass(id)}${want?.includes(id) ? ' wanted' : ''}`}
           title={PASSIVES[id]?.name ? PASSIVES[id].effects.join(', ') : id}
         >
-          <i>{traitGlyph(id)}</i>
+          <TraitGlyph id={id} />
           <TraitName id={id} />
         </span>
       ))}
@@ -169,7 +169,7 @@ export function Ring({ value, max, label }: { value: number; max: number; label:
   const frac = max ? Math.min(1, value / max) : 0;
   return (
     <div className="sc-ring" role="img" aria-label={`${value} of ${max}`}>
-      <svg viewBox="0 0 120 120" width="100%" height="100%">
+      <svg viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true">
         <circle className="sc-ring-track" cx="60" cy="60" r={r} />
         <circle
           className="sc-ring-fill"
@@ -181,7 +181,9 @@ export function Ring({ value, max, label }: { value: number; max: number; label:
           transform="rotate(-90 60 60)"
         />
       </svg>
-      <div className="sc-ring-label">{label}</div>
+      <div className="sc-ring-label" aria-hidden="true">
+        {label}
+      </div>
     </div>
   );
 }

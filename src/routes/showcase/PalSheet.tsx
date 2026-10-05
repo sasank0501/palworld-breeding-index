@@ -7,7 +7,7 @@ import { isFavourite, toggleFavourite } from '../../userdata/edit.ts';
 import type { Ctx } from './ctx.ts';
 import { FavStar } from './Fav.tsx';
 import { PalNote } from './Note.tsx';
-import { DEX, LOCATION, PASSIVES, TraitName, byRank, traitClass, traitGlyph } from './shared.tsx';
+import { DEX, LOCATION, PASSIVES, TraitGlyph, TraitName, byRank, traitClass } from './shared.tsx';
 import { ElementChips, Stage, elementOf, stagger, tierOf, title } from './parts.tsx';
 
 const SKILLS = skillsJson as unknown as Record<string, ActiveSkill>;
@@ -90,7 +90,17 @@ export function PalSheet({
               {pal.nickname ? `${speciesName(pal)} · ` : ''}see species →
             </button>
           </div>
-          <div className="sc-xp sc-in" style={stagger(3)} title="Progress to the next level">
+          <div
+            className="sc-xp sc-in"
+            style={stagger(3)}
+            title="Progress to the next level"
+            role="progressbar"
+            aria-label="Progress to the next level"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(xp * 100)}
+            aria-valuetext={`${Math.round(xp * 100)}%`}
+          >
             <span style={{ width: `${Math.round(xp * 100)}%` }} />
           </div>
 
@@ -154,7 +164,7 @@ export function PalSheet({
               {byRank(pal.passives).map((pid) => (
                 <li key={pid} className={traitClass(pid)}>
                   <b>
-                    <i>{traitGlyph(pid)}</i>
+                    <TraitGlyph id={pid} />
                     <TraitName id={pid} />
                   </b>
                   <span>{PASSIVES[pid]?.effects?.length ? PASSIVES[pid].effects.join(' · ') : 'Effect not yet verified.'}</span>

@@ -12,7 +12,7 @@ import {
 } from '../../lib/passivePlan.ts';
 import type { RosterPal } from '../../types.ts';
 import { newPlanId, savePlan } from '../../userdata/edit.ts';
-import { DEX, LOCATION, META, PASSIVES, SpeciesArt, TraitName, UNBREEDABLE, nameOf, rankFor, roman, traitClass, traitGlyph } from './shared.tsx';
+import { DEX, LOCATION, META, PASSIVES, SpeciesArt, TraitGlyph, TraitName, UNBREEDABLE, nameOf, rankFor, roman, traitClass } from './shared.tsx';
 import type { Ctx } from './ctx.ts';
 import { planLabel, plansOf, type SavedPlan } from './SavedPlans.tsx';
 import { ElementChips, PalEgg, TraitChips, elementOf, stagger, tierOf } from './parts.tsx';
@@ -258,7 +258,7 @@ export function Planner({
         <div className="sc-plan-setup">
           <section className="sc-card sc-in" style={stagger(3)}>
             <h2 className="sc-h3">
-              <span className="sc-roman">1</span> Target species
+              <span className="sc-roman" aria-hidden="true">1</span> Target species
             </h2>
             <div className={`sc-target${tdex ? ` tier-${tierOf(target)} e-${elementOf(target)}` : ''}`}>
               <span className="sc-target-art">{tdex ? <SpeciesArt id={target} /> : <i>?</i>}</span>
@@ -271,6 +271,7 @@ export function Planner({
             <label className="sc-search block">
               <input
                 value={query}
+                aria-label="Search species"
                 placeholder={tdex ? `${tdex.name}, or another…` : 'Search 289 species…'}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -282,6 +283,9 @@ export function Planner({
                 }}
               />
             </label>
+            <span className="sr-only" role="status">
+              {query ? `${matches.length} ${matches.length === 1 ? 'match' : 'matches'}` : ''}
+            </span>
             {matches.length > 0 && (
               <ul className="sc-matches">
                 {matches.map((d) => (
@@ -307,7 +311,7 @@ export function Planner({
 
           <section className="sc-card sc-in" style={stagger(4)}>
             <h2 className="sc-h3">
-              <span className="sc-roman">2</span> Passives{' '}
+              <span className="sc-roman" aria-hidden="true">2</span> Passives{' '}
               <span>
                 {picked.length}/{MAX_PASSIVES}
               </span>
@@ -354,9 +358,12 @@ export function Planner({
                           title={PASSIVES[id]?.effects?.join(', ') || id}
                           onClick={() => toggle(id)}
                         >
-                          <i>{traitGlyph(id)}</i>
+                          <TraitGlyph id={id} label={false} />
                           <TraitName id={id} />
-                          <small>{carriers.get(id)?.length}</small>
+                          <small>
+                            {carriers.get(id)?.length}
+                            <span className="sr-only"> owned</span>
+                          </small>
                         </button>
                       );
                     })}
@@ -603,7 +610,7 @@ function Lineage({
             return (
               <div key={id}>
                 <h4 className={traitClass(id)}>
-                  <i>{traitGlyph(id)}</i>
+                  <TraitGlyph id={id} />
                   <TraitName id={id} /> <small>{list.length} owned</small>
                 </h4>
                 <ul>

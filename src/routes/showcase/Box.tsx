@@ -91,6 +91,7 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
           <label className="sc-search">
             <input
               value={query}
+              aria-label="Search your pals by name, nickname or passive"
               placeholder="Search name, nickname or passive…"
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -137,7 +138,9 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
           <button className={`sc-flag${favOnly ? ' on' : ''}`} aria-pressed={favOnly} onClick={() => { setFavOnly(!favOnly); reset(); }}>
             ★ Favourites
           </button>
-          <span className="sc-count">{list.length.toLocaleString('en')} shown</span>
+          <span className="sc-count" role="status">
+            {list.length.toLocaleString('en')} shown
+          </span>
         </div>
 
         <div className="sc-dexgrid" key={`${query}|${sort}|${drawer}|${alpha}|${lucky}|${favOnly}`}>

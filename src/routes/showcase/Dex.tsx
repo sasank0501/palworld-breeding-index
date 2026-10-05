@@ -147,8 +147,11 @@ export function Dex({
           <h2 className="sc-h2">
             The Paldex <span>{visible.length} shown</span>
           </h2>
+          <span className="sr-only" role="status">
+            {visible.length} shown
+          </span>
           <label className="sc-search">
-            <input value={query} placeholder="Search name or number…" onChange={(e) => setQuery(e.target.value)} />
+            <input value={query} aria-label="Search the Paldex by name or number" placeholder="Search name or number…" onChange={(e) => setQuery(e.target.value)} />
           </label>
           <div className="sc-seg" role="group" aria-label="Show">
             {VIEWS.map(([k, label]) => (
@@ -198,7 +201,7 @@ function DexTile({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: numb
       className={`sc-dex is-${status} tier-${tier} e-${elementOf(id)}`}
       style={stagger(Math.min(index, 40))}
       onClick={onOpen}
-      aria-label={`${nameOf(id)}, ${status === 'owned' ? 'discovered' : status === 'ready' ? 'can be bred now' : 'not discovered'}`}
+      aria-label={`${nameOf(id)}, ${status === 'owned' ? 'discovered' : status === 'ready' ? 'can be bred now' : 'not discovered'}${mine ? `, ${mine.length} owned` : ''}`}
     >
       <span className="sc-dex-no">{dexNo(id)}</span>
       {mine && <span className="sc-dex-count">×{mine.length}</span>}

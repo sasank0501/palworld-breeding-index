@@ -55,7 +55,7 @@ export function SavedPlans({ ctx, onOpen }: { ctx: Ctx; onOpen: (p: SavedPlan) =
         </h1>
         <label className="sc-search">
           <span className="sr-only">Search saved plans</span>
-          <input value={query} placeholder="Search species or passive…" onChange={(e) => setQuery(e.target.value)} />
+          <input value={query} aria-label="Search saved plans by species or passive" placeholder="Search species or passive…" onChange={(e) => setQuery(e.target.value)} />
         </label>
         <label className="sc-plans-sort">
           Sort

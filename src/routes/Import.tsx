@@ -164,7 +164,9 @@ export default function Import({
                   <button type="button" className="imp-world" onClick={() => startImport(w)}>
                     <span className="imp-world-name">{w.meta?.name ?? 'Unnamed world'}</span>
                     <span className="imp-world-meta">{[describe(w.meta), ago(w.lastPlayed)].filter(Boolean).join(' · ')}</span>
-                    <span className="imp-world-id">{w.id}</span>
+                    <span className="imp-world-id" aria-hidden="true">
+                      {w.id}
+                    </span>
                   </button>
                 </li>
               ))}

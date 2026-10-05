@@ -61,7 +61,11 @@ export function Portrait({ pal }: { pal: RosterPal }) {
     return <img className="still" src={still} alt="" loading="lazy" onError={() => setFailed(still)} />;
   }
   if (!dex?.img || failed === dex.img) {
-    return <span className="dl-art-fallback">{speciesName(pal).slice(0, 2)}</span>;
+    return (
+      <span className="dl-art-fallback" aria-hidden="true">
+        {speciesName(pal).slice(0, 2)}
+      </span>
+    );
   }
   return <img src={`/${dex.img}`} alt="" loading="lazy" onError={() => setFailed(dex.img)} />;
 }
