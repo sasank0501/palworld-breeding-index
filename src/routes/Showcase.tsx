@@ -96,7 +96,9 @@ export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpe
   useEffect(() => {
     if (!top) return;
     const onKey = (e: KeyboardEvent): void => {
-      if (e.target instanceof HTMLInputElement) return;
+      // Typing: arrows move the caret, Esc is the field's own (the note box uses it to cancel).
+      const t = e.target as HTMLElement;
+      if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t.isContentEditable) return;
       if (e.key === 'Escape') back();
       else if (e.key === 'ArrowRight') step(1);
       else if (e.key === 'ArrowLeft') step(-1);

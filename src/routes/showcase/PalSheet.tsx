@@ -6,6 +6,7 @@ import type { ActiveSkill, RosterPal } from '../../types.ts';
 import { isFavourite, toggleFavourite } from '../../userdata/edit.ts';
 import type { Ctx } from './ctx.ts';
 import { FavStar } from './Fav.tsx';
+import { PalNote } from './Note.tsx';
 import { DEX, LOCATION, PASSIVES, TraitName, byRank, traitClass, traitGlyph } from './shared.tsx';
 import { ElementChips, Stage, elementOf, stagger, tierOf, title } from './parts.tsx';
 
@@ -114,6 +115,8 @@ export function PalSheet({
               <b>{ivTotal(pal)}</b> / 300 potential
             </p>
           </div>
+
+          {user && pal.instanceId && <PalNote instanceId={pal.instanceId} name={name} user={user} />}
 
           <dl className="sc-facts sc-in" style={stagger(5)}>
             <div>
