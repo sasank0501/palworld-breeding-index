@@ -107,6 +107,41 @@ function reset(): void {
 
 channel?.addEventListener('message', reset);
 
+// ---------------------------------------------------------------- stills only
+
+/**
+ * New card pictures were written into the pack (Phase 5, src/art/stills.ts).
+ * Narrower than artChanged(): only the pictures are looked up again, so a 3D
+ * model on screen is not reloaded (and does not hatch again) every few pictures.
+ */
+let stillsVersion = 0;
+const stillListeners = new Set<(v: number) => void>();
+export function stillsChanged(info?: PackInfo): void {
+  for (const [path, p] of urls) {
+    if (!path.startsWith('pal-portraits/')) continue;
+    void p.then((u) => u?.startsWith('blob:') && URL.revokeObjectURL(u));
+    urls.delete(path);
+  }
+  // Keep the stored pack's description (its picture count) current without a full reset.
+  if (info && state) state = state.then((s) => (s.kind === 'local' ? { ...s, info } : s));
+  stillsVersion++;
+  for (const f of stillListeners) f(stillsVersion);
+}
+export function onStillsChange(f: () => void): () => void {
+  stillListeners.add(f);
+  return () => stillListeners.delete(f);
+}
+export function useStillsVersion(): number {
+  const [v, setV] = useState(stillsVersion);
+  useEffect(() => {
+    stillListeners.add(setV);
+    return () => {
+      stillListeners.delete(setV);
+    };
+  }, []);
+  return v;
+}
+
 /** Call after the stored pack changes: this tab re-reads it, and so do the others. */
 export function artChanged(): void {
   reset();

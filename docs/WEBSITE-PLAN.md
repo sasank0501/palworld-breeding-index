@@ -305,6 +305,19 @@ on this machine.
 mid-range laptop.
 **Learn:** WebGL rendering outside the page, cameras and bounding boxes.
 
+**Status (2026-10-05): built and measured.** Not three.js in a worker after all: the app's own
+`<model-viewer>` has `toBlob()`, so `src/art/stills.ts` moves the existing harness into the page (a
+hidden viewer, on screen at opacity 0, since model-viewer stops drawing off screen), and a canvas does
+what sharp did (trim at alpha 1, empty below 10, crop wider than 1.5:1 to the middle, fit 88% of 512,
+sit at 62%, WebP 0.86). Pictures go into the pack under `pal-portraits/`; the index is rewritten every
+12, and a pictures-only signal (`stillsChanged`) refreshes cards without reloading any 3D model on
+screen. Runs by itself whenever a pack has models without pictures; Stop, and it carries on next visit.
+Measured (Edge, RTX 4070 laptop GPU): **all 288 in 94 s**, about 0.33 s each, 0 failures (FairyDragon's
+bind-pose retry needs a fresh load: `blob:…#bind`). Matches today's pictures to the eye (mean pixel
+difference 1.6–4 of 255, at anti-aliased edges). `npm run make-art-pack` now leaves pictures out by
+default, like the extractor will; `--with-stills` adds them. Still to measure: a mid-range laptop
+without a dedicated GPU.
+
 ### Phase 6 — Full extractor
 
 Following the Phase 1 verdict:

@@ -5,7 +5,7 @@ import metaJson from '../../data/meta.json';
 import passivesJson from '../../data/passives.json';
 import { rankOf, rankSort, type Rank } from '../../lib/passiveCategories.ts';
 import type { Combos } from '../../lib/breeding.ts';
-import { onArtChange, useArtVersion } from '../../art/resolve.ts';
+import { onArtChange, onStillsChange, useArtVersion, useStillsVersion } from '../../art/resolve.ts';
 import { ArtImage, loadStills, useStillPath } from '../../components/PalCards.tsx';
 import type { PalDex, PassiveInfo } from '../../types.ts';
 
@@ -86,6 +86,7 @@ function loadCodenames(): Promise<Map<string, string>> {
   return stills;
 }
 onArtChange(() => (stills = null));
+onStillsChange(() => (stills = null));
 
 /**
  * The save's codename for a dex species (SheepBall for Lamball), which is how
@@ -94,6 +95,7 @@ onArtChange(() => (stills = null));
  */
 export function useCodename(id: string): string | null | undefined {
   const version = useArtVersion();
+  const stillsV = useStillsVersion();
   // undefined while the index loads, so pictures know to wait rather than give up.
   const [name, setName] = useState<string | null | undefined>(undefined);
   useEffect(() => {
@@ -104,7 +106,7 @@ export function useCodename(id: string): string | null | undefined {
     return () => {
       live = false;
     };
-  }, [id, version]);
+  }, [id, version, stillsV]);
   return name;
 }
 

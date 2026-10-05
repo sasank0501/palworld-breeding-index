@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { artJson, onArtChange, useArtState, useArtUrl, useArtVersion } from '../art/resolve.ts';
+import { artJson, onArtChange, onStillsChange, useArtState, useArtUrl, useArtVersion, useStillsVersion } from '../art/resolve.ts';
 import { ArtPlaceholder } from './ArtPlaceholder.tsx';
 import palsJson from '../data/pals.json';
 import passivesJson from '../data/passives.json';
@@ -35,8 +35,9 @@ export function loadStills(): Promise<StillIndex> {
   stillsPromise ??= artJson<StillIndex>('pal-portraits/index.json').then((i) => i ?? {});
   return stillsPromise;
 }
-// A pack loaded or removed: the index is read again.
+// A pack loaded or removed, or new pictures made: the index is read again.
 onArtChange(() => (stillsPromise = null));
+onStillsChange(() => (stillsPromise = null));
 
 /**
  * The still for a codename, as a path in the art: undefined while the index (or
@@ -44,6 +45,7 @@ onArtChange(() => (stillsPromise = null));
  */
 export function useStillPath(codename: string | null | undefined): { path: string; v: number } | null | undefined {
   const version = useArtVersion();
+  const stills = useStillsVersion();
   const [hit, setHit] = useState<{ path: string; v: number } | null | undefined>(undefined);
   useEffect(() => {
     let live = true;
@@ -56,7 +58,7 @@ export function useStillPath(codename: string | null | undefined): { path: strin
     return () => {
       live = false;
     };
-  }, [codename, version]);
+  }, [codename, version, stills]);
   return hit;
 }
 

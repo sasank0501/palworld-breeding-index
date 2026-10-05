@@ -13,6 +13,7 @@ import { describePack, selectPackFiles, type PackInfo } from './pack.ts';
 import { artChanged } from './resolve.ts';
 import { openStorage } from './storage.ts';
 import { removePack } from './store-pack.ts';
+import { ensureStills } from './stillsRunner.ts';
 
 export type LoadStage =
   | { kind: 'idle' }
@@ -82,6 +83,8 @@ export async function loadArtFolder(): Promise<void> {
     else {
       artChanged();
       setStage({ kind: 'done', info: m.info, persisted: await persist() });
+      // Phase 5: make any card pictures the pack doesn't have yet.
+      void ensureStills();
     }
   };
   worker.onerror = () => setStage({ kind: 'error', message: 'The art loader stopped unexpectedly. Reload the page and try again.' });

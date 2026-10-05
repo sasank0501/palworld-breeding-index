@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { cancelArtLoad, formatBytes, loadArtFolder, removeArt, useLoadStage, type LoadStage } from '../../art/loader.ts';
 import { useArtState } from '../../art/resolve.ts';
+import { ensureStills, stopStills, useStillsStage, type StillsStage } from '../../art/stillsRunner.ts';
 
 /**
  * The game art, from the player's side: the notice that asks for it while there
@@ -66,11 +67,70 @@ function Where() {
   );
 }
 
+/** "About 2 min left", from the average so far. */
+function timeLeft(s: Extract<StillsStage, { kind: 'making' }>): string {
+  const sec = Math.round(((s.total - s.done) * s.msPerStill) / 1000);
+  if (s.done < 3) return 'working out how long';
+  return sec < 60 ? 'under a minute left' : `about ${Math.round(sec / 60)} min left`;
+}
+
+/**
+ * Phase 5: while the card pictures are being made from the 3D models. Cards fill
+ * in (hatching) as each batch is written, so the page is usable meanwhile.
+ */
+function StillsNotice() {
+  const s = useStillsStage();
+  if (s.kind !== 'making' && s.kind !== 'stopped' && s.kind !== 'error') return null;
+  return (
+    <div className="sc-missing">
+      <section className="sc-missing-notice sc-artnotice" aria-labelledby="stills-h">
+        <div>
+          <h2 id="stills-h">{s.kind === 'making' ? 'Making the card pictures…' : s.kind === 'stopped' ? 'Card pictures paused' : 'Some card pictures failed'}</h2>
+          <p className="sc-sethint">
+            Each pal's picture is taken from its own 3D model, once, and kept in this browser. Cards fill in as they are made.
+          </p>
+        </div>
+        {s.kind === 'making' && (
+          <div className="sc-artprog">
+            <progress max={s.total || 1} value={s.done} aria-label="Making the card pictures" />
+            <span>
+              {s.done} of {s.total} · {timeLeft(s)}
+            </span>
+            <button type="button" className="sc-btn ghost" onClick={stopStills}>
+              Stop
+            </button>
+          </div>
+        )}
+        {s.kind === 'stopped' && (
+          <div className="sc-artprog">
+            <span>
+              {s.done} of {s.total} made. The rest carry on next visit, or now:
+            </span>
+            <button type="button" className="sc-btn" onClick={() => void ensureStills()}>
+              Resume
+            </button>
+          </div>
+        )}
+        {s.kind === 'error' && (
+          <p className="sc-arterr" role="alert">
+            {s.message}
+          </p>
+        )}
+      </section>
+    </div>
+  );
+}
+
 /** Shown above the page while this browser has no game art (or is adding it). */
 export function ArtNotice() {
   const art = useArtState();
   const stage = useLoadStage();
-  if (stage.kind !== 'loading' && stage.kind !== 'error' && art?.kind !== 'none') return null;
+  // A pack whose card pictures are missing (a stopped run, or one the extractor
+  // wrote without them) gets them made, here, on any visit.
+  useEffect(() => {
+    if (art?.kind === 'local') void ensureStills();
+  }, [art]);
+  if (stage.kind !== 'loading' && stage.kind !== 'error' && art?.kind !== 'none') return <StillsNotice />;
   return (
     <div className="sc-missing">
       <section className="sc-missing-notice sc-artnotice" aria-labelledby="art-h">
