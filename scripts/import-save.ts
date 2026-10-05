@@ -15,16 +15,8 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
-import { decodeSave } from '../src/save/container.ts';
+import { importWorld } from '../src/save/importWorld.ts';
 import { buildSpeciesIndex, type PalDexEntry } from '../src/save/species.ts';
-import {
-  assembleRoster,
-  readLevelPals,
-  readPlayerSave,
-  readStoragePals,
-  type ContainerRoles,
-  type RosterPal,
-} from '../src/save/roster.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public', 'roster.json');
@@ -89,9 +81,6 @@ function snapshot(worldDir: string): { dir: string; cleanup: () => void } {
   return { dir: tmp, cleanup: () => fs.rmSync(tmp, { recursive: true, force: true }) };
 }
 
-const readGvas = async (file: string): Promise<Uint8Array> =>
-  (await decodeSave(new Uint8Array(fs.readFileSync(file)))).data;
-
 async function main(): Promise<void> {
   const root = defaultSaveRoot();
   const worlds = findWorlds(root);
@@ -142,43 +131,22 @@ async function main(): Promise<void> {
     ) as Record<string, PalDexEntry>;
     const species = buildSpeciesIndex(pals);
 
-    // Container roles come from the player saves; without them every pal would
-    // land in "unknown" and the Pal Box / party split would be lost.
-    const roles: ContainerRoles = { palBox: new Set(), party: new Set() };
+    // The same import the browser runs (src/save/importWorld.ts), over the snapshot.
     const playersDir = path.join(snap.dir, 'Players');
-    const playerFiles = fs.existsSync(playersDir)
-      ? fs.readdirSync(playersDir).filter((f) => f.endsWith('.sav') && !f.endsWith('_dps.sav'))
-      : [];
-    for (const f of playerFiles) {
-      const info = readPlayerSave(await readGvas(path.join(playersDir, f)));
-      if (info.palBoxContainerId) roles.palBox.add(info.palBoxContainerId);
-      if (info.partyContainerId) roles.party.add(info.partyContainerId);
-    }
-    console.log(`players : ${playerFiles.length}  (palbox ${roles.palBox.size}, party ${roles.party.size})`);
-
-    const groups: RosterPal[][] = [];
-
-    const level = readLevelPals(await readGvas(path.join(snap.dir, 'Level.sav')), species, roles);
-    groups.push(level.pals);
-    console.log(`Level   : ${level.pals.length} pals`);
-
-    const dpsFiles = fs.existsSync(playersDir)
-      ? fs.readdirSync(playersDir).filter((f) => f.endsWith('_dps.sav'))
-      : [];
-    for (const f of dpsFiles) {
-      const s = readStoragePals(await readGvas(path.join(playersDir, f)), species, roles, 'dps');
-      groups.push(s.pals);
-      console.log(`dps     : ${s.pals.length} pals of ${s.slots} slots  (${f})`);
-    }
-
+    const read = (file: string) => async () => new Uint8Array(fs.readFileSync(file));
     const globalFile = path.join(snap.dir, 'GlobalPalStorage.sav');
-    if (fs.existsSync(globalFile)) {
-      const s = readStoragePals(await readGvas(globalFile), species, roles, 'global');
-      groups.push(s.pals);
-      console.log(`global  : ${s.pals.length} pals of ${s.slots} slots`);
-    }
-
-    const roster = assembleRoster(worldId, groups);
+    const { roster, lines } = await importWorld(
+      {
+        id: worldId,
+        level: read(path.join(snap.dir, 'Level.sav')),
+        players: fs.existsSync(playersDir)
+          ? fs.readdirSync(playersDir).filter((f) => f.endsWith('.sav')).map((name) => ({ name, read: read(path.join(playersDir, name)) }))
+          : [],
+        global: fs.existsSync(globalFile) ? read(globalFile) : undefined,
+      },
+      species,
+    );
+    for (const line of lines) console.log(line);
 
     const outPath = values.out ? path.resolve(values.out) : OUT;
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
