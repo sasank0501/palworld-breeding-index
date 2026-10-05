@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
+import { artJson, artUrl, useArtVersion } from '../art/resolve.ts';
 import { stripBoss } from '../save/species.ts';
 import { fitStage, type Viewer } from './stageFraming.ts';
 
@@ -65,8 +66,6 @@ interface ModelEntry {
   normalClips?: string[];
 }
 
-const BASE = `${import.meta.env.BASE_URL}pal-models/`;
-
 /** Blend time between clips; framing waits for it. */
 const CROSSFADE_MS = 350;
 
@@ -84,21 +83,16 @@ function enableMeshopt(viewer: { meshoptDecoderLocation: string }): void {
 /** Boss and normal variants share one mesh; the file is keyed by the base codename. */
 const modelName = (characterId: string): string => stripBoss(characterId).base;
 
-const modelUrl = (name: string, entry: ModelEntry, chibi: boolean): string =>
-  `${BASE}${entry.file ?? name}${chibi ? '.chibi' : ''}.glb?v=${entry.v}`;
+/** Where a model lives in the art (served, or in the player's pack: src/art/resolve.ts). */
+const modelPath = (name: string, entry: ModelEntry, chibi: boolean): string =>
+  `pal-models/${entry.file ?? name}${chibi ? '.chibi' : ''}.glb`;
 
 /**
  * Read fresh on every page open (it is a few hundred bytes), so a rebuild is
- * picked up without a reload. Missing manifest = no models; the dev server
- * answers a missing file with index.html, which fails to parse and lands there.
+ * picked up without a reload. Missing manifest = no models.
  */
 async function loadManifest(): Promise<Record<string, ModelEntry>> {
-  try {
-    const res = await fetch(`${BASE}index.json`, { cache: 'no-store' });
-    return res.ok ? ((await res.json()) as Record<string, ModelEntry>) : {};
-  } catch {
-    return {};
-  }
+  return (await artJson<Record<string, ModelEntry>>('pal-models/index.json')) ?? {};
 }
 
 /**
@@ -123,8 +117,10 @@ export function PalModel({
   // away until the chibi builds are fully tuned.
   const [chibi, setChibi] = useState(true);
   const [clip, setClip] = useState<string | null>(null);
+  const [src, setSrc] = useState<string | null>(null);
   const viewer = useRef<HTMLElement>(null);
   const model = modelName(characterId);
+  const artVersion = useArtVersion();
 
   useEffect(() => {
     let cancelled = false;
@@ -147,7 +143,23 @@ export function PalModel({
     return () => {
       cancelled = true;
     };
-  }, [model]);
+  }, [model, artVersion]);
+
+  // The file's URL: a plain one when the server hosts the art, a blob: URL when
+  // it is in this browser's pack.
+  useEffect(() => {
+    if (state !== 'ready' || !entry) return;
+    let live = true;
+    setSrc(null);
+    void artUrl(modelPath(model, entry, chibi), entry.v).then((u) => {
+      if (!live) return;
+      if (u) setSrc(u);
+      else setState('none');
+    });
+    return () => {
+      live = false;
+    };
+  }, [state, entry, chibi, model]);
 
   const clips = (chibi ? entry?.clips : entry?.normalClips) ?? [];
   // A clip picked on the chibi carries over to the normal model if it has it too.
@@ -172,7 +184,7 @@ export function PalModel({
       el.removeEventListener('error', onError);
       el.removeEventListener('load', onLoad);
     };
-  }, [state]);
+  }, [state, src]);
 
   // A new clip reframes once the crossfade into it has settled; the camera glides.
   const framedClip = useRef<string | null>(null);
@@ -189,14 +201,14 @@ export function PalModel({
     return () => window.clearTimeout(timer);
   }, [state, playing]);
 
-  if (state !== 'ready' || !entry) return <>{fallback}</>;
+  if (state !== 'ready' || !entry || !src) return <>{fallback}</>;
 
   return (
     <>
       <model-viewer
         ref={viewer}
         class="dl-model"
-        src={modelUrl(model, entry, chibi)}
+        src={src}
         alt={`3D model of ${name}${chibi ? ', chibi style' : ''}`}
         camera-controls=""
         disable-zoom=""

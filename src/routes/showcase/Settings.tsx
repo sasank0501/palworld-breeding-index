@@ -12,6 +12,7 @@ import {
   type FileSyncState,
   type RestorePreview,
 } from '../../userdata/backup.ts';
+import { ArtSettings } from './Art.tsx';
 import { SKINS, type Skin } from './skins.ts';
 import '../../design/settings.css';
 
@@ -162,6 +163,8 @@ export function Settings({ skin, onSkin, onOpenSave }: { skin: Skin; onSkin: (s:
             </label>
           ))}
         </fieldset>
+
+        <ArtSettings />
 
         <h2>Your data</h2>
         <p className="sc-sethint">Favourites, notes and saved plans live in this browser. Back them up to keep them safe.</p>

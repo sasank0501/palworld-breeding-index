@@ -7,6 +7,7 @@ import { Breeding } from './showcase/Breeding.tsx';
 import { Dex } from './showcase/Dex.tsx';
 import { Dossier } from './showcase/Dossier.tsx';
 import { PalSheet } from './showcase/PalSheet.tsx';
+import { ArtNotice } from './showcase/Art.tsx';
 import { MissingNotice } from './showcase/Missing.tsx';
 import { Planner } from './showcase/Planner.tsx';
 import { SavedPlans } from './showcase/SavedPlans.tsx';
@@ -193,6 +194,7 @@ export default function Showcase({
         </nav>
 
         <main id="main" tabIndex={-1}>
+          <ArtNotice />
           {checkMissing && <MissingNotice ctx={ctx} onDone={missingDone} />}
 
           {top && (

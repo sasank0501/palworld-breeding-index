@@ -5,7 +5,8 @@ import metaJson from '../../data/meta.json';
 import passivesJson from '../../data/passives.json';
 import { rankOf, rankSort, type Rank } from '../../lib/passiveCategories.ts';
 import type { Combos } from '../../lib/breeding.ts';
-import { loadStills } from '../../components/PalCards.tsx';
+import { onArtChange, useArtVersion } from '../../art/resolve.ts';
+import { ArtImage, loadStills, useStillPath } from '../../components/PalCards.tsx';
 import type { PalDex, PassiveInfo } from '../../types.ts';
 
 /** Data and small pieces shared by the Field register sections. */
@@ -75,21 +76,16 @@ export function TraitName({ id }: { id: string }) {
  */
 const compact = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 let stills: Promise<Map<string, string>> | null = null;
-/** compact(codename) -> codename, filled with the stills so a species can find its 3D model. */
-const codenames = new Map<string, string>();
-/** The stills index (shared with the pal portraits), re-keyed by compacted codename. */
-function loadSpeciesStills(): Promise<Map<string, string>> {
+/** The stills index (shared with the pal portraits), as compact(codename) -> codename. */
+function loadCodenames(): Promise<Map<string, string>> {
   stills ??= loadStills().then((index) => {
     const m = new Map<string, string>();
-    for (const [key, { file, v }] of Object.entries(index)) {
-      const c = compact(key);
-      if (!m.has(c)) m.set(c, `${import.meta.env.BASE_URL}pal-portraits/${file}.webp?v=${v}`);
-      if (!codenames.has(c)) codenames.set(c, key);
-    }
+    for (const key of Object.keys(index)) if (!m.has(compact(key))) m.set(compact(key), key);
     return m;
   });
   return stills;
 }
+onArtChange(() => (stills = null));
 
 /**
  * The save's codename for a dex species (SheepBall for Lamball), which is how
@@ -97,41 +93,24 @@ function loadSpeciesStills(): Promise<Map<string, string>> {
  * this build has no art.
  */
 export function useCodename(id: string): string | null {
+  const version = useArtVersion();
   const [name, setName] = useState<string | null>(null);
   useEffect(() => {
     let live = true;
     const base = DEX[id]?.img?.replace(/^.*\//, '').replace(/\.[a-z0-9]+$/i, '');
-    void loadSpeciesStills().then(() => live && setName(base ? (codenames.get(compact(base)) ?? null) : null));
+    void loadCodenames().then((m) => live && setName(base ? (m.get(compact(base)) ?? null) : null));
     return () => {
       live = false;
     };
-  }, [id]);
+  }, [id, version]);
   return name;
 }
 
-/** Species art for a dex id: chibi still, then the dex sprite, then initials. */
+/** Species art for a dex id: chibi still, then the dex icon, then the egg (ArtImage). */
 export function SpeciesArt({ id }: { id: string }) {
   const dex = DEX[id];
-  const [still, setStill] = useState<string | null>(null);
-  const [failed, setFailed] = useState<string | null>(null);
-
-  useEffect(() => {
-    let live = true;
-    const base = dex?.img?.replace(/^.*\//, '').replace(/\.[a-z0-9]+$/i, '');
-    void loadSpeciesStills().then((m) => live && setStill(base ? (m.get(compact(base)) ?? null) : null));
-    return () => {
-      live = false;
-    };
-  }, [dex]);
-
-  if (still && failed !== still) return <img src={still} alt="" loading="lazy" onError={() => setFailed(still)} />;
-  if (dex?.img && failed !== dex.img)
-    return <img src={`/${dex.img}`} alt="" loading="lazy" onError={() => setFailed(dex.img)} />;
-  return (
-    <span className="dl-art-fallback" aria-hidden="true">
-      {nameOf(id).slice(0, 2)}
-    </span>
-  );
+  const still = useStillPath(useCodename(id));
+  return <ArtImage still={still} icon={dex?.img} element={dex?.types?.[0]} />;
 }
 
 /** combos.json is ~700 KB, so each section that needs it loads it lazily (and once). */

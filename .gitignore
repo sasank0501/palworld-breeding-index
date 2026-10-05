@@ -39,6 +39,9 @@ public/pal-models-lite/
 public/work-icons/
 public/element-icons/
 
+# A test art pack for the public site (`npm run make-art-pack`): game art.
+art-pack/
+
 # Screenshots and the draft for the Reddit post: they show game art.
 reddit/
 

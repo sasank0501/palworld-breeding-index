@@ -284,6 +284,23 @@
 .sc-shell .r-2, .sc-shell .r-1, .sc-shell .r-unk { --rk: var(--r-low); --rk-text: var(--r-low-text); }
 .sc-shell .r-neg { --rk: var(--r-neg); --rk-text: var(--r-neg-text); }
 
+/*
+ * Before any game art is in this browser (src/components/ArtPlaceholder.tsx): the
+ * egg, tinted by the pal's element. Still, on purpose: with no art it may be on
+ * screen a long time, and 289 moving eggs would be noise (and would need a pause
+ * button, WCAG 2.2.2).
+ */
+.art-egg { display: grid; place-items: center; width: 100%; height: 100%; }
+.art-egg svg { width: min(56%, 96px); height: auto; overflow: visible; }
+.art-egg .egg-shell { fill: color-mix(in srgb, var(--elem, var(--accent)) 14%, var(--panel-solid)); stroke: var(--elem, var(--ink-soft)); stroke-width: 2; }
+.art-egg .egg-band { fill: none; stroke: var(--elem, var(--ink-soft)); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.art-egg .egg-spot { fill: var(--elem, var(--ink-soft)); opacity: 0.55; }
+
+/* An icon whose finished art is still being extracted (Phase 6): a silhouette. */
+.art-silhouette { filter: brightness(0) opacity(0.3); }
+.sc-shell[data-skin='obsidian'] .art-silhouette,
+.sc-shell[data-skin='feybreak'] .art-silhouette { filter: brightness(0) invert(1) opacity(0.3); }
+
 /* "Skip to content": off screen until a keyboard user tabs to it. */
 .sc-skip {
   position: absolute;
@@ -623,7 +640,7 @@
   background: transparent;
 }
 .sc-stage .dl-model-toggle { display: none; }
-.sc-stage .dl-art-fallback { font: var(--d-weight) 64px/1 var(--font-display); color: var(--ink-soft); }
+.sc-stage .art-egg svg { width: min(46%, 160px); }
 
 /* ================================ hero ================================ */
 
@@ -824,7 +841,7 @@
 }
 .sc-dex-art img { width: 92%; height: 92%; object-fit: contain; transition: transform 0.3s, filter 0.3s; filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.25)); }
 .sc-dex:hover .sc-dex-art img { transform: scale(1.08); }
-.sc-dex-art .dl-art-fallback { font: var(--d-weight) 28px var(--font-display); color: var(--ink-soft); }
+
 
 /* a rarity gem in the corner of the art */
 .sc-dex-art::after {

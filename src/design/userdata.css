@@ -144,3 +144,12 @@
 .sc-missing-review li div { display: grid; gap: 2px; min-width: 0; }
 .sc-missing-review li span { font-size: 14px; color: var(--ink-soft); overflow-wrap: anywhere; }
 .sc-missing-actions { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 6px; }
+
+/* Game art (src/routes/showcase/Art.tsx): the notice while there is none, and its progress. */
+.sc-artnotice { align-items: flex-start; }
+.sc-artnotice > div:first-child { flex: 1 1 320px; }
+.sc-artnotice h2 { margin: 0 0 4px; font: var(--d-weight) 20px/1.2 var(--font-display); letter-spacing: var(--d-track); }
+.sc-artprog { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; width: 100%; }
+.sc-artprog progress { flex: 1 1 200px; height: 10px; accent-color: var(--accent-strong); }
+.sc-artprog span { font: 600 13px var(--font-mono); color: var(--ink-soft); }
+.sc-arterr { flex-basis: 100%; margin: 4px 0 0; color: var(--r-neg-text); font-weight: 700; }

@@ -21,7 +21,8 @@
     "render-portraits": "node scripts/render-portraits.mjs",
     "build-portraits": "node scripts/build-portraits.mjs",
     "make-demo-roster": "node scripts/make-demo-roster.mjs",
-    "audit-a11y": "node scripts/audit-a11y.mjs"
+    "audit-a11y": "node scripts/audit-a11y.mjs",
+    "make-art-pack": "node scripts/make-art-pack.mjs"
   },
   "dependencies": {
     "@google/model-viewer": "^4.3.1",
