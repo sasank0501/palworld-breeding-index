@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Portrait, displayName, ivTotal } from '../../components/PalCards.tsx';
 import { PRESETS, RANK_ORDER, rankSort } from '../../lib/passiveCategories.ts';
@@ -11,8 +11,10 @@ import {
   type SolveResult,
 } from '../../lib/passivePlan.ts';
 import type { RosterPal } from '../../types.ts';
+import { newPlanId, savePlan } from '../../userdata/edit.ts';
 import { DEX, LOCATION, META, PASSIVES, SpeciesArt, TraitName, UNBREEDABLE, nameOf, rankFor, roman, traitClass, traitGlyph } from './shared.tsx';
 import type { Ctx } from './ctx.ts';
+import { planLabel, plansOf, type SavedPlan } from './SavedPlans.tsx';
 import { ElementChips, PalEgg, TraitChips, elementOf, stagger, tierOf } from './parts.tsx';
 import { Tree, type TNode } from './tree.tsx';
 
@@ -38,11 +40,16 @@ const rankKey = (id: string): string => {
 export function Planner({
   ctx,
   initialTarget,
+  initialPlan,
+  onAllPlans,
   onSpecies,
   onPal,
 }: {
   ctx: Ctx;
   initialTarget: string;
+  /** A saved plan to load; `key` changes each time one is opened. */
+  initialPlan?: { species: string; passives: string[]; key: number } | null;
+  onAllPlans?: () => void;
   onSpecies: (id: string) => void;
   onPal: (p: RosterPal) => void;
 }) {
@@ -58,6 +65,47 @@ export function Planner({
       setResult(null);
     }
   }, [initialTarget]);
+
+  useEffect(() => {
+    if (!initialPlan) return;
+    setTarget(initialPlan.species);
+    setPicked(initialPlan.passives.slice(0, MAX_PASSIVES));
+    setResult(null);
+  }, [initialPlan]);
+
+  /* ---- saved plans ---- */
+  const saved = plansOf(ctx.user);
+  const same = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
+  const savedNow = saved.find((s) => s.species === target && same(s.passives, picked));
+  const [plansOpen, setPlansOpen] = useState(false);
+  const [planSaid, setPlanSaid] = useState('');
+  const plansBtn = useRef<HTMLButtonElement>(null);
+  const plansBox = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!plansOpen) return;
+    const away = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!plansBox.current?.contains(t) && !plansBtn.current?.contains(t)) setPlansOpen(false);
+    };
+    window.addEventListener('pointerdown', away);
+    return () => window.removeEventListener('pointerdown', away);
+  }, [plansOpen]);
+  const closePlans = () => {
+    setPlansOpen(false);
+    plansBtn.current?.focus();
+  };
+  const loadPlan = (s: SavedPlan) => {
+    setTarget(s.species);
+    setPicked(s.passives.slice(0, MAX_PASSIVES));
+    setResult(null);
+    setPlansOpen(false);
+    setPlanSaid(`Opened the ${nameOf(s.species)} plan.`);
+  };
+  const saveCurrent = () => {
+    if (!target || !picked.length || savedNow) return;
+    ctx.user.edit((d) => savePlan(d, newPlanId(), { species: target, passives: picked }));
+    setPlanSaid(`Saved the ${nameOf(target)} plan.`);
+  };
 
   const planner: PlannerPal[] = useMemo(
     () =>
@@ -144,6 +192,67 @@ export function Planner({
           Inheritance is still random at every step, so expect to re-roll some eggs.
         </p>
       </header>
+
+      <div className="sc-planbar sc-in" style={stagger(3)}>
+        <div
+          className="sc-planmenu"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape' && plansOpen) {
+              e.stopPropagation();
+              closePlans();
+            }
+          }}
+        >
+          <button
+            ref={plansBtn}
+            type="button"
+            className="sc-btn ghost"
+            aria-expanded={plansOpen}
+            aria-controls="sc-planlist"
+            disabled={!ctx.user.data}
+            onClick={() => setPlansOpen(!plansOpen)}
+          >
+            Saved plans ({saved.length}) <span aria-hidden="true">▾</span>
+          </button>
+          <div ref={plansBox} id="sc-planlist" className="sc-planlist" hidden={!plansOpen}>
+            {saved.length === 0 ? (
+              <p className="sc-planlist-empty">Nothing saved yet. Pick a species and passives, then Save this plan.</p>
+            ) : (
+              <>
+                <p className="sc-planlist-h">Recent</p>
+                <ul>
+                  {saved.slice(0, 5).map((s) => (
+                    <li key={s.id}>
+                      <button type="button" onClick={() => loadPlan(s)}>
+                        <b>{nameOf(s.species)}</b>
+                        <span>{planLabel(s)}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {onAllPlans && (
+                  <button
+                    type="button"
+                    className="sc-planlist-all"
+                    onClick={() => {
+                      setPlansOpen(false);
+                      onAllPlans();
+                    }}
+                  >
+                    See all {saved.length} plans →
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+        <button type="button" className="sc-btn" disabled={!ctx.user.data || !target || !picked.length || !!savedNow} onClick={saveCurrent}>
+          {savedNow ? 'Saved ✓' : 'Save this plan'}
+        </button>
+        <span className="sr-only" aria-live="polite">
+          {planSaid}
+        </span>
+      </div>
 
       <div className="sc-plan">
         <div className="sc-plan-setup">

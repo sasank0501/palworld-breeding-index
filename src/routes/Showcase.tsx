@@ -8,6 +8,7 @@ import { Dex } from './showcase/Dex.tsx';
 import { Dossier } from './showcase/Dossier.tsx';
 import { PalSheet } from './showcase/PalSheet.tsx';
 import { Planner } from './showcase/Planner.tsx';
+import { SavedPlans } from './showcase/SavedPlans.tsx';
 import { useCtx } from './showcase/ctx.ts';
 import { DEX_ORDER, PalEgg } from './showcase/parts.tsx';
 import { Settings } from './showcase/Settings.tsx';
@@ -32,7 +33,7 @@ const SECTIONS: Array<[Section, string]> = [
   ['planner', 'Planner'],
 ];
 
-type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] };
+type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] } | { kind: 'plans' };
 
 export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpenSave?: () => void }) {
   const [skin, setSkin] = useSkin();
@@ -40,6 +41,7 @@ export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpe
   const [section, setSection] = useState<Section>('dex');
   const [stack, setStack] = useState<Entry[]>([]);
   const [planTarget, setPlanTarget] = useState('');
+  const [planToOpen, setPlanToOpen] = useState<{ species: string; passives: string[]; key: number } | null>(null);
   const page = useRef<HTMLDivElement>(null);
   const savedScroll = useRef(0);
   const top = stack[stack.length - 1];
@@ -80,7 +82,7 @@ export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpe
   const step = useCallback((delta: number) => {
     setStack((s) => {
       const t = s[s.length - 1];
-      if (!t) return s;
+      if (!t || t.kind === 'plans') return s;
       if (t.kind === 'pal') {
         const i = t.list.findIndex((p) => p.instanceId === t.pal.instanceId);
         const next = t.list[i + delta];
@@ -140,22 +142,33 @@ export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpe
             </button>
             <span className="sc-crumbs">
               {stack.map((e, i) => (
-                <span key={i}>{e.kind === 'species' ? nameOf(e.id) : e.pal.nickname ?? nameOf(e.pal.palId ?? '')}</span>
+                <span key={i}>{e.kind === 'plans' ? 'Saved plans' : e.kind === 'species' ? nameOf(e.id) : e.pal.nickname ?? nameOf(e.pal.palId ?? '')}</span>
               ))}
             </span>
-            <span className="sc-stepper">
-              <button onClick={() => step(-1)} aria-label="Previous">
-                ‹
-              </button>
-              <button onClick={() => step(1)} aria-label="Next">
-                ›
-              </button>
-            </span>
+            {top.kind !== 'plans' && (
+              <span className="sc-stepper">
+                <button onClick={() => step(-1)} aria-label="Previous">
+                  ‹
+                </button>
+                <button onClick={() => step(1)} aria-label="Next">
+                  ›
+                </button>
+              </span>
+            )}
           </div>
         )}
 
         {top?.kind === 'species' && (
           <Dossier ctx={ctx} id={top.id} onSpecies={openSpecies} onPal={(p) => openPal(p, ctx.byPal.get(top.id))} onPlan={plan} />
+        )}
+        {top?.kind === 'plans' && (
+          <SavedPlans
+            ctx={ctx}
+            onOpen={(p) => {
+              setPlanToOpen({ species: p.species, passives: p.passives, key: Date.now() });
+              go('planner');
+            }}
+          />
         )}
         {top?.kind === 'pal' && (
           <PalSheet
@@ -173,7 +186,16 @@ export default function Showcase({ roster, onOpenSave }: { roster: Roster; onOpe
           {section === 'dex' && <Dex ctx={ctx} onSpecies={openSpecies} onPal={(p) => openPal(p, [p])} />}
           {section === 'box' && <Box ctx={ctx} onPal={openPal} />}
           {section === 'breeding' && <Breeding ctx={ctx} onSpecies={openSpecies} />}
-          {section === 'planner' && <Planner ctx={ctx} initialTarget={planTarget} onSpecies={openSpecies} onPal={(p) => openPal(p, [p])} />}
+          {section === 'planner' && (
+            <Planner
+              ctx={ctx}
+              initialTarget={planTarget}
+              initialPlan={planToOpen}
+              onAllPlans={() => push({ kind: 'plans' })}
+              onSpecies={openSpecies}
+              onPal={(p) => openPal(p, [p])}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -62,3 +62,64 @@
 .sc-note-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .sc-note-hint { font-size: 13px; color: var(--ink-soft); }
 .sc-note-edit { padding: 7px 14px; font-size: 14px; }
+
+/* Saved plans: the Planner's bar and menu, and the full page (src/routes/showcase/SavedPlans.tsx). */
+.sc-planbar { position: relative; z-index: 20; /* above the cards below, so the menu opens over them */ display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 auto 18px; width: min(1200px, 100%); box-sizing: border-box; padding: 0 16px; }
+.sc-planmenu { position: relative; }
+.sc-planlist {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(340px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.sc-planlist[hidden] { display: none; }
+.sc-planlist ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.sc-planlist li button, .sc-planlist-all {
+  width: 100%;
+  min-height: 44px;
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--ink);
+  font: 600 14px/1.3 var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+.sc-planlist li button:hover, .sc-planlist-all:hover { background: var(--panel-2); }
+.sc-planlist li button:focus-visible, .sc-planlist-all:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.sc-planlist li b { font: var(--d-weight) 16px/1.2 var(--font-display); }
+.sc-planlist li span { font-size: 13px; color: var(--ink-soft); }
+.sc-planlist-h { margin: 4px 10px; font: 800 12px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.sc-planlist-all { font-weight: 800; border-top: 2px solid var(--panel-2); border-radius: 0 0 var(--radius-s) var(--radius-s); }
+.sc-planlist-empty { margin: 6px 10px; font-size: 14px; line-height: 1.45; }
+
+.sc-plans { display: grid; gap: 14px; }
+.sc-plans-head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.sc-plans-title { margin: 0; flex: 1 1 auto; font: var(--d-weight) clamp(28px, 4vw, 40px)/1.1 var(--font-display); letter-spacing: var(--d-track); }
+.sc-plans-title span { font-size: 0.6em; color: var(--ink-soft); }
+.sc-plans-title:focus { outline: none; }
+.sc-plans-title:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.sc-plans-sort { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; }
+.sc-plans-sort select { min-height: 44px; padding: 6px 10px; border: var(--border); border-radius: var(--radius-s); background: var(--panel); color: var(--ink); font: 600 14px var(--font-body); }
+.sc-plans-list { list-style: none; margin: 0; padding: 6px 18px; display: grid; background: var(--panel); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.sc-plans-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 2px solid var(--panel-2); }
+.sc-plans-list li:first-child { border-top: 0; }
+.sc-plans-what { display: grid; gap: 2px; min-width: 0; }
+.sc-plans-what b { font: var(--d-weight) 18px/1.2 var(--font-display); }
+.sc-plans-what span { font-size: 14px; color: var(--ink-soft); }
+.sc-plans-list time { font: 600 13px var(--font-mono); color: var(--ink-soft); }
+.sc-plans-actions { display: flex; gap: 8px; }
+@media (max-width: 600px) {
+  .sc-plans-list li { grid-template-columns: minmax(0, 1fr); }
+}
