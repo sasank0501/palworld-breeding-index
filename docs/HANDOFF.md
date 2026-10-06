@@ -1,152 +1,71 @@
-# Handoff — 2026-10-05
+# Handoff — 2026-10-05 (evening)
 
-Branch `paldb-ranks-and-theme`, 21 commits since `9f19252`, **nothing pushed**. Type-check, the 93
-tests, `npm run build` and `npm run build:resume` pass.
+Branch `paldb-ranks-and-theme`, pushed to origin up to 4443f26; later commits are local (push on
+"wrap it up"). Type-check, 110 tests, `npm run build` pass. `docs/WEBSITE-PLAN.md` has every phase's
+detail and decisions; `docs/A11Y.md` the accessibility checklist. Learning page: claude.ai artifact
+`9hUfnrC8NXRkssEC4Tjcz6` (source: last session's scratchpad `build-log.html`; read it with the
+Artifact tool before editing). Every new part gets a quiz and a "Why, and the evidence" block with
+sources checked in-session (see memory).
 
-The project is turning into a **public website**: a player opens the page, points it at their save
-(and later their game folder), and gets the full app with nothing installed and no game art hosted.
-`docs/WEBSITE-PLAN.md` has the phases and the detailed results; `docs/A11Y.md` the accessibility
-baseline. A learning page follows the work chapter by chapter (claude.ai artifact
-`9hUfnrC8NXRkssEC4Tjcz6`, private); the Phase 3 design picks are on the canvas "Paldex Data
-Controls" (`H5LinWAA8QyiAihyKFSMHm`).
+## Phases
 
-## What was done on 2026-10-04/05
+| Phase | Status |
+|---|---|
+| 0–3 | done |
+| 4 Art loader | **done**: Edge, Firefox, Firefox private. `src/art/` (pack, storage OPFS/IndexedDB, worker, resolver, loader) |
+| 5 Card pictures in the browser | **built**: `src/art/stills.ts`, `stillsRunner.ts`. 288 in 94 s (RTX 4070), 0 failures. Not yet measured on a laptop without a GPU |
+| 6 Full extractor | **next** (plan below) |
+| 7 A11y + cross-browser | open items in A11Y.md (spotlight dots 24 px, two aria-prohibited-attr, 12 px text floor, model alt/pause, phone first tile, dark mode decision), Safari |
+| 8 Ship | own work/element icons, favicon (404 today), self-hosted fonts, pal URLs, deploy |
 
-| Phase | Status | Where |
-|---|---|---|
-| 0 Groundwork | done | Showcase committed; `docs/A11Y.md` + `npm run audit-a11y`; `src/lib/features.ts`; host: Cloudflare Pages (at deploy) |
-| 1 Extraction spike | **verdict go** | `spikes/cue4parse-wasm`: CUE4Parse runs in a browser and exports the same files as the desktop |
-| 2 Save import in the browser | done, hand-tested | `src/save/importWorld.ts`, `findWorlds.ts`, `import.worker.ts`, `pick.ts`, `store.ts`; `src/routes/Import.tsx` |
-| 3 The player's own data | done | `src/userdata/` (format, merge, IndexedDB store, backups) and its UI in `src/routes/showcase/` |
-| 4–8 | not started | next: Phase 4, the art loader |
+**Scope cut rejected:** cards show stills taken from the 3D models; detail pages show live 3D.
 
-**Phase 3 UI**, from Sasank's picks on the design canvas:
-- a **settings gear** in the top bar (`Settings.tsx`): **Themes** (the four skins; players see
-  "Themes", the code still says skin), Your data (download a backup, restore through a Merge /
-  Replace / Cancel dialog, Chrome/Edge: keep a backup file updated), Open a different save. The
-  theme buttons left the top bar.
-- **stars** on My Pals cards and the pal sheet, plus a Favourites filter (`Fav.tsx`)
-- **"+ Add note"** on the pal sheet (`Note.tsx`)
-- **"Save this plan"**, a Saved plans menu (5 recent) and a full **Saved plans** page (`SavedPlans.tsx`)
-- a **notice after an import** when starred or noted pals have left the save (`Missing.tsx`)
+## Built on 2026-10-05 (all committed)
 
-The player's data rides on the Showcase `ctx` (`ctx.user`, from `useWorldData`).
+- Contrast 2,702 → 0 (text tokens per theme); main landmark + skip link; focus to heading on open,
+  back to opener on Back; NVDA fixes (glyphs, names, announcements). Audit script really switches
+  themes and now flags any element past the screen edge.
+- Hatch style D (egg squash → grow), once per species per visit; 150 ms rule.
+- Spotlight: Hide (Undo 8 s), Potential/Passives order, "Hidden from the spotlight" page; user data
+  format 2 (`hidden`).
+- My Pals loads as you scroll (marker 600 px ahead, 60 per batch, announced); `content-visibility`
+  keeps 1,990 cards at 16.7 ms frames; hover room fix.
+- Star = outline → solid theme accent, no disc.
+- Import screen: drifting rows filling the height (eggs, then pal silhouettes), pause, reduced motion.
+- Phone fixes: search box border-box, filter switch wraps at 320 px.
+- `npm run make-art-pack` writes `art-pack/` **without** stills by default (`--with-stills` adds them).
 
-## What we found out
+## Decisions
 
-**About the game files**
-- Palworld is **one 39 GB `Pal-Windows.pak`** (pak version 11), not IoStore `.utoc`/`.ucas`. The
-  index sits at the end: footer 262 B, primary index 7.4 MB, directory index 7.9 MB; mounting reads
-  only those (15.3 MB, 0.04% of the file) and indexes 185,141 files.
-- It is **Oodle**-compressed in 64 KB blocks, but no native Oodle is needed: CUE4Parse uses
-  **OodleSharp**, a C# port, which runs in WebAssembly unchanged.
-- Some material files are named **`Ml_`** (lowercase L), not `MI_`. Find materials by content.
-- Each world folder has **`LevelMeta.sav`** with the world name, host, level and in-game day: the
-  import screen names worlds from it ("pal1.0 · RougeStark · level 80 · day 201").
-- `backup/` folders beside each world hold older `Level.sav` copies; never treat them as worlds.
+- **Type mappings (`.usmap`) = community sources with safety nets**: fetch at runtime (GitHub raw
+  sends `Access-Control-Allow-Origin: *`), backup source, verify by decoding a known table, cache with
+  the pack, else ask the player for a file. Never host it ourselves for now. Local copies:
+  `scripts/pal-textures/mappings/` (elliotks repo archived Feb 2025; PalworldModding/UsefulFiles).
+- "Wrap it up" = commit, rewrite this file, scan for game art/personal data, push.
 
-**About running CUE4Parse in a browser** (details in WEBSITE-PLAN, Phase 1)
-- Builds with the `Microsoft.NET.Sdk.WebAssembly` SDK, no workload; 14 MB Brotli download.
-- Reads must be synchronous, so the extractor runs in a **Web Worker** with `FileReaderSync` over
-  `file.slice()`.
-- `SubmitKey()`/`Mount()` block on `Task.Result`, which the single-threaded runtime refuses
-  ("Cannot wait on monitors"): call `SubmitKeyAsync`/`MountAsync` and await.
-- CUE4Parse joins output paths with `\`, which in the browser's Unix-style file system is part of a
-  file name; normalise when listing output.
-- Textures: **SkiaSharp is native** and fails; use the managed AssetRipper decoder
-  (`TextureDecoder.UseAssetRipperTextureDecoder = true`) and ImageSharp. `.glb` and `.psa` come out
-  **byte-identical** to the desktop's; colours within ±2/255; BC5 normal maps' rebuilt Z within 18.
-- Cost for all 333 meshes: 53 min as the desktop does it, **18 min** decoding 1024 mips without PNG,
-  **≈ 9 min** estimated with a mesh-only export. Memory levels off at 412–594 MB if each pal's output
-  is handed off and deleted (WebAssembly memory never shrinks).
+## In progress
 
-**About browsers**
-- **Chrome and Edge block `showDirectoryPicker` for all of AppData** ("contains system files") —
-  every Steam save lives there. Found by hand; saves now always use `<input webkitdirectory>`. The
-  same block covers Program Files, the default Steam install: Phase 6 must plan for it.
-- **Firefox private windows have no OPFS** (IndexedDB still works): the art loader needs a fallback.
-- Firefox's automation can't fill a folder input, and headless browsers can't drive native folder
-  dialogs: those paths need a person.
-- ooz-wasm uses top-level await, so the build targets **ES2022** and workers are ES modules.
+- **User is doing a chibi model review** at `localhost:5173/#chibi` (local tool, gitignored), with marks
+  (1 ok, 2 head big, 3 head small, 4 broken) and a "What's off?" note per pal. It autosaves to
+  `scripts/.cache/chibi-review.json` (dev-only endpoint in vite.config.ts). When they say done: read
+  that file, turn findings into `scripts/chibi-overrides.json` edits / model fixes. Don't rebuild
+  models or touch public/pal-models while the review runs.
 
-**About the app** (each caught by a test before commit)
-- `display: grid` on an element overrides its `hidden` attribute: add `[hidden] { display: none }`.
-- An element with an entrance animation gets its own stacking layer; a menu inside it can open
-  under later content. Raise the layer.
-- No button inside a button: card stars sit beside the card in a wrapper.
-- A control's state needs 3:1 contrast: a gold star alone on white is 1.4:1.
-- Keyboard shortcuts must ignore every text field, not only `<input>`.
-- `width: 100%` plus padding overflows a phone with the default `box-sizing`.
-- A pal that leaves the save takes its name with it: stars and notes now keep a `label`.
-- **The one recurring axe failure** is the accent button (white on `#2f7bff`, 3.89:1; Sakurajima
-  4.3:1): `docs/A11Y.md` item 1.
+## Next: Phase 6 plan (agreed to propose; step 1 not started)
 
-## Decisions made today
+1. Research mappings sources for Palworld 1.0 (current, update lag, version match); pick main + backup.
+2. Mappings module: fetch, fallback, verify, cache, ask-for-file.
+3. Move the CUE4Parse WebAssembly spike (`spikes/cue4parse-wasm`) into an app worker, loaded on demand.
+4. Game folder picking from Program Files (classic input + copyable path hint); user tests by hand.
+5. Export all 288 pals in the browser, streaming per pal, progress/stop/resume.
+6. Port `build-pal-models.mjs` to the browser (head overrides, animations, meshopt) → `pal-models/`;
+   Phase 5 then makes the stills.
+7. End to end in a fresh browser, measured; learning page chapter with quiz + evidence.
 
-- **Bring your own assets:** the public site hosts no Pocketpair files; the visitor's browser
-  extracts the art from their own install. **No code signing**, so in-browser extraction is the main
-  path (the spike says it works); an `.exe` is not needed.
-- **Portfolio page:** a separate public page that hosts the art, with a disclaimer and a takedown
-  policy.
-- **The 3D is required, not an opt-in** (ground rule, confirmed 2026-10-05): every visitor gets the
-  3D models; there is no 2D-only mode. See the ground rules in `docs/WEBSITE-PLAN.md`.
-- **Silhouettes before the 3D** (revised after seeing the art-less build): a *loading state only*.
-  Placeholders we draw ourselves first, then the game's 2D pal icons pulled quickly from the
-  visitor's own pak as silhouettes, then 3D filling in. To plan into Phase 4/6.
-- **Xbox / Game Pass:** detected and explained, not read. A later optional phase could add an adapter
-  that turns the `wgs` container into the same in-memory files (needs a real Xbox save to test).
-- **Before shipping:** make our own work and element icons (the current ones come from paldb).
+Also pending: user's NVDA pass (note editor, Saved plans, restore dialog).
 
-## Next
+## How things work (unchanged)
 
-1. ~~Accent-button contrast~~ **done 2026-10-05**: text tokens per theme, 2,702 → 0 contrast
-   failures (A11Y item 1). The audit script had been scanning Palpagos four times; fixed.
-2. **Phase 4, the art loader: built 2026-10-05** (`src/art/`; details in WEBSITE-PLAN). No
-   Service Worker: one `blob:` URL path. `npm run make-art-pack`, then "Choose the art folder" in
-   the public build. Left: Firefox by hand, normal and private window.
-3. Follow-ups: "steps left" per saved plan; NVDA pass on the import screen and the Phase 3 controls.
-
-## How things work now
-
-- **Opening the app:** a world imported in this browser before → straight to the Paldex; else a
-  local `public/roster.json` (development) → that; else the portfolio build → the demo; else the
-  import screen. The demo save has stable ids (`demo-0`…) and world `demo`, so stars and notes work
-  on it without touching a real save.
-- **Storage:** rosters in IndexedDB `palworld-index` (`roster:<world>`, `current`); the player's data
-  in `palworld-index-userdata` (`world:<id>`, `prefs`); the backup-file handle in
-  `palworld-index-backupfile`. The skin is also cached in localStorage so the first paint is right.
-- **Testing the import by hand:** `npm run build`, then `npx vite preview` (the dev server would load
-  `roster.json` and skip the import screen); "Open a different save" in the gear returns to it.
-- The Showcase sections are unchanged from before: Paldex, species page, My Pals and pal sheet,
-  Breeding, Planner; navigation is a stack (Back/Esc returns with scroll and filters kept).
-
-## Pipelines (all scripts in `scripts/`)
-
-| Command | Makes | Notes |
-|---|---|---|
-| `npm run build-portraits` | everything below, in order | The one-command pipeline. `--check` only looks for the game, mappings and browser. `--only A B` for a few pals. `--lite` also builds the small model set. |
-| `npm run build-pal-extras` | `src/data/palExtras.json`, `palExp.json` | Partner skills and rarity from paldb (pages cached in `scripts/.cache/paldb`), food from the wiki Cargo `Pal.hungerRate`, pal XP curve from thepalprofessor. **The wiki's partner skill table is stale.** |
-| `npm run build-models` | `public/pal-models/` (gitignored) | Chibi files carry Rest02 (live viewer) and Idle (stills). Per-pal head sizes live in `chibi-overrides.json`. `-- --lite` writes `public/pal-models-lite/` (chibi only, 512px, meshopt). |
-| `npm run render-portraits` | `public/pal-portraits/` | Needs `npm run dev`. Idle pose by default, `"pose": "bind"` per pal in the overrides. |
-| `npm run import-save` | `public/roster.json` | Same import code as the browser (`importWorld`). |
-| `npm run audit-a11y` | `scripts/.cache/a11y/` | axe on every screen and theme, plus keyboard, reduced-motion and phone checks. Needs the dev server; `APP=<url>`. |
-| `node scripts/audit-textures.mjs` | report | Lists materials with no texture. |
-| `node scripts/fetch-work-icons.mjs` | `public/work-icons/` | paldb icon numbering skips 09. |
-
-The spike: `cd spikes/cue4parse-wasm`, `dotnet publish -c Release`, then
-`node serve.mjs bin/Release/net10.0/publish/wwwroot 5190` and open `http://localhost:5190/`.
-
-## Local-only
-
-- The **Chibi review** tool (`src/routes/ChibiReview.tsx`, `src/design/chibi.css`) is gitignored and
-  dev only: `http://localhost:5173/#chibi`.
-- `public/pal-models/` is ~730 MB and `pal-models-lite/` ~133 MB; both gitignored. `dist-resume/` now
-  builds to **193.5 MB** (it was ~149 MB): worth checking which art it picks up before hosting it.
-
-## Known issues
-
-- Some chibis' Sleep pose dips below the floor (Lamball's 2x head clips the stage bottom).
-- Panthalus (`KingWhale`): head override lowered to 1.4; worth a look in the Chibi review tool.
-- Species and pals have no URLs yet (Back button, shareable links).
-- Fonts load from Google Fonts; self-host them for a fully offline build.
-- `build-portraits` is Windows + Edge/Chrome only.
+Dev: `npm run dev` (5173, loads `public/roster.json` + server art). Public build: `npm run build` then
+`npx vite preview` (4173; no art, import screen). Test art: `npm run make-art-pack` → "Choose the art
+folder". Pipelines and local-only notes as in WEBSITE-PLAN.md and README.
