@@ -78,8 +78,48 @@ function copyPublic(resume: boolean): Plugin {
   };
 }
 
+/**
+ * Dev server only: lets the local chibi review tool (#chibi, gitignored) save the
+ * review as you go to scripts/.cache/chibi-review.json, so the notes can be read
+ * straight from the project instead of copied out of the browser. Never in a build.
+ */
+function chibiReviewStore(root: string): Plugin {
+  const file = path.join(root, 'scripts', '.cache', 'chibi-review.json');
+  return {
+    name: 'chibi-review-store',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/__chibi-review', (req, res) => {
+        if (req.method === 'GET') {
+          res.setHeader('content-type', 'application/json');
+          res.end(fs.existsSync(file) ? fs.readFileSync(file) : '{}');
+          return;
+        }
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end();
+          return;
+        }
+        let body = '';
+        req.on('data', (c) => (body += c));
+        req.on('end', () => {
+          try {
+            JSON.parse(body); // only well-formed JSON is written
+            fs.mkdirSync(path.dirname(file), { recursive: true });
+            fs.writeFileSync(file, body);
+            res.statusCode = 204;
+          } catch {
+            res.statusCode = 400;
+          }
+          res.end();
+        });
+      });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), copyPublic(mode === 'resume')],
+  plugins: [react(), copyPublic(mode === 'resume'), chibiReviewStore(process.cwd())],
   // The save-import worker loads the Oodle decoder (ooz-wasm) with a dynamic
   // import, which the default classic-script worker bundle cannot do.
   worker: { format: 'es' },
