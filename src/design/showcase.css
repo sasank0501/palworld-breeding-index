@@ -802,6 +802,9 @@
 .sc-h2 span { margin-left: 10px; font: 600 13px var(--font-mono); letter-spacing: 0; color: var(--ink-soft); text-transform: none; }
 
 .sc-search input {
+  /* Padding and border inside the width: at width 100% on a phone they would
+     otherwise push the box 38 px past the edge. */
+  box-sizing: border-box;
   width: 240px;
   padding: 10px 16px;
   background: var(--panel);
@@ -961,6 +964,9 @@
   .sc-tabs button { padding: 7px 13px; font-size: 14px; white-space: nowrap; }
   .sc-search input { width: 100%; }
   .sc-search { flex: 1 1 100%; }
+  /* At 320 px the four-way switch (All / Discovered / Within reach / Undiscovered)
+     is wider than the screen: let it wrap onto two lines. */
+  .sc-seg { flex-wrap: wrap; max-width: 100%; border-radius: var(--radius-s); }
   .sc-dexgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 10px; }
   .sc-dex-name { font-size: 15px; }
   .sc-ring { width: 120px; height: 120px; }

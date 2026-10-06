@@ -137,7 +137,24 @@ for (const scheme of ['dark', 'light']) {
 // ---- phone width ------------------------------------------------------------
 {
   const { ctx, page } = await fresh({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  notes.phone = await page.evaluate(() => ({ horizontalOverflow: document.documentElement.scrollWidth > innerWidth, scrollWidth: document.documentElement.scrollWidth, firstTileTop: Math.round(document.querySelector('.sc-dex')?.getBoundingClientRect().top ?? -1) }));
+  notes.phone = await page.evaluate(() => {
+    // The page clips overflow, so also look for any visible element past the screen's edge
+    // (the search box once stuck out 38 px while the page itself reported no overflow).
+    const sticking = [...document.querySelectorAll('.sc-page *')]
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.right <= innerWidth + 1 || getComputedStyle(el).visibility === 'hidden') return false;
+        // Ignore what is meant to be off screen or is clipped by a parent: decorative layers,
+        // scrolling strips, and the invisible hover room around My Pals cards.
+        if (el.closest('[aria-hidden="true"], .sc-tabs, .dl-anims, .sc-spot-stage') || el.matches('.sc-palwrap')) return false;
+        for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+          if (getComputedStyle(a).overflowX !== 'visible' && a.getBoundingClientRect().right <= innerWidth + 1) return false;
+        }
+        return true;
+      })
+      .map((el) => `${el.tagName.toLowerCase()}.${[...el.classList].join('.')}`).slice(0, 8);
+    return { horizontalOverflow: document.documentElement.scrollWidth > innerWidth, scrollWidth: document.documentElement.scrollWidth, stickingOut: sticking, firstTileTop: Math.round(document.querySelector('.sc-dex')?.getBoundingClientRect().top ?? -1) };
+  });
   await page.screenshot({ path: out('phone-dex.png') });
   await ctx.close();
 }
