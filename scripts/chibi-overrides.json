@@ -1,30 +1,6 @@
 {
-  "SheepBall": {
-    "head": 2.0
-  },
-  "Boar": {
-    "head": 2.0
-  },
-  "Deer": {
-    "head": 2.0
-  },
-  "Deer_Ground": {
-    "head": 2.0
-  },
-  "Eagle": {
-    "head": 2.0
-  },
-  "KingWhale": {
-    "head": 1.4
-  },
-  "FoxMage": {
-    "head": 1.8
-  },
-  "Mutant": {
-    "head": 1.8
-  },
-  "PandaGirl": {
-    "head": 1.8
+  "Anubis": {
+    "size": 2048
   },
   "Baphomet": {
     "head": 1.8
@@ -32,67 +8,70 @@
   "Baphomet_Dark": {
     "head": 1.8
   },
-  "IceFox": {
-    "head": 1.8
+  "Bastet": {
+    "head": 2
   },
-  "WeaselDragon": {
-    "head": 1.8
+  "Bastet_Ice": {
+    "head": 2
   },
-  "RedArmorBird": {
-    "head": 1.8
+  "BerryGoat": {
+    "head": 1.8,
+    "bones": {
+      "grass_01": 1.2
+    }
   },
-  "IceWitch": {
-    "head": 1.8
+  "BerryGoat_Dark": {
+    "head": 1.8,
+    "bones": {
+      "grass_01": 1.2
+    }
   },
-  "GrimGirl": {
-    "head": 1.8
+  "BlueDragon": {
+    "head": 2.2
   },
-  "WhiteDeer": {
-    "head": 1.8
+  "BlueDragon_Ice": {
+    "head": 2.2
   },
-  "WhiteDeer_Dark": {
-    "head": 1.8
+  "Boar": {
+    "head": 1.3
   },
-  "SleeveRabbit": {
-    "head": 1.8
+  "CaptainPenguin": {
+    "head": 2.1
   },
-  "MushroomLady": {
-    "head": 1.8
+  "CaptainPenguin_Black": {
+    "head": 2.1
   },
-  "MoonChild": {
-    "head": 1.8
+  "CubeTurtle": {
+    "head": 2
   },
-  "Umihebi": {
+  "CubeTurtle_Neutral": {
+    "head": 2
+  },
+  "DarkCrow": {
+    "head": 2
+  },
+  "DarkFlameFox": {
+    "head": 2
+  },
+  "DarkScorpion": {
     "head": 1.5
   },
-  "Umihebi_Fire": {
+  "DarkScorpion_Ground": {
     "head": 1.5
   },
-  "SwordCutlassfish": {
-    "head": 1.5
+  "Deer": {
+    "head": 1.7
   },
-  "SwordCutlassfish_Fire": {
-    "head": 1.5
+  "Deer_Ground": {
+    "head": 1.7
   },
-  "KendoFrog": {
-    "head": 1.6
+  "DrillGame": {
+    "head": 1.4
   },
-  "KendoFrog_Dark": {
-    "head": 1.6
-  },
-  "KingSunfish": {
-    "head": 1.6
-  },
-  "KingSunfish_Thunder": {
-    "head": 1.6
+  "Eagle": {
+    "head": 2
   },
   "ElecPanda": {
-    "head": 1.6
-  },
-  "WhiteMoth": {
-    "head": 1.6
-  },
-  "WhiteMoth_Neutral": {
     "head": 1.6
   },
   "FairyDragon": {
@@ -101,7 +80,173 @@
   "FairyDragon_Water": {
     "head": 1.6
   },
-  "WizardOwl": {
-    "pose": "bind"
+  "FlowerDoll": {
+    "head": 2.2,
+    "leg": 0.8,
+    "arm": 0.9
+  },
+  "FlowerDoll_Fire": {
+    "head": 2.2,
+    "leg": 0.8,
+    "arm": 0.9
+  },
+  "FlowerRabbit": {
+    "head": 1.6
+  },
+  "FoxMage": {
+    "head": 2.3
+  },
+  "FoxMage_Dark": {
+    "head": 2.3
+  },
+  "Garm": {
+    "head": 2.2
+  },
+  "GrassMammoth": {
+    "head": 1,
+    "leg": 0.8,
+    "arm": 0.8,
+    "tail": 0.8
+  },
+  "GrassMammoth_Ice": {
+    "head": 1.25
+  },
+  "GrimGirl": {
+    "head": 1.8
+  },
+  "GuardianDog": {
+    "head": 2.1
+  },
+  "IceFox": {
+    "head": 1.8
+  },
+  "IceWitch": {
+    "head": 1.8
+  },
+  "KendoFrog": {
+    "head": 1.6
+  },
+  "KendoFrog_Dark": {
+    "head": 1.6
+  },
+  "KingSunfish": {
+    "head": 1.15
+  },
+  "KingSunfish_Thunder": {
+    "head": 1.15
+  },
+  "KingWhale": {
+    "head": 1.4
+  },
+  "LeafMomonga": {
+    "head": 1.5
+  },
+  "Monkey": {
+    "head": 1.4
+  },
+  "Monkey_Fire": {
+    "head": 1.4
+  },
+  "MoonChild": {
+    "head": 1.8
+  },
+  "MopBaby": {
+    "keepHeight": true
+  },
+  "MushroomDragon": {
+    "head": 1.5
+  },
+  "MushroomDragon_Dark": {
+    "head": 1.5
+  },
+  "MushroomLady": {
+    "head": 1.8
+  },
+  "Mutant": {
+    "head": 1.8
+  },
+  "PandaGirl": {
+    "head": 1.8
+  },
+  "RedArmorBird": {
+    "head": 1.8
+  },
+  "SamuraiDog": {
+    "head": 1.3
+  },
+  "SheepBall": {
+    "head": 1.5,
+    "arm": 1
+  },
+  "SleeveRabbit": {
+    "head": 2.3
+  },
+  "SnowPeafowl": {
+    "head": 1.9
+  },
+  "SwordCutlassfish": {
+    "head": 1.5
+  },
+  "SwordCutlassfish_Fire": {
+    "head": 1.5
+  },
+  "ThunderDog": {
+    "bones": {
+      "hair_01": 0.55
+    }
+  },
+  "ThunderDog_Ice": {
+    "bones": {
+      "hair_01": 0.55
+    }
+  },
+  "Umihebi": {
+    "head": 1.5
+  },
+  "Umihebi_Fire": {
+    "head": 1.5
+  },
+  "VolcanicMonster": {
+    "head": 1.6
+  },
+  "VolcanicMonster_Ice": {
+    "head": 1.6
+  },
+  "VolcanoDragon": {
+    "bones": {
+      "neck_01": 1.3
+    }
+  },
+  "VolcanoDragon_Ice": {
+    "bones": {
+      "neck_01": 1.3
+    }
+  },
+  "WeaselDragon": {
+    "head": 1.8
+  },
+  "WhiteDeer": {
+    "head": 1.8
+  },
+  "WhiteDeer_Dark": {
+    "head": 1.8
+  },
+  "WhiteMoth": {
+    "head": 1.6
+  },
+  "WhiteMoth_Neutral": {
+    "head": 1.6
+  },
+  "WindChimes": {
+    "bones": {
+      "arm_01_l": 0.7,
+      "arm_01_r": 0.7
+    }
+  },
+  "WindChimes_Ice": {
+    "bones": {
+      "arm_01_l": 0.7,
+      "arm_01_r": 0.7
+    }
   }
 }

@@ -93,8 +93,11 @@ function colorFactor(c) {
   return [c.R / m, c.G / m, c.B / m].map((v) => Math.min(1, Math.max(0, v)));
 }
 
+/** Texture edge for the pal being built: SIZE, or its "size" override (full build only). */
+let edge = SIZE;
+
 async function webp(pipeline) {
-  return pipeline.resize(SIZE, SIZE, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 88 }).toBuffer();
+  return pipeline.resize(edge, edge, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 88 }).toBuffer();
 }
 
 /** Rewrite each RGB pixel in place with fn(data, index), then encode. */
@@ -114,6 +117,8 @@ async function build(glbPath) {
   const top = path.join(STAGED, name);
   const files = fileIndex(top);
   const lookup = (base) => files.get(base.toLowerCase()) ?? null;
+  // A big pal fills the viewer, so 1024px shows (Anubis ships 2048px maps).
+  edge = (!LITE && OVERRIDES[name]?.size) || SIZE;
   const io = new NodeIO()
     .registerExtensions(ALL_EXTENSIONS)
     .registerDependencies({ 'meshopt.decoder': MeshoptDecoder, 'meshopt.encoder': MeshoptEncoder });
@@ -146,6 +151,13 @@ async function build(glbPath) {
     }
     const mi = JSON.parse(fs.readFileSync(miFile, 'utf8'));
     const textures = mi.Textures ?? {};
+    // Leaf coats, wings and skirts drawn from one side leave a hole where their
+    // back faces should be. The material says when it is meant to show both;
+    // a pal whose parent material says so (not visible here) can be forced
+    // through chibi-overrides.json ("doubleSided").
+    if (mi.Parameters?.Properties?.BasePropertyOverrides?.TwoSided || OVERRIDES[name]?.doubleSided) {
+      mat.setDoubleSided(true);
+    }
     const refs = new Set(Object.values(textures).map(textureName));
     const find = (suffix) =>
       [...refs].map((t) => lookup(`${t}.png`)).find((f) => f && f.toLowerCase().endsWith(suffix.toLowerCase())) ?? null;
@@ -333,6 +345,9 @@ function findAnim(name, prefs) {
  */
 const PLACED = 0.05;
 const MOVES = 0.01;
+/** How far a loop's bone lengths may stray from the mesh's (as a ratio) before its translations are rescaled. */
+const SKELETON_TOLERANCE = 1.25;
+const warnedUnit = new Set();
 
 function attachLoop(doc, name, prefs, { legScale = 1, after = {}, shift = {} } = {}, label = null) {
   const file = findAnim(name, prefs);
@@ -369,6 +384,28 @@ function attachLoop(doc, name, prefs, { legScale = 1, after = {}, shift = {} } =
     hip = psa.bones[hip].parent;
   }
 
+  // Some loops are keyed for a skeleton of another size. Hoocrates's and
+  // Elphidran's are stored in metres, not centimetres, so converted they put
+  // every bone 1/100 of the way from its parent and the rig folds into a knot;
+  // Sweepa's are keyed for a rig 2.7x its mesh, so every fur bone shoots out
+  // into a spike. Either way the bone lengths disagree with the mesh's by one
+  // shared factor: measure it (median over bones of keyed length / mesh
+  // length, frame 0) and divide it out of every translation.
+  const ratios = psa.bones
+    .map((bone, b) => {
+      const node = joints.get(bone.name);
+      const len = node && bone.parent >= 0 ? Math.hypot(...node.getTranslation()) : 0;
+      return len > 0.01 ? Math.hypot(...toGltf.vec(psa.keys[0][b].translation)) / len : null;
+    })
+    .filter((r) => r !== null)
+    .sort((a, b) => a - b);
+  const unit = ratios.length ? ratios[Math.floor(ratios.length / 2)] : 1;
+  const rescale = Math.abs(Math.log(unit)) > Math.log(SKELETON_TOLERANCE) ? 1 / unit : 1;
+  if (rescale !== 1 && !warnedUnit.has(file)) {
+    warnedUnit.add(file);
+    console.log(`  ${name}: ${path.basename(file)} keyed at ${unit.toFixed(2)}x the mesh, rescaled`);
+  }
+
   psa.bones.forEach((bone, b) => {
     const node = joints.get(bone.name);
     // The root carries root motion (walking off across the floor); skip it.
@@ -382,7 +419,7 @@ function attachLoop(doc, name, prefs, { legScale = 1, after = {}, shift = {} } =
     }
     track(node, 'rotation', rot, 'VEC4');
 
-    const keys = psa.keys.map((frame) => toGltf.vec(frame[b].translation));
+    const keys = psa.keys.map((frame) => toGltf.vec(frame[b].translation).map((v) => v * rescale));
     const off = shift[bone.name] ?? [0, 0, 0];
     const own = node.getTranslation().map((v, k) => v - off[k]);
     const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
@@ -472,10 +509,22 @@ const CHIBI = {
 };
 
 /**
- * Per-pal fixes from the Chibi review tab: { "<Name>": { "head": 1.6 } }, where
- * head is the head's scale relative to the body (the "head N×" the tab shows).
- * Overrides the headShare formula for that pal only. (A "pose" key in the same
- * file is read by render-portraits.mjs, not here.)
+ * Per-pal fixes from the Chibi review tab, keyed by mesh name:
+ *
+ *   head         head scale relative to the body (the "head N×" the tab shows),
+ *                in place of the headShare formula
+ *   leg/arm/tail overall scale of those limb roots, in place of CHIBI's
+ *   bones        { "<bone>": k } multiplies a bone's own scale (and so its
+ *                children's) — a mane, a bush, a neck. Applied before the head,
+ *                which divides it back out, so a scaled neck leaves the head be
+ *   keepHeight   true: legs shrink but the hips do not drop (pals whose "legs"
+ *                are a fringe, which sank into the floor)
+ *   plain        true: no reshaping at all, only the happy face — for a rig the
+ *                chibi treatment cannot fix (game proportions)
+ *   doubleSided  true: draw every material from both sides (see build())
+ *   size         texture edge in px for this pal's full build (not --lite)
+ *
+ * (A "pose" key in the same file is read by render-portraits.mjs, not here.)
  */
 const OVERRIDES_FILE = path.join(ROOT, 'scripts', 'chibi-overrides.json');
 const OVERRIDES = fs.existsSync(OVERRIDES_FILE) ? JSON.parse(fs.readFileSync(OVERRIDES_FILE, 'utf8')) : {};
@@ -514,8 +563,25 @@ function chibify(doc, name) {
     node.setScale([k, k, k]);
   };
 
-  if (!head || !hip) {
-    missing.push('head');
+  const o = OVERRIDES[name] ?? {};
+  const scaleBones = () => {
+    for (const [bone, k] of Object.entries(o.bones ?? {})) {
+      const j = byName.get(bone.toLowerCase());
+      if (!j) {
+        console.warn(`  ${name}: chibi-overrides names bone "${bone}", which this rig does not have`);
+        continue;
+      }
+      j.setScale(j.getScale().map((v) => v * k));
+    }
+  };
+  if (!head || !hip || o.plain) {
+    // Headless rigs (Hangyu hangs from its hair) can still be reshaped bone by bone.
+    if (!head || !hip) {
+      missing.push('head');
+      scaleBones();
+    }
+    // A plain pal still gets the happy face and the grin.
+    if (o.plain) return { missing, legScale: 1, ...face(doc, joints, missing), shift: {}, head: 1 };
     return { missing, legScale: 1, jaw: null, shift: {}, head: 1 };
   }
   // Measured before any bone is rescaled: it compares the head bone's world
@@ -529,7 +595,7 @@ function chibify(doc, name) {
   // tore Skutlass in half. They get a gentler chibi: a modest head, and limbs
   // and tail left at body scale so no seam is stretched.
   const neckless = parent.get(hip) && hip === parent.get(head);
-  const target = (kind) => (neckless ? CHIBI.body : CHIBI[kind]);
+  const target = (kind) => o[kind] ?? (neckless ? CHIBI.body : CHIBI[kind]);
   // How much to grow the head depends on how much of the pal it already is. A
   // flat 2.2x suits Blazamut (head = 35% of its height) but ballooned Gloopie
   // Primo, whose hood and hair are its whole silhouette. So solve for the scale
@@ -539,8 +605,7 @@ function chibify(doc, name) {
   const fit = share > 0 ? (T * (1 - share)) / (share * (1 - T)) : Infinity;
   const r = Math.min(Math.max(fit, 1), CHIBI.head / CHIBI.body);
   // A reviewed per-pal value (from the Chibi review tab) beats the formula.
-  const override = OVERRIDES[name]?.head;
-  const headRatio = override ?? (neckless ? Math.min(r, CHIBI.necklessHead) : r);
+  const headRatio = o.head ?? (neckless ? Math.min(r, CHIBI.necklessHead) : r);
   const headTarget = CHIBI.body * headRatio;
 
   // Limb roots: matches whose parent is not itself the same kind of limb.
@@ -555,6 +620,8 @@ function chibify(doc, name) {
     }
     if (!found[kind]) missing.push(kind === 'leg' ? 'legs' : kind === 'arm' ? 'arms' : 'tail');
   }
+
+  scaleBones();
 
   // Head last, so it divides out whatever the spine above it ended up with.
   // Measured before scaling: how far the head's own geometry hangs below it.
@@ -580,10 +647,15 @@ function chibify(doc, name) {
 
   // Shorter legs would leave the feet hanging; drop the hips by the same ratio.
   // Legless pals (fish, blobs, floaters) keep their height.
-  const legScale = found.leg ? target('leg') : 1;
+  const legScale = found.leg && !o.keepHeight ? target('leg') : 1;
   const [x, y, z] = hip.getTranslation();
   hip.setTranslation([x, y * legScale, z]);
 
+  return { missing, legScale, ...face(doc, joints, missing), shift, head: headRatio };
+}
+
+/** Happy eyes and a grin; returns the jaw's name for attachLoop's `after`. */
+function face(doc, joints, missing) {
   if (!smile(doc)) missing.push('eye atlas');
 
   // A slightly dropped jaw reads as an open-mouthed grin; most pals have no
@@ -591,8 +663,7 @@ function chibify(doc, name) {
   const jaw = joints.find((j) => JAW.test(j.getName())) ?? null;
   if (jaw) jaw.setRotation(mulQuat(jaw.getRotation(), axisAngle([0, 0, 1], CHIBI.jawDegrees)));
   else missing.push('jaw');
-
-  return { missing, legScale, jaw: jaw?.getName() ?? null, shift, head: headRatio };
+  return { jaw: jaw?.getName() ?? null };
 }
 
 /**
