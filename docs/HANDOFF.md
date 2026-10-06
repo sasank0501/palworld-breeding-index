@@ -45,11 +45,17 @@ sources checked in-session (see memory).
 
 ## In progress
 
-- **User is doing a chibi model review** at `localhost:5173/#chibi` (local tool, gitignored), with marks
-  (1 ok, 2 head big, 3 head small, 4 broken) and a "What's off?" note per pal. It autosaves to
-  `scripts/.cache/chibi-review.json` (dev-only endpoint in vite.config.ts). When they say done: read
-  that file, turn findings into `scripts/chibi-overrides.json` edits / model fixes. Don't rebuild
-  models or touch public/pal-models while the review runs.
+- **Chibi review round 1 applied (2026-10-05, commit "Fix the chibi review's broken pals…").** All
+  models and stills rebuilt. Builder now rescales loops keyed for another skeleton size (fixed
+  Hoocrates, Elphidran, Sweepa) and reads new override keys (leg/arm/tail, bones, keepHeight, plain,
+  doubleSided, size). Waiting on the user to re-check at `localhost:5173/#chibi`. Open:
+  - Croajiro (KendoFrog) and Woolipop Terra marked broken with no note; renders look fine. Ask what's off.
+  - Horns (Univolt, Loupmoon, Reindrix, Eikthyrdeer, Caprity) are skinned to `head` in one body
+    mesh: no bone to scale. Only shrinking the whole head shrinks them.
+  - Needoll's bent lower body is the game's own Idle pose (the normal model does it too).
+  - Mammorest keeps a 1.0 head: any head growth tears its leaf coat open.
+  - Diagnostic renderer (normal vs chibi, poses, side view) was a scratch script; headless Edge's GPU
+    dies after a few dozen renders, so start one browser per pal.
 
 ## Next: Phase 6 plan (agreed to propose; step 1 not started)
 
