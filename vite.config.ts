@@ -89,6 +89,13 @@ function chibiReviewStore(root: string): Plugin {
     name: 'chibi-review-store',
     apply: 'serve',
     configureServer(server) {
+      // Read-only: what was changed in reply to the last review (written by hand
+      // or by a session after rebuilding models), shown beside each pal's note.
+      const replies = path.join(path.dirname(file), 'chibi-review-replies.json');
+      server.middlewares.use('/__chibi-review-replies', (_req, res) => {
+        res.setHeader('content-type', 'application/json');
+        res.end(fs.existsSync(replies) ? fs.readFileSync(replies) : '{}');
+      });
       server.middlewares.use('/__chibi-review', (req, res) => {
         if (req.method === 'GET') {
           res.setHeader('content-type', 'application/json');
