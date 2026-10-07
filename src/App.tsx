@@ -17,6 +17,9 @@ const reviewModule = import.meta.env.DEV
   : undefined;
 const ChibiReview = reviewModule ? lazy(reviewModule) : null;
 
+/** The extractor bench (Phase 6), dev only, at #extract: production builds drop it. */
+const ExtractorTest = import.meta.env.DEV ? lazy(() => import('./routes/ExtractorTest.tsx')) : null;
+
 // Which browser APIs this page can use (src/lib/features.ts), so trying the dev
 // server in another browser shows what will need a fallback there.
 if (import.meta.env.DEV) {
@@ -94,6 +97,14 @@ export default function App() {
     void clearCurrentWorld();
     setLoad({ state: 'import' });
   };
+
+  if (ExtractorTest && location.hash === '#extract') {
+    return (
+      <Suspense fallback={<div className="fullpage">Loading…</div>}>
+        <ExtractorTest />
+      </Suspense>
+    );
+  }
 
   if (load.state === 'loading') return <div className="fullpage">Reading roster…</div>;
 

@@ -25,8 +25,14 @@ Four skins, switched from the top bar: **Palpagos** (the game's bright, chunky l
 npm install
 npm run import-save      # reads your Pal Box from your own save (see below)
 npm run build-portraits  # optional: pal art and 3D models, from your own copy of the game
+npm run build-extractor  # optional: the in-browser extractor (needs the .NET 10 SDK)
 npm run dev
 ```
+
+`build-extractor` publishes `extractor/` (CUE4Parse on .NET's browser runtime) into
+`public/extractor/`, where the website's extractor loads it only when a player starts
+extracting. It's work in progress (Phase 6 of `docs/WEBSITE-PLAN.md`); on the dev server,
+`#extract` opens a test bench for it.
 
 Requires **Node 22.6 or newer**. `scripts/import-save.ts` runs as TypeScript directly via
 Node's native type stripping; on older versions it fails rather than degrading.

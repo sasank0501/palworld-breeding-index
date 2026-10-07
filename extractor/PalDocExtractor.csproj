@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <!--
+    The in-browser extractor (docs/WEBSITE-PLAN.md, Phase 6): CUE4Parse on .NET's
+    browser-wasm runtime, driven by src/extract/extractor.worker.ts. Grown from the
+    Phase 1 spike (spikes/cue4parse-wasm). `npm run build-extractor` publishes it
+    into public/extractor/. No wasm-tools workload: nothing is AOT-compiled.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- CUE4Parse finds export types by reflection; trimming would strip them. -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <!-- The host compresses (Cloudflare serves Brotli); pre-compressed copies would only double the upload. -->
+    <CompressionEnabled>false</CompressionEnabled>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CUE4Parse" Version="1.2.2.202609" />
+    <PackageReference Include="CUE4Parse-Conversion" Version="1.2.2.202609" />
+    <!-- Pinned past CVE-2026-26127 (GHSA-73j8-2gch-69rq, fixed in 9.0.14): CUE4Parse -> Fmod5Sharp
+         -> IndexRange brings in 9.0.0. Drop this once CUE4Parse pulls a patched version itself. -->
+    <PackageReference Include="Microsoft.Bcl.Memory" Version="9.0.20" />
+  </ItemGroup>
+</Project>

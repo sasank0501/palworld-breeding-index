@@ -65,3 +65,9 @@ src/design/chibi.css
 # Phase 1 spike build output
 spikes/*/bin/
 spikes/*/obj/
+
+# In-browser extractor (Phase 6): .NET build output, and the published runtime
+# that `npm run build-extractor` copies into public/ (rebuilt, never committed).
+extractor/bin/
+extractor/obj/
+public/extractor/
