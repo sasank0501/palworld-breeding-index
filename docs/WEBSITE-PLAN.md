@@ -440,6 +440,33 @@ drive?"). The dialog's .pak filter hides other files, so the "not a .pak" messag
 the filter is switched off.
 Note: Node's `fs.openAsBlob` reports 32-bit sizes (nodejs/node#52585), so test real files in a browser.
 
+**Step 5 built (2026-10-07): every pal, in the browser.** Changed from the plan: **no staging copy.**
+The desktop's staging folder (`scripts/pal-textures/out`) is 3.9 GB (3.4 GB of full-size PNGs), so
+in the browser each pal goes straight from the extractor to `onPal` (step 6's builder) to the pack,
+and nothing else is kept. `extractor/` gained `ListPals` (the pak's SK_ meshes plus Blueprint
+aliases, as `--batch`) and `ExportPal` (the mesh as glTF with materials off, each material's JSON in
+the shape this CUE4Parse writes, `{ Textures: name → object path, Parameters }`, every named
+texture decoded once at up to 1024 px, one animation per role from `scripts/anim-roles.json`).
+Files are read out of .NET's in-memory file system and freed after each pal. `src/extract/run.ts`
+(`extractAll`, 5 tests): pals in order, `isDone` to skip finished ones (resume), a failing pal is
+recorded and the run goes on, stop between pals (mid-pal: end the worker).
+
+Measured, all 333 pal meshes in Edge on the bench (`scripts/.cache/extract/export.mjs`, then
+`compare.mjs` against the desktop's staging folder):
+
+| | Result |
+|---|---|
+| Time | 727 s for 333 (median 2.0 s, slowest 8.0 s): textures 312 s, meshes 248 s, animations 49 s |
+| Failures | 0 |
+| Meshes (.glb) | 333 of 333 byte-identical to the desktop |
+| Material JSON | 937 of 937 identical (line endings aside) |
+| Animations (.psa) | 1,419 identical; 202 differ only in rotations, by at most 1.19e-7 (one float32 step near 1.0): same size, frames, translations and scales. Desktop exports are deterministic (re-exported, same hash), so it's .NET's native code vs the WebAssembly interpreter rounding differently |
+| WebAssembly memory | 412 MB, 495 MB at the heaviest pal, flat after |
+| Handed over | 9.4 GB in total (raw RGBA textures); the builder compresses as it goes |
+
+Still to do in step 5: the flat 2D icons (`pals/<slug>.webp`, from the game's PalIcon textures),
+which the pack shows first.
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:

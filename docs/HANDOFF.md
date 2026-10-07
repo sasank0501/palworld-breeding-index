@@ -27,7 +27,7 @@ art. Both builds come from the same source; only the takedown line in the footer
 
 1. **Waiting on the user:** shut down `sasank-paldex` (delete the Pages project) or redirect it to
    paldoc? Deleting needs the user's go-ahead; it can't be undone.
-2. **Phase 6, step 5**: export every pal in the browser, stored in the pack as it goes, with progress, stop and resume. Steps 1–4 are done and hand-tested (Edge, Firefox private, Brave). Steps 1–3 are done: mappings sources, `src/art/mappings.ts`, and the extractor worker (`extractor/`, `src/extract/`, dev bench at `#extract`; run `npm run build-extractor` once after a fresh clone).
+2. **Phase 6**: step 5 exports every pal in the browser (333/333, matches the desktop; see WEBSITE-PLAN); left in step 5: the 2D icons. Then step 6, the model builder in the browser, which `extractAll`'s `onPal` feeds. Steps 1–4 are done and hand-tested (Edge, Firefox private, Brave). Steps 1–3 are done: mappings sources, `src/art/mappings.ts`, and the extractor worker (`extractor/`, `src/extract/`, dev bench at `#extract`; run `npm run build-extractor` once after a fresh clone).
 3. Small cleanups: `@tanstack/react-virtual` is a dependency nobody imports; `docs/UX-BRIEF.md:39`
    says "virtualised" (it isn't: batches + content-visibility); `docs/data-gaps.md:12,16` are stale
    (all 289 have art; the roster is 1,990 pals).
