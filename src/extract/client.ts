@@ -6,6 +6,7 @@
 
 import type { Call, Reply, Request } from './extractor.worker.ts';
 import type { Verify } from '../art/mappings.ts';
+import type { PalExport, PalList } from './types.ts';
 
 export interface BootInfo {
   cue4parse: string;
@@ -27,6 +28,10 @@ export interface Extractor {
   mount(pak: File): Promise<MountInfo>;
   /** The decode check findMappings needs: null when these mappings decode the art. */
   verify: Verify;
+  /** Every pal mesh in the pak, and the Blueprint-only pals that borrow one. */
+  listPals(): Promise<PalList>;
+  /** One pal, textures decoded at up to maxEdge pixels (default 1024). */
+  exportPal(name: string, maxEdge?: number): Promise<PalExport>;
   stop(): void;
 }
 
@@ -59,6 +64,8 @@ export function startExtractor(): Extractor {
     mount: (pak) => send<MountInfo>({ call: 'mount', pak }),
     // A copy goes to the worker, so the caller's bytes stay usable (findMappings stores them).
     verify: (bytes) => send<string | null>({ call: 'useMappings', bytes: bytes.slice() }),
+    listPals: () => send<PalList>({ call: 'listPals' }),
+    exportPal: (name, maxEdge = 1024) => send<PalExport>({ call: 'exportPal', name, maxEdge }),
     stop() {
       worker.terminate();
       for (const p of pending.values()) p.reject(new DOMException('Stopped', 'AbortError'));

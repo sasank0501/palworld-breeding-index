@@ -10,7 +10,42 @@ import { findMappings, mappingsStore, type MappingsStatus } from '../art/mapping
 import GameFilePicker from '../components/GameFilePicker.tsx';
 import { startExtractor, type Extractor } from '../extract/client.ts';
 import type { PakCheck } from '../extract/pickPak.ts';
+import { extractAll, type RunProgress } from '../extract/run.ts';
+import type { PalExport } from '../extract/types.ts';
 import '../design/showcase.css';
+
+const hex = async (bytes: Uint8Array | string) => {
+  // Material JSON is compared with the desktop's, written with Windows line endings.
+  const data = typeof bytes === 'string' ? new TextEncoder().encode(bytes.replace(/\r\n/g, '\n')) : bytes;
+  return [...new Uint8Array(await crypto.subtle.digest('SHA-256', data as BufferSource))].map((b) => b.toString(16).padStart(2, '0')).join('');
+};
+
+/** Base64 in chunks: String.fromCharCode(...bytes) overflows the stack on large files. */
+const base64 = (bytes: Uint8Array) => {
+  let text = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) text += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(text);
+};
+
+/** What the bench records per pal, for comparing with the desktop export (scripts/.cache/extract). */
+async function record(p: PalExport) {
+  return {
+    name: p.name,
+    mesh: p.mesh,
+    ms: p.ms,
+    bytes: p.bytes,
+    heapMB: p.heapMB,
+    reads: p.reads,
+    errors: p.errors,
+    glb: p.glb ? await hex(p.glb) : null,
+    materials: Object.fromEntries(await Promise.all(Object.entries(p.materials).map(async ([k, v]) => [k, await hex(v)] as const))),
+    materialText: p.materials,
+    textures: p.textures.map((t) => ({ name: t.name, size: `${t.width}x${t.height}`, format: t.format })),
+    animations: Object.fromEntries(await Promise.all(p.animations.map(async (a) => [a.role, { from: a.from, sha: await hex(a.psa) }] as const))),
+    // Set window.__keepPsa = true to keep the animation bytes too, for comparing key by key.
+    psa: (window as unknown as { __keepPsa?: boolean }).__keepPsa ? Object.fromEntries(p.animations.map((a) => [a.from, base64(a.psa)])) : undefined,
+  };
+}
 
 const describeStatus = (s: MappingsStatus) =>
   s.step === 'list' ? 'Listing mappings versions…' : s.step === 'download' ? `Downloading ${s.label} from ${new URL(s.url).host}…` : `Checking ${s.label}…`;
@@ -18,6 +53,11 @@ const describeStatus = (s: MappingsStatus) =>
 export default function ExtractorTest() {
   const [log, setLog] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [only, setOnly] = useState('');
+  const [progress, setProgress] = useState<RunProgress | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const stop = useRef<AbortController | null>(null);
   const extractor = useRef<Extractor | null>(null);
   const say = (line: string) => setLog((l) => [...l, `${(performance.now() / 1000).toFixed(1)}s  ${line}`]);
 
@@ -35,10 +75,36 @@ export default function ExtractorTest() {
       const found = await findMappings({ store: mappingsStore(), verify: x.verify, onStatus: (s) => say(describeStatus(s)) });
       for (const a of found.attempts) say(`  ${a.problem ? '✕' : '✓'} ${a.label}${a.problem ? `: ${a.problem}` : ''}`);
       say(found.ok ? `Mappings ready: ${found.mappings.label} (${(found.mappings.bytes.length / 1e6).toFixed(2)} MB)` : 'No mappings worked: the page would now ask for a file.');
+      setReady(found.ok);
     } catch (e) {
       say(`Failed: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function exportPals() {
+    const x = extractor.current;
+    if (!x) return;
+    setExporting(true);
+    stop.current = new AbortController();
+    const report: unknown[] = [];
+    (window as unknown as { __palReport: unknown[] }).__palReport = report;
+    const t0 = performance.now();
+    try {
+      const names = only.split(/[\s,]+/).filter(Boolean);
+      const end = await extractAll(x, {
+        only: names.length ? names : undefined,
+        signal: stop.current.signal,
+        onProgress: setProgress,
+        onPal: async (p) => void report.push(await record(p)),
+      });
+      say(`Exported ${end.done - end.failed.length} of ${end.total} pals in ${((performance.now() - t0) / 1000).toFixed(0)} s (${(end.bytes / 1e6).toFixed(0)} MB handed over); ${end.failed.length} failed`);
+      for (const f of end.failed) say(`  ✕ ${f.name}: ${f.error}`);
+    } catch (e) {
+      say(`Export stopped: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setExporting(false);
     }
   }
 
@@ -53,6 +119,29 @@ export default function ExtractorTest() {
           ))}
         </ol>
         {!busy && log.length > 0 && <p data-testid="done">Done.</p>}
+        {ready && (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <label>
+              Only these pals (blank for all){' '}
+              <input data-testid="only" value={only} onChange={(e) => setOnly(e.target.value)} placeholder="SheepBall, JetDragon" disabled={exporting} />
+            </label>
+            <button type="button" className="sc-btn" data-testid="export" onClick={() => void exportPals()} disabled={exporting}>
+              Export pals
+            </button>
+            {exporting && (
+              <button type="button" className="sc-btn ghost" onClick={() => stop.current?.abort()}>
+                Stop after this pal
+              </button>
+            )}
+          </div>
+        )}
+        {progress && (
+          <p aria-live="polite" data-testid="progress">
+            {progress.done} of {progress.total}
+            {progress.current ? ` · ${progress.current}` : ''} · {(progress.bytes / 1e6).toFixed(0)} MB · {progress.failed.length} failed
+          </p>
+        )}
+        {ready && !exporting && progress && progress.done === progress.total && <p data-testid="export-done">Export done.</p>}
       </div>
     </main>
   );
