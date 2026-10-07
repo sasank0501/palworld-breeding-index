@@ -400,6 +400,28 @@ check is a parameter (`Verify`): step 3 supplies it from the extractor worker (d
 mesh, its materials and an animation; fail on an exception or empty material parameters). Live
 run: 1.0.5 found, downloaded and stored in 0.75 s; the next run used the kept copy offline.
 
+**Step 3 done (2026-10-07): the extractor worker.** `extractor/` (C#, grown from the spike:
+`Mount`, `UseMappings`) is published by `npm run build-extractor` into `public/extractor/`
+(gitignored; 214 files, 42.9 MB, largest 4.9 MB, under Cloudflare's 25 MiB per file). Both builds
+ship it (code, not art): the public dist goes from 3.5 MB to 46.4 MB, but the runtime downloads
+only when an extraction starts. `src/extract/extractor.worker.ts` starts .NET on the first call;
+`src/extract/client.ts` (`startExtractor()`) is the page's promise API, and its `verify` is the
+mappings check: decode Lamball's mesh, every material's parameters and its Idle animation.
+A dev-only bench at `#extract` (`src/routes/ExtractorTest.tsx`, dropped from builds) runs the
+chain on a picked pak; `scripts/.cache/extract/bench.mjs` drives it (local).
+
+Measured (Edge, dev server, real pak): .NET starts in 0.36 s; mount 0.7 s (185,141 files, 333 pal
+meshes, 3 reads, 15.3 MB); mappings found, downloaded and checked in about 1.1 s. Cases: fresh;
+kept (no network); a kept file with a valid header and garbage inside (rejected by the decode, then
+recovered by download); the 0.1.3 file kept (accepted, as the experiment predicted).
+
+**Bug met:** `dotnet.create()` never finished in the app's worker. Cause: assigning
+`self.onmessage` turns off .NET's worker ("sidecar") mode (`dotnet.js` checks
+`globalThis.onmessage`), dotnet/runtime#114918. Fix: `self.dotnetSidecar = true` and
+`addEventListener('message')`. The issue thread also reports occasional Chrome hangs during
+parallel downloads (workaround `withConfig({ maxParallelDownloads: 1 })`); not seen here, but
+the player-facing screen should time out and offer a retry rather than wait forever.
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:
