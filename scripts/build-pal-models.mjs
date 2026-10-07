@@ -236,7 +236,8 @@ async function build(glbPath) {
   }
 
   const { missing, legScale, jaw, shift, head } = chibify(doc, name);
-  const chibiOpts = { legScale, shift, after: jaw ? { [jaw]: axisAngle([0, 0, 1], CHIBI.jawDegrees) } : {} };
+  const jawDegrees = OVERRIDES[name]?.jaw ?? CHIBI.jawDegrees;
+  const chibiOpts = { legScale, shift, after: jaw && jawDegrees ? { [jaw]: axisAngle([0, 0, 1], jawDegrees) } : {} };
   // First clip = what the live viewer autoplays (the sitting rest). Idle is also
   // what render-portraits holds for the stills: the rest loops turn and tuck the
   // body, so a frame of one rarely shows the face, and Idle stands facing forward.
@@ -523,6 +524,8 @@ const CHIBI = {
  *                chibi treatment cannot fix (game proportions)
  *   doubleSided  true: draw every material from both sides (see build())
  *   size         texture edge in px for this pal's full build (not --lite)
+ *   jaw          grin angle in degrees in place of CHIBI.jawDegrees; 0 keeps the
+ *                mouth shut (Croajiro: an open jaw showed its tongue through the lip)
  *
  * (A "pose" key in the same file is read by render-portraits.mjs, not here.)
  */
@@ -581,7 +584,7 @@ function chibify(doc, name) {
       scaleBones();
     }
     // A plain pal still gets the happy face and the grin.
-    if (o.plain) return { missing, legScale: 1, ...face(doc, joints, missing), shift: {}, head: 1 };
+    if (o.plain) return { missing, legScale: 1, ...face(doc, joints, missing, o.jaw), shift: {}, head: 1 };
     return { missing, legScale: 1, jaw: null, shift: {}, head: 1 };
   }
   // Measured before any bone is rescaled: it compares the head bone's world
@@ -651,18 +654,18 @@ function chibify(doc, name) {
   const [x, y, z] = hip.getTranslation();
   hip.setTranslation([x, y * legScale, z]);
 
-  return { missing, legScale, ...face(doc, joints, missing), shift, head: headRatio };
+  return { missing, legScale, ...face(doc, joints, missing, o.jaw), shift, head: headRatio };
 }
 
 /** Happy eyes and a grin; returns the jaw's name for attachLoop's `after`. */
-function face(doc, joints, missing) {
+function face(doc, joints, missing, jawDegrees = CHIBI.jawDegrees) {
   if (!smile(doc)) missing.push('eye atlas');
 
   // A slightly dropped jaw reads as an open-mouthed grin; most pals have no
   // mouth texture or morph targets, so the jaw bone is the only mouth control.
   const jaw = joints.find((j) => JAW.test(j.getName())) ?? null;
-  if (jaw) jaw.setRotation(mulQuat(jaw.getRotation(), axisAngle([0, 0, 1], CHIBI.jawDegrees)));
-  else missing.push('jaw');
+  if (!jaw) missing.push('jaw');
+  else if (jawDegrees) jaw.setRotation(mulQuat(jaw.getRotation(), axisAngle([0, 0, 1], jawDegrees)));
   return { jaw: jaw?.getName() ?? null };
 }
 

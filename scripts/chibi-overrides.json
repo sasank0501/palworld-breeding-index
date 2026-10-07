@@ -124,10 +124,12 @@
     "head": 1.8
   },
   "KendoFrog": {
-    "head": 1.6
+    "head": 1.3,
+    "jaw": 0
   },
   "KendoFrog_Dark": {
-    "head": 1.6
+    "head": 1.3,
+    "jaw": 0
   },
   "KingSunfish": {
     "head": 1.15
