@@ -27,7 +27,7 @@ art. Both builds come from the same source; only the takedown line in the footer
 
 1. **Waiting on the user:** shut down `sasank-paldex` (delete the Pages project) or redirect it to
    paldoc? Deleting needs the user's go-ahead; it can't be undone.
-2. **Phase 6, step 2**: the mappings module (plan below). Step 1 (sources) is done.
+2. **Phase 6, step 3**: the extractor worker, which also supplies the mappings check. Steps 1 (sources) and 2 (`src/art/mappings.ts`) are done.
 3. Small cleanups: `@tanstack/react-virtual` is a dependency nobody imports; `docs/UX-BRIEF.md:39`
    says "virtualised" (it isn't: batches + content-visibility); `docs/data-gaps.md:12,16` are stale
    (all 289 have art; the roster is 1,990 pals).

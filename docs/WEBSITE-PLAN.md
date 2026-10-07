@@ -390,6 +390,16 @@ working file with the pack → else ask the player for a file. Open risk, in the
 dependencies": an engine upgrade could make older files fail for the art; hosting our own copy
 stays undecided (user: "we will see later").
 
+**Step 2 done (2026-10-07): `src/art/mappings.ts`** (13 tests). `findMappings` tries the kept file,
+then the GitHub API's commit list (each commit: raw GitHub, then jsDelivr), then `TESTED` (the
+1.0.5 and archive 0.6.6 files pinned by commit and sha256); a header check (`readHeader`: magic,
+compression, size) rejects error pages before the decode; identical bytes are checked once; every
+attempt is reported so the page can show why and offer `acceptPlayerFile`. Stored in its own
+IndexedDB store (`palworld-mappings`), since loading a pack sweeps other pack folders. The decode
+check is a parameter (`Verify`): step 3 supplies it from the extractor worker (decode one pal's
+mesh, its materials and an animation; fail on an exception or empty material parameters). Live
+run: 1.0.5 found, downloaded and stored in 0.75 s; the next run used the kept copy offline.
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:
