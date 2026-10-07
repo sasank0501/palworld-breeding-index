@@ -27,7 +27,7 @@ art. Both builds come from the same source; only the takedown line in the footer
 
 1. **Waiting on the user:** shut down `sasank-paldex` (delete the Pages project) or redirect it to
    paldoc? Deleting needs the user's go-ahead; it can't be undone.
-2. **Phase 6, step 4**: picking the game folder (classic input + a copyable path hint; Program Files is blocked for the newer picker), then step 5, exporting every pal. Steps 1–3 are done: mappings sources, `src/art/mappings.ts`, and the extractor worker (`extractor/`, `src/extract/`, dev bench at `#extract`; run `npm run build-extractor` once after a fresh clone).
+2. **Phase 6, step 4 hand test (user)**: on the dev server, `#extract`, choose Pal-Windows.pak through the real dialog (Edge and Firefox). Then step 5, exporting every pal. Steps 1–3 are done: mappings sources, `src/art/mappings.ts`, and the extractor worker (`extractor/`, `src/extract/`, dev bench at `#extract`; run `npm run build-extractor` once after a fresh clone).
 3. Small cleanups: `@tanstack/react-virtual` is a dependency nobody imports; `docs/UX-BRIEF.md:39`
    says "virtualised" (it isn't: batches + content-visibility); `docs/data-gaps.md:12,16` are stale
    (all 289 have art; the roster is 1,990 pals).

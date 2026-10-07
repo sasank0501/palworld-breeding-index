@@ -1,0 +1,41 @@
+/*
+ * The extractor's screens (Phase 6): src/components/GameFilePicker.tsx for now.
+ * Built on the showcase tokens, so every theme styles it.
+ */
+
+/* Its own card, so its text meets contrast wherever it's placed (the Palpagos page
+   background behind the note text measured 3.21:1). */
+.gfp {
+  display: grid;
+  gap: 14px;
+  max-width: 64ch;
+  padding: 20px;
+  border-radius: var(--radius-s);
+  background: var(--panel-solid);
+  border: 1px solid var(--hair);
+  color: var(--ink);
+}
+.gfp p { margin: 0; line-height: 1.5; }
+.gfp-note { font-size: 15px; color: var(--ink-soft); }
+
+.gfp-path { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.gfp-path code {
+  flex: 1 1 280px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 10px 12px;
+  border-radius: var(--radius-s);
+  background: var(--panel-2);
+  border: 1px solid var(--hair);
+  font: 500 14px/1.4 var(--font-mono);
+  user-select: all;
+}
+.gfp-small { padding: 9px 16px; font-size: 14px; }
+
+.gfp-problem {
+  padding: 10px 14px;
+  border-radius: var(--radius-s);
+  border: 2px solid var(--r-neg-text);
+  background: var(--panel-solid);
+  color: var(--ink);
+}

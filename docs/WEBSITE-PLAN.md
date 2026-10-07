@@ -422,6 +422,19 @@ recovered by download); the 0.1.3 file kept (accepted, as the experiment predict
 parallel downloads (workaround `withConfig({ maxParallelDownloads: 1 })`); not seen here, but
 the player-facing screen should time out and offer a retry rather than wait forever.
 
+**Step 4 built (2026-10-07): choosing the game file.** One file, `Pal-Windows.pak`, through the
+classic `<input type="file" accept=".pak">` (`src/extract/pickPak.ts`), not a folder: a folder pick
+makes browsers ask to confirm an "upload", and Chrome and Edge block `showDirectoryPicker` for
+Program Files. A single file also leaves `~mods` out by design. `checkPak` reads only the last 512
+bytes (Unreal's footer: magic `E1 12 6F 5A`, then the version) and turns away a non-pak, a mod-sized
+pak, a part-downloaded game file or a non-Unreal file with a plain reason; an unknown version or
+name is tried with a note. `src/components/GameFilePicker.tsx` (its own card, `src/design/extract.css`)
+offers Steam's default path to copy into the dialog's "File name" box, and the Steam "Browse local
+files" route for other installs. On the bench in Edge: two wrong picks got their reasons, the real
+pak went through (version 11, 39.25 GB); axe clean in all four themes.
+**Waiting on the user:** the hand test (real dialog, own Steam path; Firefox too).
+Note: Node's `fs.openAsBlob` reports 32-bit sizes (nodejs/node#52585), so test real files in a browser.
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:
