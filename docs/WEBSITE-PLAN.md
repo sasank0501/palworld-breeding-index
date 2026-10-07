@@ -342,6 +342,32 @@ the player for a file, with instructions. We host nothing of Pocketpair's. Hosti
 later option if the community sources lag. Note: the elliotks/Palworld-FModel repo used locally was
 archived in Feb 2025, so sources do go stale.
 
+**Step 1 done (2026-10-07): sources researched, choice agreed with the user.**
+
+| Source | Palworld 1.0? | Lag after a patch | CORS | Notes |
+|---|---|---|---|---|
+| `PalworldModding/UsefulFiles` `Mappings.usmap` | yes, 1.0.5 (2.79 MB, usmap v4, uncompressed) | 1.0: 0 days, 1.0.3: 0 days, 1.0.5: 5 days; none for 1.0.1/1.0.2/1.0.4 | `*` | linked by the modding docs; one file, older ones in git history |
+| same, via jsDelivr `@<commit>` | identical bytes | same | `*`, immutable 1-year cache | second host, same source |
+| `TheNaeem/Unreal-Mappings-Archive` | no (latest 0.6.6, Sept 2025) | months | `*` | not usable for 1.0 today |
+| `elliotks/Palworld-FModel` | no | — | — | archived |
+| Pocketpair | none published | — | — | mod posts are about stability only |
+
+Findings that shape step 2:
+- **No independent second source exists.** Every current 1.0 file comes from UsefulFiles.
+- **Version numbers don't decide it.** Half the 1.0.x patches got no new file, and the 1.0.3 file
+  (our local copy, sha256 `604550ba…`) decoded the 1.0.5 game's meshes in the spike and the 09-30
+  run (installed build 25246127, pak dated 2026-09-15). So the check is a real decode, not a
+  version match.
+- **Stale files fail quietly.** The modding docs: an outdated file gives a DataTable "that has no
+  rows even though it should have some". The check must count rows in a known table.
+- Precedent: `palworld-live-map` downloads the same file pinned by commit and sha256.
+
+Agreed order: latest from raw.githubusercontent.com → same commit from jsDelivr if GitHub fails →
+if the decode check fails, older commits newest first (listed by the GitHub API, so a new patch
+needs no site update) → cache the working file with the pack → else ask the player for a file.
+Open risk, written into the README's "Outside dependencies": if UsefulFiles stops, new players
+depend on finding a file; hosting our own copy stays undecided (user: "we will see later").
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:

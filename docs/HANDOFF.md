@@ -27,7 +27,7 @@ art. Both builds come from the same source; only the takedown line in the footer
 
 1. **Waiting on the user:** shut down `sasank-paldex` (delete the Pages project) or redirect it to
    paldoc? Deleting needs the user's go-ahead; it can't be undone.
-2. **Phase 6, step 1** (plan below).
+2. **Phase 6, step 2**: the mappings module (plan below). Step 1 (sources) is done.
 3. Small cleanups: `@tanstack/react-virtual` is a dependency nobody imports; `docs/UX-BRIEF.md:39`
    says "virtualised" (it isn't: batches + content-visibility); `docs/data-gaps.md:12,16` are stale
    (all 289 have art; the roster is 1,990 pals).
@@ -89,7 +89,7 @@ Video frames: `imageio-ffmpeg` (pip, user site) has an ffmpeg that decodes iPhon
 
 ## Next: Phase 6 plan (agreed to propose; step 1 not started)
 
-1. Research mappings sources for Palworld 1.0 (current, update lag, version match); pick main + backup.
+1. ~~Research mappings sources~~ **done 2026-10-07**: UsefulFiles (raw GitHub, then jsDelivr), older commits as fallback (WEBSITE-PLAN Phase 6).
 2. Mappings module: fetch, fallback, verify, cache, ask-for-file.
 3. Move the CUE4Parse WebAssembly spike (`spikes/cue4parse-wasm`) into an app worker, loaded on demand.
 4. Game folder picking from Program Files (classic input + copyable path hint); user tests by hand.

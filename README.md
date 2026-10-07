@@ -56,7 +56,9 @@ npm run build-portraits -- --check                      # look for everything, c
 
 You need the **.NET 10 SDK**, Edge or Chrome, and a **`.usmap` type-mappings file** for your
 installed game version. Unreal stores Palworld's data without field names, so it cannot be read
-without one; the community publishes one per game update. Put it in
+without one; the community publishes one per game update, at
+[PalworldModding/UsefulFiles](https://github.com/PalworldModding/UsefulFiles) (see
+[Outside dependencies](#outside-dependencies)). Put it in
 `scripts/pal-textures/mappings/` (or pass `--usmap <file>`). The game folder is found through
 Steam automatically (or pass `--paks <dir>`). Run with `--help` for every option.
 
@@ -136,6 +138,31 @@ legacy/        the original single-file HTML tool this was built from
 npm test        # unit tests for the save parser, breeding engine and data files
 npm run build   # tsc -b && vite build
 ```
+
+## Outside dependencies
+
+Things this project needs that it doesn't control, apart from npm and NuGet packages.
+
+**Type mappings (`.usmap`).** Reading the game's files needs a mappings file that lists the game's
+types and field names. Only a dumper injected into the running game can make one, so neither the
+local tools nor the website can make their own. As of 7 Oct 2026 there is one current source:
+
+| | |
+|---|---|
+| Source | [PalworldModding/UsefulFiles](https://github.com/PalworldModding/UsefulFiles), `Mappings.usmap` (the file the [Palworld modding docs](https://pwmodding.wiki/) point to) |
+| Kept up to date? | 1.0 and 1.0.3 the same day, 1.0.5 five days later. Patches that don't change the game's types (1.0.1, 1.0.2, 1.0.4) get no new file, and an older file can still work: the 1.0.3 file reads the 1.0.5 meshes |
+| Second host | The same repo through jsDelivr (`cdn.jsdelivr.net/gh/PalworldModding/UsefulFiles@<commit>/Mappings.usmap`). Same source, so not independent |
+| Others checked | [TheNaeem/Unreal-Mappings-Archive](https://github.com/TheNaeem/Unreal-Mappings-Archive) stops at 0.6.6; [elliotks/Palworld-FModel](https://github.com/elliotks/Palworld-FModel) is archived; Pocketpair publishes none |
+
+How the website will use it (Phase 6, `docs/WEBSITE-PLAN.md`): fetch the latest file, check it by
+decoding a table we know (an outdated file gives empty tables, not an error), fall back to older
+versions from the repo's history, keep the working file with the art pack, and if nothing works,
+ask the player for a file.
+
+**Open risk.** If that repo stops updating or disappears, players with a cached file are fine, but
+new players and new patches would depend on finding a file themselves. Whether to keep a copy of
+our own (it holds type and field names, not art, but is derived from the game) is undecided, and
+will be revisited later.
 
 ## Credits
 
