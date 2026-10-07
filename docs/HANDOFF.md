@@ -1,4 +1,4 @@
-# Handoff — 2026-10-06
+# Handoff — 2026-10-07
 
 Branch `paldb-ranks-and-theme`, pushed to origin. Type-check, 110 tests, `npm run build` ("no game
 art") and `npm run build:resume` pass; `npm run audit-a11y`: 0 axe violations and no text under
@@ -7,10 +7,11 @@ the accessibility checklist. Learning page: claude.ai artifact `9hUfnrC8NXRkssEC
 with the Artifact tool before editing; Chapter 22 is the deploy guide). Every new part gets a quiz
 and a "Why, and the evidence" block with sources checked in-session (see memory).
 
-**The portfolio site is live:** https://sasank-paldex.pages.dev (Cloudflare Pages, Direct Upload).
+**The site is now called PalDoc.** The portfolio build is live at **https://paldoc.pages.dev**
+(new Cloudflare Pages project `paldoc`, Direct Upload). The old https://sasank-paldex.pages.dev
+still serves the pre-rename build; the user is deciding whether to shut it down or redirect it.
 The public site isn't deployed: it waits for Phase 6, since its visitors have no other way to get
-art. Both builds come from the same source, so every UI fix below is in both; only the takedown
-line in the footer is resume-only.
+art. Both builds come from the same source; only the takedown line in the footer is resume-only.
 
 ## Phases
 
@@ -19,59 +20,49 @@ line in the footer is resume-only.
 | 0–4 | done |
 | 5 Card pictures in the browser | **built**: 288 in 94 s (RTX 4070). Not yet measured on a laptop without a GPU |
 | 6 Full extractor | **next** (plan below) |
-| 7 A11y + cross-browser | started: A11Y.md items 2, 3, 4, 5, 8, 9 done. Left: the user's manual passes (NVDA, keyboard-only Planner, 200% zoom, High Contrast, colour alone), Safari, phone first tile (10), dark mode decision (6) |
-| 8 Ship | portfolio site **live**. Public site after Phase 6: own work/element icons, self-hosted fonts, pal URLs |
+| 7 A11y + cross-browser | started: A11Y.md items 2, 3, 4, 5, 8, 9 done; two NVDA passes done 2026-10-05 (A11Y.md). Left: NVDA on the species → My Pals → pal sheet flow, keyboard-only Planner, 200% zoom, High Contrast, colour alone, Safari, phone first tile (10), dark mode decision (6) |
+| 8 Ship | portfolio site **live** at paldoc.pages.dev. Public site after Phase 6: own work/element icons, self-hosted fonts, pal URLs |
 
 ## Pick up here
 
-1. **Waiting on the user:** keep the theme picker in each theme's own shapes (recommended), or draw
-   each theme button in its own theme's shape?
+1. **Waiting on the user:** shut down `sasank-paldex` (delete the Pages project) or redirect it to
+   paldoc? Deleting needs the user's go-ahead; it can't be undone.
 2. **Phase 6, step 1** (plan below).
-3. Small cleanups found by today's repo audit: `@tanstack/react-virtual` is a dependency nobody
-   imports; `docs/UX-BRIEF.md:39` says "virtualised" (it isn't: batches + content-visibility);
-   `docs/data-gaps.md:12,16` are stale (all 289 have art; the roster is 1,990 pals).
-4. `vite.config.ts` shows as modified: line endings only (CRLF, no final newline, saved 10-06 12:18
-   by an editor). Left out of the commits; `git checkout -- vite.config.ts` once the user agrees.
+3. Small cleanups: `@tanstack/react-virtual` is a dependency nobody imports; `docs/UX-BRIEF.md:39`
+   says "virtualised" (it isn't: batches + content-visibility); `docs/data-gaps.md:12,16` are stale
+   (all 289 have art; the roster is 1,990 pals).
+4. Reddit follow-up draft `reddit/post-2.md` (gitignored): needs the link to the first post.
 
 ## Deploying the portfolio site
 
 `npm run build:resume`, then
-`npx wrangler@4 pages deploy dist-resume --project-name sasank-paldex --branch preview --commit-dirty=true`
-(→ https://preview.sasank-paldex.pages.dev, for checking on the phone), and `--branch main` for the
-live site. The user is logged in (`npx wrangler whoami`). Rollback: dashboard → Deployments → ⋯.
+`npx wrangler@4 pages deploy dist-resume --project-name paldoc --branch preview --commit-dirty=true`
+(→ https://preview.paldoc.pages.dev, for checking on the phone), and `--branch main` for the live
+site. The user is logged in (`npx wrangler whoami`). Rollback: dashboard → Deployments → ⋯.
 Gotchas: wrangler 4.148 `pages project create` delegates to "Pages on Workers", which ignored the
-name, picked `dist/` (the public build) and failed on Vite 5, so the project was created with
-`--force` (classic Pages); only `create` needs it. A new project's HTTPS certificates take a minute
-or two. Before each deploy: `dist-resume/` has no `roster.json`, Steam id, world names or source maps.
+name, picked `dist/` and failed on Vite 5, so projects are created with `--force` (classic Pages);
+only `create` needs it. Creating a project is blocked for Claude by the auto-mode classifier (new
+public surface): the user runs `create` himself. A new project's HTTPS certificates take a few
+minutes; until then the per-deploy URL (`<hash>.paldoc.pages.dev`) fails in Firefox with
+`SSL_ERROR_NO_CYPHER_OVERLAP`, which only means "no certificate yet". Unknown paths return
+`index.html` with 200 (so `/roster.json` "exists" but is the page). Before each deploy:
+`dist-resume/` has no `roster.json`, Steam id, world names or source maps.
 
-## Built on 2026-10-06
+## Built on 2026-10-07
 
-- **Accessibility:** spotlight dots 24px targets + one Tab stop (roving tabindex); work bars
-  `role="img"`; 12px text floor (`audit-a11y` now lists any visible text under it); the 3D model's
-  focus ring (its focus is inside model-viewer's shadow root: `PalModel.tsx` sets `data-kbd-focus`);
-  reduced motion holds the model still, and every stage has a pause button.
-- **Portfolio prep:** lite models rebuilt (they were from 10-03); takedown line (resume build only,
-  GitHub issues); inline SVG egg favicon; `Microsoft.Bcl.Memory` pinned to 9.0.20 in both C#
-  projects (CVE-2026-26127, via CUE4Parse → Fmod5Sharp → IndexRange).
-- **Phone QA, three rounds with the user:**
-  - Footer: last thing in `.sc-page`, plus a once-per-session notice card
-    (`src/components/SiteNotice.tsx`) that flies into it.
-  - Settings: animates; a scrim in `.sc-shell` (z 45, nav z 50) takes outside taps; the page is
-    scroll-locked while it's open (`data-panel-open` → `.sc-page` overflow hidden). The scrim alone
-    let swipes on the nav or panel scroll the page.
-  - "Ghost tap" was **sticky hover**: every `:hover` rule is now inside `@media (hover: hover)`;
-    Android's tap highlight is off, with an `:active` dim instead.
-  - `--nav-h` is measured (ResizeObserver): the sub bar sat under the nav at every width.
-  - Favourites chip uses `--star`; SVG chevrons; equal-height theme buttons; passive dots spaced.
-  - Species page: all owned pals, with sort, IV floor and passive filters.
-  - No auto-rotate; the stage ring is gone; the ring's number is sized from the ring
-    (`.sc-ring` container, `min(34px, var(--ring-num, 21cqi))`). Re-measure if a display font changes.
-  - Feybreak's display font: Unbounded → Josefin Sans (the user's pick of four rendered options).
-  - Spotlight: no auto-advance; a `‹ n of N ›` pager by the counter, not on the 3D frame (dragging
-    turns the model); buttons say "Next: <pal>"; focus is restored after the column re-renders.
-  - "How to breed" taps: unchanged (user).
-- **Chibi:** Croajiro's tongue: new override key `jaw` (grin degrees, 0 = mouth shut) and head 1.3.
-  Review done; left as is unless raised: Woolipop Terra, ElecPanda, horns on Univolt/Loupmoon/Reindrix.
+- **Rename to PalDoc:** browser tab, nav brand, home tab, home hero (`Pal<span>Doc</span>`, which a
+  search for "Paldex" misses), import screen kicker, spotlight hints, backup error messages. Kept:
+  the species grid heading "The Paldex" (user) and the backup format id `palworld-index` (old
+  backups still load). The theme picker stays as it is: every button in the current theme's shapes (user).
+- `vite.config.ts` line-ending change discarded (user agreed).
+- Facts for the user's YC / Design Engineer applications sent to his portfolio Claude session.
+
+## Built on 2026-10-06 (condensed)
+
+- Accessibility pass (A11Y.md items 2, 3, 4, 5, 8, 9), portfolio launch, three rounds of phone QA
+  (sticky hover was the "ghost tap"; settings scrim + scroll lock; measured `--nav-h`; spotlight
+  pager instead of auto-advance; Feybreak font Josefin Sans), Croajiro `jaw` override, CVE pin.
+  Details in commit 9bc72c5.
 
 ## Checks (local, `scripts/.cache/a11y/`, gitignored)
 
@@ -94,6 +85,7 @@ Video frames: `imageio-ffmpeg` (pip, user site) has an ffmpeg that decodes iPhon
 - **Hosting:** Cloudflare Pages by Direct Upload. GitHub Pages ruled out: on GitHub Free it needs a
   public repo, so the art would be in git.
 - **Motion:** nothing moves on its own except a pal's idle animation, which every stage can pause.
+- **Name:** PalDoc (2026-10-07). The species list inside it is still the Paldex.
 
 ## Next: Phase 6 plan (agreed to propose; step 1 not started)
 
