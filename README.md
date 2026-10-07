@@ -154,15 +154,23 @@ local tools nor the website can make their own. As of 7 Oct 2026 there is one cu
 | Second host | The same repo through jsDelivr (`cdn.jsdelivr.net/gh/PalworldModding/UsefulFiles@<commit>/Mappings.usmap`). Same source, so not independent |
 | Others checked | [TheNaeem/Unreal-Mappings-Archive](https://github.com/TheNaeem/Unreal-Mappings-Archive) stops at 0.6.6; [elliotks/Palworld-FModel](https://github.com/elliotks/Palworld-FModel) is archived; Pocketpair publishes none |
 
-How the website will use it (Phase 6, `docs/WEBSITE-PLAN.md`): fetch the latest file, check it by
-decoding a table we know (an outdated file gives empty tables, not an error), fall back to older
-versions from the repo's history, keep the working file with the art pack, and if nothing works,
-ask the player for a file.
+**What the art needs from it (tested 7 Oct 2026 on game 1.0.5).** Some mappings file is required:
+without one, every mesh and animation fails. But for the art, the version barely matters. All 333
+pal meshes, their materials and 7,723 animations decoded identically with the 1.0.5, 1.0.3, 0.6.6
+and 0.1.3 (January 2024) files, because they are Unreal Engine types that game patches don't
+change. Pocketpair's own types are different: the pal stats table only decodes with the exact
+1.0.5 file, and pre-1.0 files give the passive and skill tables zero rows without an error. So the
+archive above, though it stops at 0.6.6, is a real second source for the art.
 
-**Open risk.** If that repo stops updating or disappears, players with a cached file are fine, but
-new players and new patches would depend on finding a file themselves. Whether to keep a copy of
-our own (it holds type and field names, not art, but is derived from the game) is undecided, and
-will be revisited later.
+How the website will use it (Phase 6, `docs/WEBSITE-PLAN.md`): fetch the latest file, check it by
+decoding a pal's mesh, materials and an animation, fall back to the jsDelivr copy, older commits
+and the archive, keep the working file with the art pack, and if nothing works, ask the player for
+a file.
+
+**Open risk.** If Palworld moves to a newer Unreal Engine version, older files may stop working
+for the art too, and the website would need a new file from one of these sources. Whether to keep
+a copy of our own (it holds type and field names, not art, but is derived from the game) is
+undecided, and will be revisited later.
 
 ## Credits
 

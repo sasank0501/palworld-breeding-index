@@ -362,11 +362,33 @@ Findings that shape step 2:
   rows even though it should have some". The check must count rows in a known table.
 - Precedent: `palworld-live-map` downloads the same file pinned by commit and sha256.
 
-Agreed order: latest from raw.githubusercontent.com → same commit from jsDelivr if GitHub fails →
+**Experiment (2026-10-07, game 1.0.5, CUE4Parse 1.2.2, scratch project): what a wrong file does.**
+
+| Mappings | DT_PalMonsterParameter | DT_PassiveSkill_Main / DT_WazaDataTable | 333 meshes + materials, 7,723 animations |
+|---|---|---|---|
+| 1.0.5 | 753 rows; SheepBall Rarity 1, Hp 70, ZukanIndex 1 | 1,905 / 385 rows | baseline |
+| 1.0.3, 1.0 | throws (KeyNotFoundException 'None') | 1,905 / 385 rows | identical |
+| 0.7, 0.6.6, 0.1.3 | throws | **0 rows, no error** | identical |
+| none | — | — | every mesh and animation throws MappingException |
+
+The fingerprint compared vertex and bone counts, every material's texture, scalar and vector
+parameters, and each animation's frames, length and compression format. The same 5 items fail
+under every file (SK_GrassMinotaur_Ice, four AS_KingWhale_FarSkill_Sky_*_RM_* clips). Not compared:
+exported bytes (the spike already showed byte-identical .glb/.psa with the 1.0.3 file on 1.0.5).
+
+What this changes:
+- **The check decodes what we use**: a pal's mesh, its materials and one animation, failing on an
+  exception or empty parameters. A table check would wrongly reject files that work for the art.
+- **TheNaeem's archive is a real independent backup** for the art, despite stopping at 0.6.6.
+- **Patches rarely matter for the art; an engine upgrade would.** Keep the check, since a future
+  Unreal version could break older files.
+
+Agreed order (updated): latest from raw.githubusercontent.com → same commit from jsDelivr if GitHub fails →
 if the decode check fails, older commits newest first (listed by the GitHub API, so a new patch
-needs no site update) → cache the working file with the pack → else ask the player for a file.
-Open risk, written into the README's "Outside dependencies": if UsefulFiles stops, new players
-depend on finding a file; hosting our own copy stays undecided (user: "we will see later").
+needs no site update) → TheNaeem/Unreal-Mappings-Archive's newest Palworld file → cache the
+working file with the pack → else ask the player for a file. Open risk, in the README's "Outside
+dependencies": an engine upgrade could make older files fail for the art; hosting our own copy
+stays undecided (user: "we will see later").
 
 ### Phase 7 — Accessibility and cross-browser pass
 
