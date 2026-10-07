@@ -66,6 +66,10 @@ interface ModelEntry {
   normalClips?: string[];
 }
 
+/** The visitor asked their system for less motion (read once per model). */
+const prefersLessMotion = (): boolean =>
+  typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /** Blend time between clips; framing waits for it. */
 const CROSSFADE_MS = 350;
 
@@ -120,6 +124,13 @@ export function PalModel({
   // away until the chibi builds are fully tuned.
   const [chibi, setChibi] = useState(true);
   const [clip, setClip] = useState<string | null>(null);
+  // Held still: the animation paused on its first frame (WCAG 2.2.2, 2.3.3). Starts held
+  // for anyone who set reduced motion; the pause button lets anyone switch. The model
+  // never turns on its own (no auto-rotate, model-viewer's own default): content that
+  // moves by itself is what NN/g found people miss and dislike; dragging turns it.
+  const [still, setStill] = useState(prefersLessMotion);
+  const stillRef = useRef(still);
+  stillRef.current = still;
   const [src, setSrc] = useState<string | null>(null);
   const viewer = useRef<HTMLElement>(null);
   const model = modelName(characterId);
@@ -182,16 +193,41 @@ export function PalModel({
     let raf = 0;
     const onError = (): void => setState('none');
     const onLoad = (): void => {
-      raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => fitStage(el, true))));
+      raf = requestAnimationFrame(
+        () =>
+          (raf = requestAnimationFrame(() => {
+            fitStage(el, true);
+            // Autoplay posed the model (without it, the T-pose shows); hold that first frame.
+            if (stillRef.current) (el as Viewer & { pause(): void }).pause();
+          })),
+      );
     };
+    // Focus lands on a div inside model-viewer's shadow root, whose own ring is a
+    // 1px browser default that vanishes on the dark skins. Mark the host while that
+    // div has keyboard focus, so styles.css can draw a real ring around the model.
+    const onFocus = (): void => {
+      el.toggleAttribute('data-kbd-focus', Boolean(el.shadowRoot?.activeElement?.matches(':focus-visible')));
+    };
+    const onBlur = (): void => el.removeAttribute('data-kbd-focus');
     el.addEventListener('error', onError);
     el.addEventListener('load', onLoad);
+    el.addEventListener('focusin', onFocus);
+    el.addEventListener('focusout', onBlur);
     return () => {
       cancelAnimationFrame(raf);
       el.removeEventListener('error', onError);
       el.removeEventListener('load', onLoad);
+      el.removeEventListener('focusin', onFocus);
+      el.removeEventListener('focusout', onBlur);
     };
   }, [state, src]);
+
+  useEffect(() => {
+    const el = viewer.current as (Viewer & { pause(): void; play(): void; loaded?: boolean }) | null;
+    if (state !== 'ready' || !el?.loaded) return;
+    if (still) el.pause();
+    else el.play();
+  }, [state, still, playing]);
 
   // A new clip reframes once the crossfade into it has settled; the camera glides.
   const framedClip = useRef<string | null>(null);
@@ -220,19 +256,39 @@ export function PalModel({
         camera-controls=""
         disable-zoom=""
         disable-pan=""
-        auto-rotate=""
         autoplay=""
-        rotation-per-second="18deg"
         interaction-prompt="none"
         shadow-intensity="1"
         exposure="1"
         animation-name={playing ?? undefined}
         animation-crossfade-duration={String(CROSSFADE_MS)}
       />
+      <button
+        type="button"
+        className="dl-pause"
+        aria-pressed={still}
+        aria-label="Pause motion"
+        title={still ? 'Play the animation' : 'Pause the animation'}
+        onClick={() => setStill((v) => !v)}
+      >
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          {still ? <path d="M4 2.5v11l9.5-5.5z" fill="currentColor" /> : <path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor" />}
+        </svg>
+      </button>
       {picker && clips.length > 1 && (
         <div className="dl-anims" role="group" aria-label="Animation">
           {clips.map((c) => (
-            <button key={c} type="button" className={c === playing ? 'on' : ''} aria-pressed={c === playing} onClick={() => setClip(c)}>
+            <button
+              key={c}
+              type="button"
+              className={c === playing ? 'on' : ''}
+              aria-pressed={c === playing}
+              onClick={() => {
+                // Picking a clip asks to see it move.
+                setClip(c);
+                setStill(false);
+              }}
+            >
               {c}
             </button>
           ))}

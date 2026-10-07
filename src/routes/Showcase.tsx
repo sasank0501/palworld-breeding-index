@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+
+import { SiteNotice } from '../components/SiteNotice.tsx';
 
 import type { Roster, RosterPal } from '../types.ts';
-import { nameOf } from './showcase/shared.tsx';
+import { nameOf, Chevron } from './showcase/shared.tsx';
 import { Box } from './showcase/Box.tsx';
 import { Breeding } from './showcase/Breeding.tsx';
 import { Dex } from './showcase/Dex.tsx';
@@ -50,11 +52,17 @@ export default function Showcase({
   roster,
   onOpenSave,
   justImported = false,
+  notice,
+  footer,
 }: {
   roster: Roster;
   onOpenSave?: () => void;
   /** True right after an import, to check for marked pals that left the save. */
   justImported?: boolean;
+  /** The disclaimer, shown as a card on each visit until dismissed into the footer. */
+  notice?: ReactNode;
+  /** The site footer (id "site-footer"), placed at the end of the scrolling page. */
+  footer?: ReactNode;
 }) {
   const [skin, setSkin] = useSkin();
   const ctx = useCtx(roster);
@@ -66,6 +74,19 @@ export default function Showcase({
   const missingDone = useCallback(() => setCheckMissing(false), []);
   const [planToOpen, setPlanToOpen] = useState<{ species: string; passives: string[]; key: number } | null>(null);
   const page = useRef<HTMLDivElement>(null);
+  const shell = useRef<HTMLDivElement>(null);
+  const nav = useRef<HTMLElement>(null);
+
+  // The sub bar and sticky panels sit under the nav at --nav-h. The nav's height
+  // depends on the width, the theme's border and the font, so it is measured, not
+  // guessed: a fixed value left the "← Back" bar partly under the nav on every width.
+  useEffect(() => {
+    const el = nav.current;
+    if (!el || typeof ResizeObserver !== 'function') return;
+    const ro = new ResizeObserver(() => shell.current?.style.setProperty('--nav-h', `${Math.ceil(el.getBoundingClientRect().height)}px`));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const savedScroll = useRef(0);
   const top = stack[stack.length - 1];
   /** What had focus when each page was opened, so Back can return to it. */
@@ -161,7 +182,7 @@ export default function Showcase({
   const sectionLabel = SECTIONS.find(([k]) => k === section)?.[1] ?? '';
 
   return (
-    <div className="sc-shell" data-skin={skin}>
+    <div className="sc-shell" data-skin={skin} ref={shell}>
       <div className="sc-fx" aria-hidden="true">
         <i />
         <i />
@@ -180,7 +201,8 @@ export default function Showcase({
         >
           Skip to content
         </a>
-        <nav className="sc-nav" aria-label="Showcase">
+        {notice && <SiteNotice footerId="site-footer">{notice}</SiteNotice>}
+        <nav className="sc-nav" aria-label="Showcase" ref={nav}>
           <span className="sc-brand" aria-hidden="true">
             <PalEgg size={30} />
             Paldex
@@ -218,11 +240,11 @@ export default function Showcase({
               {top.kind !== 'plans' && top.kind !== 'hidden' && (
                 <span className="sc-stepper">
                   <button onClick={() => step(-1)} aria-label="Previous">
-                    ‹
-                  </button>
+                <Chevron dir="left" />
+              </button>
                   <button onClick={() => step(1)} aria-label="Next">
-                    ›
-                  </button>
+                <Chevron dir="right" />
+              </button>
                 </span>
               )}
             </div>
@@ -269,6 +291,7 @@ export default function Showcase({
             )}
           </div>
         </main>
+        {footer}
       </div>
     </div>
   );

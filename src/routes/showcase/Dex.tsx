@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 
 import { displayName, ivTotal, speciesName } from '../../components/PalCards.tsx';
 import { passiveScore } from '../../lib/passiveCategories.ts';
 import type { RosterPal } from '../../types.ts';
 import { hideFromSpotlight, showInSpotlight } from '../../userdata/edit.ts';
 import { readPrefs, writePrefs } from '../../userdata/store.ts';
-import { DEX, UNBREEDABLE, SpeciesArt, fmt, nameOf, rankFor } from './shared.tsx';
+import { Chevron, DEX, UNBREEDABLE, SpeciesArt, fmt, nameOf, rankFor } from './shared.tsx';
 import { statusOf, type Ctx } from './ctx.ts';
 import {
   ELEMENTS,
@@ -276,16 +276,45 @@ function Spotlight({
   onHide: (p: RosterPal) => void;
   onUnhide: (p: RosterPal) => void;
 }) {
+  // Changes only when asked: no auto-advance. Moving content is what NN/g found people
+  // miss and dislike, and Baymard's carousel guidelines rule it out on mobile.
   const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [undo, setUndo] = useState<RosterPal | null>(null);
-  const pal = pals[i % pals.length];
+  const n = pals.length;
+  const cur = i % n;
+  const pal = pals[cur];
+  const prevPal = pals[(cur + n - 1) % n];
+  const nextPal = pals[(cur + 1) % n];
 
+  // The info column is rebuilt for each pal (its entrance animation), so a control
+  // that changed the pal is a new element afterwards. Remember which one had focus
+  // and focus its replacement once the new pal is on screen.
+  const aside = useRef<HTMLElement>(null);
+  const refocus = useRef<'prev' | 'next' | 'dot' | null>(null);
   useEffect(() => {
-    if (paused || undo || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const t = window.setInterval(() => setI((n) => (n + 1) % pals.length), 9000);
-    return () => window.clearInterval(t);
-  }, [paused, undo, pals.length]);
+    const k = refocus.current;
+    if (!k) return;
+    refocus.current = null;
+    aside.current?.querySelector<HTMLElement>(k === 'dot' ? '.sc-dots button.on' : `.sc-spot-step[data-dir="${k}"]`)?.focus();
+  }, [i]);
+  const step = (d: 1 | -1): void => {
+    refocus.current = d > 0 ? 'next' : 'prev';
+    setI((cur + d + n) % n);
+  };
+
+  // Arrows, Home and End pick a pal and move focus with it.
+  const dotKeys = (e: KeyboardEvent<HTMLElement>): void => {
+    const next =
+      e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (cur + 1) % n
+      : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (cur + n - 1) % n
+      : e.key === 'Home' ? 0
+      : e.key === 'End' ? n - 1
+      : null;
+    if (next === null) return;
+    e.preventDefault();
+    refocus.current = 'dot';
+    setI(next);
+  };
 
   // Undo stays on offer for 8 seconds after a pal is hidden.
   useEffect(() => {
@@ -303,21 +332,38 @@ function Spotlight({
   const iv = ivTotal(pal);
 
   return (
-    <aside
-      className={`sc-spot tier-${tierOf(id)} e-${elementOf(id)}`}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      aria-label="Your strongest pals"
-    >
+    <aside ref={aside} className={`sc-spot tier-${tierOf(id)} e-${elementOf(id)}`} aria-label="Your strongest pals">
+      {/* Says which pal is showing after a change; the visible counter is inside the rebuilt column. */}
+      <p className="sr-only" role="status">
+        Showing {displayName(pal)}, {cur + 1} of {n}.
+      </p>
       <div className="sc-spot-stage" key={pal.instanceId}>
         <Stage id={id} pal={pal} />
       </div>
 
       <div className="sc-spot-info" key={`i-${pal.instanceId}`}>
         <div className="sc-spot-top">
-          <p className="sc-kicker">
-            {order === 'passives' ? 'Best passives' : 'Top potential'} · {(i % pals.length) + 1} of {pals.length}
-          </p>
+          {/* Previous and next grouped with the counter, outside the 3D frame: arrows
+              on a slide invite accidental taps on it (Friedman, Smashing Magazine), and
+              here dragging the frame turns the model. WCAG 2.5.7 asks for exactly these
+              buttons as the non-drag way through a carousel. */}
+          <span className="sc-spot-pager">
+            {n > 1 && (
+              <button type="button" className="sc-spot-step" data-dir="prev" onClick={() => step(-1)} aria-label={`Previous: ${displayName(prevPal)}`} title={`Previous: ${displayName(prevPal)}`}>
+                <Chevron dir="left" />
+              </button>
+            )}
+            {/* Just the position: the Potential / Passives switch beside it already says how
+                they are ranked, and the longer "Top potential · 2 of 8" wrapped between the arrows. */}
+            <p className="sc-kicker sc-spot-count">
+              {cur + 1} of {n}
+            </p>
+            {n > 1 && (
+              <button type="button" className="sc-spot-step" data-dir="next" onClick={() => step(1)} aria-label={`Next: ${displayName(nextPal)}`} title={`Next: ${displayName(nextPal)}`}>
+                <Chevron dir="right" />
+              </button>
+            )}
+          </span>
           <span className="sc-seg sc-spot-order" role="group" aria-label="Rank the spotlight by">
             {(
               [
@@ -382,15 +428,21 @@ function Spotlight({
           >
             Hide
           </button>
-          <span className="sc-dots" role="group" aria-label="Choose spotlight">
-            {pals.map((p, n) => (
-              <button
-                key={p.instanceId}
-                className={n === i % pals.length ? 'on' : ''}
-                aria-label={`Show ${displayName(p)}`}
-                onClick={() => setI(n)}
-              />
-            ))}
+          {/* One Tab stop; arrow keys move between pals (a roving tabindex). */}
+          <span className="sc-dots" role="group" aria-label="Choose spotlight" onKeyDown={dotKeys}>
+            {pals.map((p, k) => {
+              const on = k === cur;
+              return (
+                <button
+                  key={p.instanceId}
+                  className={on ? 'on' : ''}
+                  tabIndex={on ? 0 : -1}
+                  aria-current={on || undefined}
+                  aria-label={`Show ${displayName(p)}`}
+                  onClick={() => setI(k)}
+                />
+              );
+            })}
           </span>
         </div>
         <p className="sc-spot-undo" role="status">

@@ -56,7 +56,7 @@ body {
   border-top: 1px solid var(--line);
   background: var(--bg);
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.35;
 }
 
@@ -107,4 +107,68 @@ body {
 
 .muted {
   color: var(--muted);
+}
+
+/* The 3D model is a Tab stop (arrow keys turn it), so it needs a visible focus ring (WCAG 2.4.7).
+   PalModel.tsx sets data-kbd-focus; the host itself never matches :focus-visible. */
+model-viewer.dl-model[data-kbd-focus] {
+  outline: 3px solid var(--accent-strong, currentColor);
+  outline-offset: -3px;
+  border-radius: 12px;
+}
+
+/* Inside the Showcase the footer is the last thing in the scrolling page, in the
+   theme's colours, not a bar pinned to the screen. */
+.sc-page > .legal {
+  margin-top: 48px;
+  padding: 18px clamp(16px, 4vw, 56px) 28px;
+  border-top: 1px solid var(--hair);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* The disclaimer card (src/components/SiteNotice.tsx), above the page and below the
+   settings scrim (45). */
+.sc-notice {
+  position: fixed;
+  z-index: 40;
+  /* Centred by margins, not a transform: the exit animation owns transform. */
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  max-width: 560px;
+  margin-inline: auto;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--panel-solid);
+  color: var(--ink);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.sc-notice p { margin: 0; }
+.sc-notice .sc-btn { flex: none; }
+@media (max-width: 520px) { .sc-notice { flex-direction: column; align-items: stretch; } }
+@media (prefers-reduced-motion: no-preference) {
+  .sc-notice { animation: sc-notice-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+}
+@keyframes sc-notice-in { from { opacity: 0; transform: translateY(24px); } }
+
+/* Touch screens. Android draws its own grey-blue box over whatever is tapped
+   (-webkit-tap-highlight-color), which showed around filter chips before they changed
+   state. It is turned off, and a short dim while the finger is down replaces it, so a tap
+   still answers at once. Hover styles are inside @media (hover: hover) in every
+   stylesheet: on a touch screen the last tapped element otherwise keeps its hover look
+   ("sticky hover"), which looked like a second selected chip. */
+html { -webkit-tap-highlight-color: transparent; }
+@media (hover: none) {
+  button:active:not(:disabled),
+  a:active { opacity: 0.72; }
 }

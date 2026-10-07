@@ -56,7 +56,25 @@ async function tab(page, label) {
 
 async function scan(page, meta) {
   const r = await new AxeBuilder({ page }).withTags(TAGS).analyze();
-  results.push({ ...meta, violations: r.violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, tags: v.tags, nodes: v.nodes.map((n) => ({ target: n.target.join(' '), summary: n.failureSummary, html: n.html.slice(0, 200) })) })) });
+  // Not an axe rule: visible text under the 12px floor (A11Y.md finding 2). Text that
+  // screen readers skip (aria-hidden glyphs) may go down to 11px.
+  const smallText = await page.evaluate(() => {
+    const hits = new Map();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+      const el = t.parentElement;
+      if (!el || !t.textContent.trim() || el.closest('.sr-only, script, style')) continue;
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) continue;
+      const px = parseFloat(getComputedStyle(el).fontSize);
+      const floor = el.closest('[aria-hidden="true"]') ? 11 : 12;
+      if (px >= floor) continue;
+      const key = `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : ''} ${px}px`;
+      hits.set(key, (hits.get(key) ?? 0) + 1);
+    }
+    return [...hits].map(([el, n]) => ({ el, n }));
+  });
+  results.push({ ...meta, smallText, violations: r.violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, tags: v.tags, nodes: v.nodes.map((n) => ({ target: n.target.join(' '), summary: n.failureSummary, html: n.html.slice(0, 200) })) })) });
   await page.screenshot({ path: out(`${meta.skin}-${meta.scheme}-${meta.scene}.png`) });
 }
 
@@ -92,7 +110,7 @@ for (const scheme of ['dark', 'light']) {
     if (!a || a === document.body) return { el: 'body' };
     const cs = getComputedStyle(a);
     const visible = (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || (cs.boxShadow && cs.boxShadow !== 'none');
-    return { el: `${a.tagName.toLowerCase()}.${[...a.classList].join('.')}`, name: (a.getAttribute('aria-label') || a.textContent || '').trim().slice(0, 40), focusVisible: visible };
+    return { el: `${a.tagName.toLowerCase()}.${[...a.classList].join('.')}`, name: (a.getAttribute('aria-label') || a.getAttribute('alt') || a.textContent || '').trim().slice(0, 40), focusVisible: visible };
   };
   const order = [];
   for (let i = 0; i < 40; i++) {
@@ -175,3 +193,13 @@ for (const [id, e] of Object.entries(byRule).sort((a, b) => order[a[1].impact] -
   console.log(`\n[${e.impact}] ${id}: ${e.help}\n  nodes=${e.nodes} scenes=${e.scenes.size}/${results.length}\n  e.g. ${[...e.examples].slice(0, 4).join(' | ')}`);
 }
 console.log('\nNOTES', JSON.stringify({ ...notes, tabOrder: notes.tabOrder?.map((d) => `${d.el} "${d.name}" fv=${d.focusVisible}`) }, null, 2));
+
+const small = new Map();
+for (const r of results) for (const { el, n } of r.smallText ?? []) {
+  const e = small.get(el) ?? { n: 0, scenes: new Set() };
+  e.n += n;
+  e.scenes.add(r.scene);
+  small.set(el, e);
+}
+console.log(`\nSMALL TEXT (under 12px; 11px for aria-hidden): ${small.size ? '' : 'none'}`);
+for (const [el, e] of [...small].sort((a, b) => b[1].n - a[1].n)) console.log(`  ${el}  ×${e.n}  in ${[...e.scenes].join(', ')}`);

@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import {
   applyRestore,
@@ -38,6 +39,10 @@ const ago = (iso: string | null): string => {
  * button that shows a panel of ordinary controls, so radios, buttons and the file
  * picker behave as they always do for keyboard and screen-reader users. Esc or a
  * click outside closes it; closing returns focus to the gear.
+ *
+ * Outside the panel sits a layer (the scrim) that catches the closing tap, so the tap
+ * never reaches the page underneath, and touch scrolling stops at it instead of moving
+ * the page. It is placed in .sc-shell, below the nav that holds the panel.
  */
 export function Settings({
   skin,
@@ -53,7 +58,11 @@ export function Settings({
   spotlightHidden?: number;
   onSeeHidden?: () => void;
 }) {
-  const [open, setOpen] = useState(false);
+  // 'closing' keeps the panel up for its exit animation.
+  const [state, setState] = useState<'closed' | 'open' | 'closing'>('closed');
+  const open = state !== 'closed';
+  const closeTimer = useRef(0);
+  const [shell, setShell] = useState<Element | null>(null);
   const [message, setMessage] = useState('');
   const [sync, setSync] = useState<FileSyncState>('off');
   const [preview, setPreview] = useState<RestorePreview | null>(null);
@@ -69,31 +78,41 @@ export function Settings({
     if (open && canSyncFile()) void fileSyncState().then(setSync);
   }, [open]);
 
+  const show = () => {
+    window.clearTimeout(closeTimer.current);
+    setShell(gear.current?.closest('.sc-shell') ?? null);
+    setState('open');
+  };
   const close = (refocus = true) => {
-    setOpen(false);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setState('closing');
+    closeTimer.current = window.setTimeout(() => setState('closed'), reduced ? 100 : 160);
     if (refocus) gear.current?.focus();
   };
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
-  // Esc and clicks outside close the panel (not while the restore dialog is up).
+  // While the panel is up the page behind it can't scroll. The scrim alone wasn't
+  // enough on iOS: a swipe that starts on the panel, when the panel has nothing to
+  // scroll, is handed on to the page ("scroll chaining"). Locking the page's own
+  // overflow stops it whatever the swipe started on.
   useEffect(() => {
-    if (!open) return;
+    if (!shell) return;
+    shell.toggleAttribute('data-panel-open', open);
+    return () => shell.removeAttribute('data-panel-open');
+  }, [shell, open]);
+
+  // Esc closes the panel (not while the restore dialog is up); taps outside land on the scrim.
+  useEffect(() => {
+    if (state !== 'open') return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !dialog.current?.open) {
         e.stopPropagation();
         close();
       }
     };
-    const onDown = (e: PointerEvent) => {
-      const t = e.target as Node;
-      if (!panel.current?.contains(t) && !gear.current?.contains(t) && !dialog.current?.contains(t)) close(false);
-    };
     window.addEventListener('keydown', onKey, true);
-    window.addEventListener('pointerdown', onDown);
-    return () => {
-      window.removeEventListener('keydown', onKey, true);
-      window.removeEventListener('pointerdown', onDown);
-    };
-  }, [open]);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [state]);
 
   useEffect(() => {
     if (preview) dialog.current?.showModal();
@@ -153,7 +172,7 @@ export function Settings({
         aria-expanded={open}
         aria-controls={panelId}
         aria-label="Settings and your data"
-        onClick={() => (open ? close() : setOpen(true))}
+        onClick={() => (state === 'open' ? close() : show())}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="3" />
@@ -161,7 +180,22 @@ export function Settings({
         </svg>
       </button>
 
-      <div ref={panel} id={panelId} className="sc-setpanel" hidden={!open}>
+      {open &&
+        shell &&
+        createPortal(
+          <div
+            className="sc-setscrim"
+            data-state={state}
+            aria-hidden="true"
+            // The click, not pointerdown: the click is the event the page would
+            // otherwise receive, so the scrim must be the one that takes it.
+            onClick={() => {
+              if (state === 'open') close(false);
+            }}
+          />,
+          shell,
+        )}
+      <div ref={panel} id={panelId} className="sc-setpanel" data-state={state} hidden={!open}>
         <fieldset className="sc-themes">
           <legend id={themesId}>Themes</legend>
           {SKINS.map((s) => (

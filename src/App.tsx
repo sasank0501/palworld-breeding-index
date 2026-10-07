@@ -113,25 +113,42 @@ export default function App() {
     );
   }
 
+  // The disclaimer: a card on each visit (SiteNotice), then the footer at the end of the page.
+  const disclaimer = (
+    <>
+      Unofficial fan project. Palworld and its characters, names and artwork are © Pocketpair, Inc.; not affiliated with
+      or endorsed by Pocketpair.
+      {/* Only the portfolio build ships game art (vite.config.ts), so only it says where the art came from. */}
+      {import.meta.env.MODE === 'resume' && (
+        <>
+          {' Art shown is rendered from the author’s own copy of the game, for portfolio purposes. Rights holders: '}
+          <a className="legal-link" href="https://github.com/sasank0501/palworld-breeding-index/issues">
+            open an issue
+          </a>
+          {' and anything you ask is taken down.'}
+        </>
+      )}
+    </>
+  );
+  const footer = (
+    <footer className="legal" id="site-footer">
+      {disclaimer}{' '}
+      <button type="button" className="legal-link" onClick={openAnother}>
+        {load.source === 'demo' ? 'Open your own save' : 'Open a different save'}
+      </button>
+    </footer>
+  );
+
   return (
     <div className="shell">
       {ChibiReview && location.hash === '#chibi' ? (
         <Suspense fallback={<div className="fullpage">Loading…</div>}>
           <ChibiReview />
+          {footer}
         </Suspense>
       ) : (
-        <Showcase roster={load.roster} onOpenSave={openAnother} justImported={load.justImported} />
+        <Showcase roster={load.roster} onOpenSave={openAnother} justImported={load.justImported} notice={disclaimer} footer={footer} />
       )}
-      <footer className="legal">
-        Unofficial fan project. Palworld and its characters, names and artwork are © Pocketpair, Inc.; not affiliated
-        with or endorsed by Pocketpair.
-        {/* Only the portfolio build ships game art (vite.config.ts), so only it says where the art came from. */}
-        {import.meta.env.MODE === 'resume' &&
-          ' Art shown is rendered from the author’s own copy of the game, for portfolio purposes.'}{' '}
-        <button type="button" className="legal-link" onClick={openAnother}>
-          {load.source === 'demo' ? 'Open your own save' : 'Open a different save'}
-        </button>
-      </footer>
     </div>
   );
 }

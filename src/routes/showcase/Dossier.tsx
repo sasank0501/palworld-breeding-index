@@ -5,7 +5,7 @@ import { WORK_LEVEL_CAP, workName, workOrder } from '../../data/work.ts';
 import { FOOD_SLOTS, foodFor, partnerSkillFor, rarityFor } from '../../design/palExtras.ts';
 import { canPair, type Pair } from '../../lib/breeding.ts';
 import type { RosterPal } from '../../types.ts';
-import { DEX, UNBREEDABLE, SpeciesArt, nameOf } from './shared.tsx';
+import { DEX, PASSIVES, UNBREEDABLE, SpeciesArt, nameOf } from './shared.tsx';
 import { statusOf, type Ctx } from './ctx.ts';
 import { ElementChips, Stage, TraitChips, elementOf, stagger, tierOf, title } from './parts.tsx';
 import { Tree, type TNode } from './tree.tsx';
@@ -167,7 +167,7 @@ export function Dossier({
                 <li key={w.job}>
                   <WorkIcon job={w.job} />
                   <span>{workName(w.job)}</span>
-                  <i aria-label={`${w.level} of ${WORK_LEVEL_CAP}`}>
+                  <i role="img" aria-label={`level ${w.level} of ${WORK_LEVEL_CAP}`}>
                     {Array.from({ length: WORK_LEVEL_CAP }, (_, n) => (
                       <b key={n} className={n < w.level ? 'on' : undefined} />
                     ))}
@@ -185,20 +185,7 @@ export function Dossier({
           {mine.length === 0 ? (
             <p className="sc-muted">You don’t have a {dex?.name} yet.</p>
           ) : (
-            <ul className="sc-mine">
-              {mine.slice(0, 6).map((p) => (
-                <li key={p.instanceId}>
-                  <button onClick={() => onPal(p)}>
-                    <b>{displayName(p)}</b>
-                    <span>
-                      Lv {p.level} · IV {ivTotal(p)}
-                      {p.gender ? (p.gender === 'male' ? ' · ♂' : ' · ♀') : ''}
-                    </span>
-                    <TraitChips ids={p.passives} max={3} />
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <Collection key={id} mine={mine} onPal={onPal} />
           )}
         </section>
       </div>
@@ -277,3 +264,102 @@ function ParentChip({ id, ctx, onOpen }: { id: string; ctx: Ctx; onOpen: (id: st
     </button>
   );
 }
+
+const MINE_PAGE = 6;
+const IV_FLOORS = [0, 150, 200, 250, 270];
+
+/**
+ * Every pal you own of one species: best IVs first, with filters for an IV floor and
+ * a passive, and the first six shown until you ask for the rest. (It used to show the
+ * first six and nothing else.)
+ */
+function Collection({ mine, onPal }: { mine: RosterPal[]; onPal: (p: RosterPal) => void }) {
+  const [sort, setSort] = useState<'iv' | 'level'>('iv');
+  const [floor, setFloor] = useState(0);
+  const [passive, setPassive] = useState('');
+  const [all, setAll] = useState(false);
+
+  // Passives present on these pals, most common first, for the filter.
+  const passives = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const p of mine) for (const id of p.passives) n.set(id, (n.get(id) ?? 0) + 1);
+    return [...n].sort((a, b) => b[1] - a[1] || passiveName(a[0]).localeCompare(passiveName(b[0])));
+  }, [mine]);
+
+  const list = useMemo(
+    () =>
+      mine
+        .filter((p) => ivTotal(p) >= floor && (!passive || p.passives.includes(passive)))
+        .sort((a, b) => (sort === 'iv' ? ivTotal(b) - ivTotal(a) || b.level - a.level : b.level - a.level || ivTotal(b) - ivTotal(a))),
+    [mine, floor, passive, sort],
+  );
+  const shown = all ? list : list.slice(0, MINE_PAGE);
+  const filtered = floor > 0 || passive !== '';
+
+  return (
+    <>
+      {mine.length > 1 && (
+        <div className="sc-mine-tools">
+          <label>
+            Sort
+            <select value={sort} onChange={(e) => setSort(e.target.value as 'iv' | 'level')}>
+              <option value="iv">Best IVs</option>
+              <option value="level">Highest level</option>
+            </select>
+          </label>
+          <label>
+            IVs
+            <select value={floor} onChange={(e) => setFloor(Number(e.target.value))}>
+              {IV_FLOORS.map((f) => (
+                <option key={f} value={f}>
+                  {f === 0 ? 'Any total' : `${f}+ of 300`}
+                </option>
+              ))}
+            </select>
+          </label>
+          {passives.length > 0 && (
+            <label>
+              Passive
+              <select value={passive} onChange={(e) => setPassive(e.target.value)}>
+                <option value="">Any</option>
+                {passives.map(([pid, n]) => (
+                  <option key={pid} value={pid}>
+                    {passiveName(pid)} ({n})
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <span className="sc-mine-count" role="status">
+            {filtered ? `${list.length} of ${mine.length} match` : `${mine.length} owned`}
+          </span>
+        </div>
+      )}
+      {list.length === 0 ? (
+        <p className="sc-muted">None of yours match. Try a lower IV total or another passive.</p>
+      ) : (
+        <ul className="sc-mine">
+          {shown.map((p) => (
+            <li key={p.instanceId}>
+              <button onClick={() => onPal(p)}>
+                <b>{displayName(p)}</b>
+                <span>
+                  Lv {p.level} · IV {ivTotal(p)}
+                  {p.gender ? (p.gender === 'male' ? ' · ♂' : ' · ♀') : ''}
+                </span>
+                <TraitChips ids={p.passives} max={3} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {list.length > MINE_PAGE && (
+        <button className="sc-btn ghost more" onClick={() => setAll((v) => !v)}>
+          {all ? 'Show fewer' : `Show all ${list.length}`}
+        </button>
+      )}
+    </>
+  );
+}
+
+const passiveName = (id: string): string => PASSIVES[id]?.name ?? 'Unidentified trait';

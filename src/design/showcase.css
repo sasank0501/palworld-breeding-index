@@ -9,7 +9,7 @@
  *   feybreak  Feybreak       frozen teal night, aurora, frosted glass
  *
  * Fonts (index.html): a display face per skin (Lilita One, Oxanium, Zen Antique,
- * Unbounded), Nunito for text, JetBrains Mono for numbers.
+ * Josefin Sans), Nunito for text, JetBrains Mono for numbers.
  */
 
 .sc-shell {
@@ -232,9 +232,12 @@
   --border: 1px solid var(--line);
   --shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --shadow-hover: 0 0 36px -6px rgba(79, 240, 210, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  --font-display: 'Unbounded', 'Nunito', sans-serif;
+  /* Josefin Sans (chosen 2026-10-06 over Unbounded, which was too wide: it broke
+     long names and overflowed the ring): thin, precise, airy, for the frost and aurora.
+     It fits the ring at the default size (see .sc-ring). */
+  --font-display: 'Josefin Sans', 'Nunito', sans-serif;
   --d-weight: 700;
-  --d-track: 0;
+  --d-track: 0.01em;
   --d-case: none;
   --mega-fill: linear-gradient(100deg, #4ff0d2 0%, #8fb8ff 50%, #ff5fa8 100%);
   --mega-stroke: 0;
@@ -336,6 +339,24 @@
 /* Spotlight: its order switch beside the kicker, and the Undo line after "Hide". */
 .sc-spot-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 8px; }
 .sc-spot-top .sc-kicker { margin: 0; }
+/* Previous / next around the counter (Spotlight in Dex.tsx): 40px round buttons, the
+   chevron centred by layout. */
+.sc-spot-pager { display: inline-flex; align-items: center; gap: 10px; }
+.sc-spot-count { min-width: 6ch; text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sc-spot-step {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: var(--border);
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+.sc-spot-step:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+@media (hover: hover) { .sc-spot-step:hover { background: var(--accent-strong); color: var(--accent-ink); } }
 .sc-spot-order button { min-height: 32px; padding: 4px 12px; font-size: 13px; }
 .sc-spot-undo { min-height: 1.5em; margin: 10px 0 0; font-size: 14px; color: var(--ink-soft); }
 .sc-spot-undo .sc-link { font-weight: 800; }
@@ -482,6 +503,9 @@
   position: absolute;
   inset: 0;
   overflow-y: auto;
+  /* Room for the scrollbar is kept even when scrolling is locked (settings open), so
+     the page doesn't shift sideways on desktop. */
+  scrollbar-gutter: stable;
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--accent) transparent;
@@ -490,7 +514,9 @@
 .sc-nav {
   position: sticky;
   top: 0;
-  z-index: 20;
+  /* Above every layer in the page (the planner bar is 20, its menu 30), so the settings
+     panel, which lives in the nav, opens over all of them. */
+  z-index: 50;
   min-height: var(--nav-h);
   box-sizing: border-box;
   display: flex;
@@ -541,7 +567,7 @@
   transition: color 0.2s, background 0.2s, border-color 0.2s, transform 0.2s;
 }
 
-.sc-tabs button:hover { color: var(--ink); transform: translateY(-1px); }
+@media (hover: hover) { .sc-tabs button:hover { color: var(--ink); transform: translateY(-1px); } }
 
 .sc-tabs button.on {
   background: var(--accent-strong);
@@ -557,7 +583,7 @@
 
 .sc-kicker {
   margin: 0 0 8px;
-  font: 700 11px/1 var(--font-mono);
+  font: 700 12px/1 var(--font-mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--accent-strong);
@@ -581,7 +607,7 @@
   transition: transform 0.18s, box-shadow 0.18s;
 }
 
-.sc-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+@media (hover: hover) { .sc-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: var(--shadow-hover); } }
 .sc-btn:active:not(:disabled) { transform: translateY(1px); }
 .sc-btn:disabled { opacity: 0.45; cursor: default; }
 .sc-btn.ghost { background: var(--panel); color: var(--ink); }
@@ -593,7 +619,7 @@
   margin-left: 8px;
   padding: 2px 9px;
   border-radius: 999px;
-  font: 800 10px/1.4 var(--font-mono);
+  font: 800 12px/1.4 var(--font-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   vertical-align: 2px;
@@ -609,7 +635,7 @@
   gap: 4px;
   padding: 2px 8px 2px 6px;
   border-radius: 999px;
-  font: 800 11px/1.4 var(--font-body);
+  font: 800 12px/1.4 var(--font-body);
   color: var(--elem);
   background: color-mix(in srgb, var(--elem) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--elem) 40%, transparent);
@@ -632,7 +658,8 @@
   border: 1px solid color-mix(in srgb, var(--rk) 45%, transparent);
   font: 800 12px/1.3 var(--font-body);
 }
-.sc-trait i { font-style: normal; font-size: 8px; letter-spacing: -0.05em; }
+/* A small gap between the dots: at 11px the old negative spacing made ●●● overlap. */
+.sc-trait i { font-style: normal; font-size: 11px; letter-spacing: 0.1em; }
 .sc-trait.r-neg { text-decoration: line-through; text-decoration-thickness: 1px; }
 .sc-trait.more { color: var(--ink-soft); --rk: var(--ink-soft); --rk-text: var(--ink-soft); }
 .sc-trait.wanted { box-shadow: 0 0 0 2px var(--accent); }
@@ -643,6 +670,9 @@
   width: 150px;
   height: 150px;
   flex: none;
+  /* The number inside is sized from the ring (cqi = 1% of its width), so it can't
+     outgrow the hole: the hole is 77.5% of the ring (r 52, stroke 11, in 120). */
+  container-type: inline-size;
 }
 /* The fill's glow reaches past the 120x120 viewBox; clipped there, it drew a hard
    square around the ring. Let the SVG overflow so the glow fades out on its own. */
@@ -664,8 +694,8 @@
   place-content: center;
   text-align: center;
 }
-.sc-ring-label b { font: var(--d-weight) 34px/1 var(--font-display); }
-.sc-ring-label small { font: 700 10px/1.6 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+.sc-ring-label b { font: var(--d-weight) min(34px, var(--ring-num, 21cqi))/1 var(--font-display); }
+.sc-ring-label small { font: 700 12px/1.6 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
 
 .sc-stage {
   position: relative;
@@ -684,6 +714,25 @@
   background: transparent;
 }
 .sc-stage .dl-model-toggle { display: none; }
+/* PalModel's pause: a 32px round button in the stage's top-left corner (the pal page's pager holds the right). */
+.sc-stage .dl-pause {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--hair);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
+  color: var(--ink);
+  cursor: pointer;
+}
+@media (hover: hover) { .sc-stage .dl-pause:hover { background: var(--panel); } }
+.sc-stage .dl-pause:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
 .sc-stage .art-egg svg { width: min(46%, 160px); }
 
 /* ================================ hero ================================ */
@@ -730,7 +779,7 @@
   gap: 10px 28px;
   margin: 0;
 }
-.sc-hero-stats dt { font: 700 10px/1 var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
+.sc-hero-stats dt { font: 700 12px/1 var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
 .sc-hero-stats dd { margin: 4px 0 0; font: var(--d-weight) 32px/1 var(--font-display); letter-spacing: var(--d-track); }
 .sc-hero-stats dd small { font: 600 12px var(--font-mono); color: var(--ink-soft); margin-left: 3px; }
 
@@ -757,20 +806,6 @@
     radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--elem, var(--accent)) 22%, transparent), transparent 70%);
 }
 
-/* a floor ring under the pal, like the in-game dex pedestal */
-.sc-spot-stage::after {
-  content: '';
-  position: absolute;
-  left: 14%;
-  right: 14%;
-  bottom: 9%;
-  height: 12%;
-  border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--tier) 70%, transparent);
-  box-shadow: 0 0 24px color-mix(in srgb, var(--tier) 60%, transparent), inset 0 0 18px color-mix(in srgb, var(--tier) 40%, transparent);
-  opacity: 0.8;
-  pointer-events: none;
-}
 
 .sc-spot-info { display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 26px 28px 22px 8px; }
 
@@ -778,7 +813,7 @@
 .sc-spot-sub { margin: 0; font-size: 15px; color: var(--ink-soft); }
 
 .sc-ivs { display: grid; gap: 7px; margin: 4px 0 2px; }
-.sc-ivs > div { display: grid; grid-template-columns: 38px 1fr 34px; align-items: center; gap: 10px; font: 800 11px var(--font-mono); letter-spacing: 0.1em; }
+.sc-ivs > div { display: grid; grid-template-columns: 38px 1fr 34px; align-items: center; gap: 10px; font: 800 12px var(--font-mono); letter-spacing: 0.1em; }
 .sc-ivs i { height: 10px; background: var(--hair); border-radius: 999px; overflow: hidden; }
 .sc-ivs i b { display: block; height: 100%; border-radius: 999px; background: var(--accent); transform-origin: left; }
 .sc-ivs .top i b { background: linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px var(--accent-2); }
@@ -789,9 +824,12 @@
 .sc-spot-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; margin-top: 4px; }
 .sc-spot-actions .sc-dots { flex-basis: 100%; }
 
-.sc-dots { display: inline-flex; gap: 7px; }
-.sc-dots button { width: 11px; height: 11px; padding: 0; border: 2px solid var(--ink-soft); border-radius: 50%; background: transparent; cursor: pointer; transition: all 0.25s; }
-.sc-dots button.on { width: 28px; border-radius: 999px; background: var(--accent); border-color: var(--accent); }
+/* Each button is a 24px target (WCAG 2.5.8); the 11px dot is drawn inside it. */
+.sc-dots { display: inline-flex; margin-left: -6.5px; }
+.sc-dots button { position: relative; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 999px; background: transparent; cursor: pointer; transition: width 0.25s; }
+.sc-dots button::before { content: ''; position: absolute; inset: 6.5px; border: 2px solid var(--ink-soft); border-radius: 999px; transition: all 0.25s; }
+.sc-dots button.on { width: 41px; }
+.sc-dots button.on::before { background: var(--accent); border-color: var(--accent); }
 
 /* ============================= paldex grid ============================= */
 
@@ -836,8 +874,8 @@
   transition: transform 0.18s, border-color 0.18s, background 0.18s;
   backdrop-filter: var(--blur);
 }
-.sc-elbar button span { font: 600 11px var(--font-mono); color: var(--ink-soft); }
-.sc-elbar button:hover { transform: translateY(-2px); border-color: var(--elem, var(--accent)); }
+.sc-elbar button span { font: 600 12px var(--font-mono); color: var(--ink-soft); }
+@media (hover: hover) { .sc-elbar button:hover { transform: translateY(-2px); border-color: var(--elem, var(--accent)); } }
 .sc-elbar button.on { background: color-mix(in srgb, var(--elem, var(--accent)) 22%, var(--panel)); border-color: var(--elem, var(--accent)); }
 
 .sc-dexgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 18px 16px; }
@@ -861,9 +899,10 @@
   transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s, border-color 0.22s;
 }
 
-.sc-dex:hover, .sc-dex:focus-visible { transform: translateY(-6px) rotate(-1deg); box-shadow: var(--shadow-hover); outline: none; border-color: var(--elem); z-index: 2; }
+.sc-dex:focus-visible { transform: translateY(-6px) rotate(-1deg); box-shadow: var(--shadow-hover); outline: none; border-color: var(--elem); z-index: 2; }
+@media (hover: hover) { .sc-dex:hover { transform: translateY(-6px) rotate(-1deg); box-shadow: var(--shadow-hover); outline: none; border-color: var(--elem); z-index: 2; } }
 
-.sc-dex-no { font: 700 11px var(--font-mono); color: var(--ink-soft); letter-spacing: 0.06em; }
+.sc-dex-no { font: 700 12px var(--font-mono); color: var(--ink-soft); letter-spacing: 0.06em; }
 
 .sc-dex-count {
   position: absolute;
@@ -873,7 +912,7 @@
   border-radius: 999px;
   background: var(--accent-strong);
   color: var(--accent-ink);
-  font: 800 11px/1.6 var(--font-mono);
+  font: 800 12px/1.6 var(--font-mono);
 }
 
 .sc-dex-art {
@@ -888,7 +927,7 @@
   overflow: hidden;
 }
 .sc-dex-art img { width: 92%; height: 92%; object-fit: contain; transition: transform 0.3s, filter 0.3s; filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.25)); }
-.sc-dex:hover .sc-dex-art img { transform: scale(1.08); }
+@media (hover: hover) { .sc-dex:hover .sc-dex-art img { transform: scale(1.08); } }
 
 
 /* a rarity gem in the corner of the art */
@@ -904,11 +943,13 @@
   border-radius: 2px;
   box-shadow: 0 0 8px var(--tier);
 }
-.sc-dex.tier-legendary .sc-dex-art::after { animation: sc-gem 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: no-preference) {
+  .sc-dex.tier-legendary .sc-dex-art::after { animation: sc-gem 2.4s ease-in-out infinite; }
+}
 @keyframes sc-gem { 50% { box-shadow: 0 0 16px 3px var(--tier); transform: rotate(225deg) scale(1.2); } }
 
 .sc-dex-name { font: var(--d-weight) 17px/1.1 var(--font-display); letter-spacing: var(--d-track); text-transform: var(--d-case); overflow-wrap: anywhere; }
-.sc-dex-foot { display: flex; align-items: center; justify-content: space-between; min-height: 18px; font: 800 11px var(--font-mono); letter-spacing: 0.06em; color: var(--ink-soft); }
+.sc-dex-foot { display: flex; align-items: center; justify-content: space-between; min-height: 18px; font: 800 12px var(--font-mono); letter-spacing: 0.06em; color: var(--ink-soft); }
 .sc-dex-foot b.go { color: var(--accent-2-ink); background: var(--accent-2); padding: 1px 8px; border-radius: 999px; }
 .sc-dex-foot b.dim { opacity: 0.7; }
 
@@ -930,8 +971,8 @@
 /* not discovered: a silhouette that gives itself away on hover */
 .sc-dex.is-lost .sc-dex-art img, .sc-dex.is-unknown .sc-dex-art img { filter: brightness(0) opacity(0.5); }
 .sc-dex.is-lost, .sc-dex.is-unknown { opacity: 0.78; }
-.sc-dex.is-lost:hover .sc-dex-art img, .sc-dex.is-far:hover .sc-dex-art img { filter: none; }
-.sc-dex.is-lost:hover { opacity: 1; }
+@media (hover: hover) { .sc-dex.is-lost:hover .sc-dex-art img, .sc-dex.is-far:hover .sc-dex-art img { filter: none; } }
+@media (hover: hover) { .sc-dex.is-lost:hover { opacity: 1; } }
 
 /* ============================ entrance motion ============================ */
 
@@ -960,7 +1001,8 @@
 @media (max-width: 640px) {
   .sc-nav { gap: 10px; padding: 8px 12px; flex-wrap: wrap; }
   .sc-brand { font-size: 22px; }
-  .sc-tabs { order: 3; width: 100%; overflow-x: auto; margin: 0; }
+  /* A scrolling row clips both ways, so it gets room for the selected tab's 3px shadow. */
+  .sc-tabs { order: 3; width: 100%; overflow-x: auto; margin: 0; padding-block: 4px 6px; }
   .sc-tabs button { padding: 7px 13px; font-size: 14px; white-space: nowrap; }
   .sc-search input { width: 100%; }
   .sc-search { flex: 1 1 100%; }

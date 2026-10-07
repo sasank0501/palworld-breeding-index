@@ -7,7 +7,7 @@ import { isFavourite, toggleFavourite } from '../../userdata/edit.ts';
 import type { Ctx } from './ctx.ts';
 import { FavStar } from './Fav.tsx';
 import { PalNote } from './Note.tsx';
-import { DEX, LOCATION, PASSIVES, TraitGlyph, TraitName, byRank, traitClass } from './shared.tsx';
+import { DEX, LOCATION, PASSIVES, TraitGlyph, TraitName, byRank, traitClass, Chevron } from './shared.tsx';
 import { ElementChips, Stage, elementOf, stagger, tierOf, title } from './parts.tsx';
 
 const SKILLS = skillsJson as unknown as Record<string, ActiveSkill>;
@@ -58,13 +58,13 @@ export function PalSheet({
           {total > 1 && (
             <span className="sc-stepper">
               <button onClick={() => onStep(-1)} disabled={index <= 0} aria-label="Previous pal">
-                ‹
+                <Chevron dir="left" />
               </button>
               <small>
                 {index + 1} / {total}
               </small>
               <button onClick={() => onStep(1)} disabled={index >= total - 1} aria-label="Next pal">
-                ›
+                <Chevron dir="right" />
               </button>
             </span>
           )}
@@ -199,7 +199,7 @@ export function PalSheet({
                     {workName(w.job)}
                     {w.boosted && <sup>▲</sup>}
                   </span>
-                  <i aria-label={`${w.level} of ${WORK_LEVEL_CAP}`}>
+                  <i role="img" aria-label={`level ${w.level} of ${WORK_LEVEL_CAP}`}>
                     {Array.from({ length: WORK_LEVEL_CAP }, (_, n) => (
                       <b key={n} className={n < w.level ? 'on' : undefined} />
                     ))}

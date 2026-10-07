@@ -148,7 +148,7 @@
   font: inherit;
   cursor: pointer;
 }
-.imp-world:hover { box-shadow: var(--shadow-hover); }
+@media (hover: hover) { .imp-world:hover { box-shadow: var(--shadow-hover); } }
 .imp-world:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .imp-world-name { font: var(--d-weight) 20px/1.2 var(--font-display); }
 .imp-world-meta { font-size: 15px; color: var(--ink-soft); }

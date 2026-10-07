@@ -41,6 +41,34 @@
 }
 
 .sc-setpanel[hidden] { display: none; } /* display: grid above would otherwise override [hidden] */
+.sc-setpanel { overscroll-behavior: contain; transform-origin: top right; }
+.sc-shell[data-panel-open] .sc-page { overflow-y: hidden; }
+
+/* Catches the tap that closes the panel, and stops touch scrolling of the page behind.
+   Inside .sc-shell, above the page (its highest layer is 30) and below the nav (50). */
+.sc-setscrim {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: color-mix(in srgb, var(--ink) 18%, transparent);
+  touch-action: none;
+}
+
+/* Open: drops in from the gear. Close: the reverse, shorter. Reduced motion: a fade. */
+@keyframes sc-set-in { from { opacity: 0; transform: translateY(-8px) scale(0.97); } }
+@keyframes sc-set-out { to { opacity: 0; transform: translateY(-8px) scale(0.97); } }
+@keyframes sc-fade-in { from { opacity: 0; } }
+@keyframes sc-fade-out { to { opacity: 0; } }
+.sc-setpanel[data-state='open'] { animation: sc-fade-in 0.1s ease-out both; }
+.sc-setpanel[data-state='closing'] { animation: sc-fade-out 0.1s ease-in both; }
+.sc-setscrim[data-state='open'] { animation: sc-fade-in 0.1s ease-out both; }
+.sc-setscrim[data-state='closing'] { animation: sc-fade-out 0.1s ease-in both; }
+@media (prefers-reduced-motion: no-preference) {
+  .sc-setpanel[data-state='open'] { animation: sc-set-in 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
+  .sc-setpanel[data-state='closing'] { animation: sc-set-out 0.16s cubic-bezier(0.4, 0, 1, 1) both; }
+  .sc-setscrim[data-state='open'] { animation: sc-fade-in 0.2s ease-out both; }
+  .sc-setscrim[data-state='closing'] { animation: sc-fade-out 0.16s ease-in both; }
+}
 
 .sc-setpanel h2,
 .sc-themes legend {
@@ -52,7 +80,9 @@
 }
 .sc-themes legend { margin-top: 0; }
 
-.sc-themes { margin: 0; padding: 0 0 6px; border: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+/* Every theme button the same size: “Mount Obsidian” wraps to two lines, so all rows
+   take the tallest row's height (1fr) instead of only its own row growing. */
+.sc-themes { margin: 0; padding: 0 0 6px; border: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 6px; }
 .sc-themes label {
   display: flex;
   align-items: center;
@@ -94,7 +124,7 @@
   text-align: left;
   cursor: pointer;
 }
-.sc-setitem:hover { background: var(--panel-2); }
+@media (hover: hover) { .sc-setitem:hover { background: var(--panel-2); } }
 .sc-setitem span { font-weight: 600; font-size: 13px; color: var(--ink-soft); }
 
 .sc-setmsg { margin: 4px 6px 0; min-height: 1em; font-size: 13px; color: var(--ink); }

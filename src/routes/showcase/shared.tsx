@@ -138,3 +138,16 @@ export function useCombos(): Combos | null {
   }, []);
   return combos;
 }
+
+/**
+ * A drawn chevron for previous/next buttons. Text arrows (‹ ›) sit wherever the font
+ * puts them, which is never the middle of a round button; a path centred in its own
+ * box is, once the button centres the box (display: grid; place-items: center).
+ */
+export function Chevron({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d={dir === 'left' ? 'M10 3 5 8l5 5' : 'M6 3l5 5-5 5'} fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

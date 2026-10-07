@@ -192,7 +192,7 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
           <button className={`sc-flag lucky${lucky ? ' on' : ''}`} aria-pressed={lucky} onClick={() => { setLucky(!lucky); reset(); }}>
             Lucky
           </button>
-          <button className={`sc-flag${favOnly ? ' on' : ''}`} aria-pressed={favOnly} onClick={() => { setFavOnly(!favOnly); reset(); }}>
+          <button className={`sc-flag fav${favOnly ? ' on' : ''}`} aria-pressed={favOnly} onClick={() => { setFavOnly(!favOnly); reset(); }}>
             ★ Favourites
           </button>
           <span className="sc-count" role="status">
