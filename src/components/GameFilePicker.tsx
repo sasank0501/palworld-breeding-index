@@ -55,8 +55,8 @@ export default function GameFilePicker({ onPak, disabled = false }: { onPak: (pa
         {copied ? 'Path copied' : ''}
       </span>
       <p className="gfp-note">
-        Installed somewhere else? In Steam, right-click Palworld, then Manage, then Browse local files, and open Pal › Content ›
-        Paks.
+        Dialog can’t find it, or your games are on another drive? In Steam, right-click Palworld, then Manage, then Browse
+        local files, and open Pal › Content › Paks.
       </p>
       <div>
         <button type="button" className="sc-btn" onClick={choose} disabled={disabled || checking}>

@@ -432,7 +432,12 @@ name is tried with a note. `src/components/GameFilePicker.tsx` (its own card, `s
 offers Steam's default path to copy into the dialog's "File name" box, and the Steam "Browse local
 files" route for other installs. On the bench in Edge: two wrong picks got their reasons, the real
 pak went through (version 11, 39.25 GB); axe clean in all four themes.
-**Waiting on the user:** the hand test (real dialog, own Steam path; Firefox too).
+**Hand test passed (user, 2026-10-07)** with the real dialog in Edge, Firefox (private window)
+and Brave: .NET start 0.82 / 0.83 / 0.37 s, mount 0.74 / 0.94 / 0.70 s, mappings ready in every
+one. The default path failed for a library on D: as expected, and the Steam "Browse local files"
+route worked; the hint now names that case ("Dialog can't find it, or your games are on another
+drive?"). The dialog's .pak filter hides other files, so the "not a .pak" message only shows when
+the filter is switched off.
 Note: Node's `fs.openAsBlob` reports 32-bit sizes (nodejs/node#52585), so test real files in a browser.
 
 ### Phase 7 — Accessibility and cross-browser pass
