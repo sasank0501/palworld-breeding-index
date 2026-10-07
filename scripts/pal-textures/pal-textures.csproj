@@ -11,6 +11,9 @@
   <ItemGroup>
     <PackageReference Include="CUE4Parse" Version="1.2.2.202609" />
     <PackageReference Include="CUE4Parse-Conversion" Version="1.2.2.202609" />
+    <!-- Pinned past CVE-2026-26127 (GHSA-73j8-2gch-69rq, fixed in 9.0.14): CUE4Parse -> Fmod5Sharp
+         -> IndexRange brings in 9.0.0. Drop this once CUE4Parse pulls a patched version itself. -->
+    <PackageReference Include="Microsoft.Bcl.Memory" Version="9.0.20" />
   </ItemGroup>
 
 </Project>
