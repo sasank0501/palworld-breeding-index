@@ -109,7 +109,7 @@ export default function Import({
     <div className="sc-shell imp-shell" data-skin={skin}>
       <main className="imp" aria-labelledby="imp-title">
         <header className="imp-head">
-          <p className="imp-kicker">Palworld Breeding Index</p>
+          <p className="imp-kicker">PalDoc</p>
           <h1 id="imp-title">Open your Palworld save</h1>
           <p className="imp-lede">
             See every pal you own, what you can breed next, and the parents that get you the passives you want. Your save is read

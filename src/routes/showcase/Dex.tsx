@@ -122,7 +122,7 @@ export function Dex({
         <div className="sc-hero-copy sc-in" style={stagger(0)}>
           <p className="sc-kicker">Palworld compendium · {roster.demo ? 'demo save' : 'your save'}</p>
           <h1 className="sc-mega">
-            Pal<span>dex</span>
+            Pal<span>Doc</span>
           </h1>
           <p className="sc-lede">
             {fmt.format(roster.pals.length)} pals in your boxes. {stats.species} of {SPECIES.length} species discovered

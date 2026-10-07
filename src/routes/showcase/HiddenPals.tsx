@@ -7,7 +7,7 @@ import type { Ctx } from './ctx.ts';
 import '../../design/userdata.css';
 
 /**
- * Every pal hidden from the Paldex spotlight ("Hide" there), opened from the
+ * Every pal hidden from the PalDoc spotlight ("Hide" there), opened from the
  * settings panel's "See hidden pals". A page of its own on the Showcase stack
  * (like Saved plans), so the settings panel stays short however many are hidden.
  * Back or Esc returns to where you were.
@@ -36,10 +36,10 @@ export function HiddenPals({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal) => 
           </button>
         )}
       </div>
-      <p className="sc-sethint">Hiding only takes a pal out of the Paldex spotlight. It stays in your save and everywhere else in the app.</p>
+      <p className="sc-sethint">Hiding only takes a pal out of the PalDoc spotlight. It stays in your save and everywhere else in the app.</p>
 
       {hidden.length === 0 ? (
-        <p className="sc-empty">No pals are hidden. “Hide” on the Paldex spotlight takes one out of it.</p>
+        <p className="sc-empty">No pals are hidden. “Hide” on the PalDoc spotlight takes one out of it.</p>
       ) : (
         <ul className="sc-plans-list sc-hidden-list">
           {hidden.map((h) => {

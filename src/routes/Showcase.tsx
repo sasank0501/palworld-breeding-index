@@ -32,7 +32,7 @@ import '../design/showcase-views.css';
  */
 type Section = 'dex' | 'box' | 'breeding' | 'planner';
 const SECTIONS: Array<[Section, string]> = [
-  ['dex', 'Paldex'],
+  ['dex', 'PalDoc'],
   ['box', 'My Pals'],
   ['breeding', 'Breeding'],
   ['planner', 'Planner'],
@@ -205,7 +205,7 @@ export default function Showcase({
         <nav className="sc-nav" aria-label="Showcase" ref={nav}>
           <span className="sc-brand" aria-hidden="true">
             <PalEgg size={30} />
-            Paldex
+            PalDoc
           </span>
           <div className="sc-tabs" role="tablist">
             {SECTIONS.map(([k, label]) => (

@@ -54,7 +54,7 @@ export function Settings({
   skin: Skin;
   onSkin: (s: Skin) => void;
   onOpenSave?: () => void;
-  /** How many pals are hidden from the Paldex spotlight; the list is its own page. */
+  /** How many pals are hidden from the PalDoc spotlight; the list is its own page. */
   spotlightHidden?: number;
   onSeeHidden?: () => void;
 }) {
@@ -216,7 +216,7 @@ export function Settings({
         <h2>Spotlight</h2>
         <p className="sc-sethint">
           {spotlightHidden === 0
-            ? 'Every pal can appear in the Paldex spotlight. “Hide” there takes a pal out of it.'
+            ? 'Every pal can appear in the PalDoc spotlight. “Hide” there takes a pal out of it.'
             : `${spotlightHidden} ${spotlightHidden === 1 ? 'pal' : 'pals'} hidden from the spotlight.`}
         </p>
         {spotlightHidden > 0 && onSeeHidden && (

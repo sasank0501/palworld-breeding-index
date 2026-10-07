@@ -146,7 +146,7 @@ describe('migrations and backups', () => {
 
   it('rejects files that are not backups, with a plain reason', () => {
     expect(() => parseBackup('not json')).toThrow(/not valid JSON/);
-    expect(() => parseBackup('{"hello":1}')).toThrow(/not a Palworld Breeding Index backup/);
+    expect(() => parseBackup('{"hello":1}')).toThrow(/not a PalDoc backup/);
     const damaged = { ...backup, worlds: [{ ...world, notes: { x: { text: 5, at: T(1) } } }] };
     expect(() => parseBackup(JSON.stringify(damaged))).toThrow(/note x is damaged/);
     const huge = { ...backup, worlds: [{ ...world, notes: { x: { text: 'a'.repeat(10_001), at: T(1) } } }] };

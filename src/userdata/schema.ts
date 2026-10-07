@@ -114,7 +114,7 @@ const MAX_NOTE = 10_000;
 
 /** Throws a plain-language error naming the first problem; returns the document typed. */
 export function checkWorld(d: unknown, where = 'world'): WorldData {
-  if (!isObj(d) || d.app !== APP || d.kind !== 'world') throw new Error(`${where} is not a Palworld Breeding Index world`);
+  if (!isObj(d) || d.app !== APP || d.kind !== 'world') throw new Error(`${where} is not a PalDoc world`);
   if (typeof d.world !== 'string' || !d.world) throw new Error(`${where} has no world id`);
   for (const c of [...COLLECTIONS, 'deleted'] as const) if (!isObj(d[c])) throw new Error(`${where} is missing its ${c}`);
   for (const [id, f] of Object.entries(d.favourites as object))
@@ -149,7 +149,7 @@ export function parseBackup(text: string, steps: Record<number, Migration> = MIG
   } catch {
     throw new Error('This file is not a backup: it is not valid JSON.');
   }
-  if (!isObj(raw) || raw.app !== APP || raw.kind !== 'backup') throw new Error('This file is not a Palworld Breeding Index backup.');
+  if (!isObj(raw) || raw.app !== APP || raw.kind !== 'backup') throw new Error('This file is not a PalDoc backup.');
   const b = migrate<Backup>(raw, steps);
   if (!Array.isArray(b.worlds)) throw new Error('This backup has no worlds in it.');
   return {
