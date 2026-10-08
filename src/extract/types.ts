@@ -52,3 +52,12 @@ export interface PalExport {
   /** WebAssembly memory after the pal's files were freed, in MB: it can grow but never shrink. */
   heapMB: number | null;
 }
+
+export interface IconExport {
+  /** One per pack file: pals/<name>.webp, the game's own icon as WebP. */
+  icons: Array<{ codename: string; path: string; size: number; blob: Blob }>;
+  failed: Array<{ codename: string; error: string }>;
+  /** Icons in the game for no pal the app lists (event and test pals, for example). */
+  unmatched: string[];
+  ms: number;
+}

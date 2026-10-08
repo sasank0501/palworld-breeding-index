@@ -50,6 +50,7 @@ public static partial class Extractor
         provider = new StreamedFileProvider("Palworld", new VersionContainer(EGame.GAME_UE5_1), StringComparer.OrdinalIgnoreCase);
         provider.Initialize();
         provider.RegisterVfs(pakName, [new JsFileStream((long)pakSize)], null);
+        icons = null;
         // The pak is not encrypted, but the provider still wants a key for the null GUID.
         await provider.SubmitKeyAsync(new FGuid(), new FAesKey(new byte[32]));
         await provider.MountAsync();
@@ -312,6 +313,54 @@ public static partial class Extractor
         }
     }
 
+
+    // ------------------------------------------------------------------ icons
+
+    static readonly Regex IconRe = new(@"/PalIcon/Normal/T_(.+)_icon_normal\.uasset$", RegexOptions.IgnoreCase);
+
+    /// <summary>
+    /// The pals with a flat 2D icon in the game: codename -> texture package path.
+    /// Built once per mount: scanning all 185,141 file names costs about half a
+    /// second in the interpreter, which per icon made 288 icons take 164 s.
+    /// </summary>
+    static Dictionary<string, string>? icons;
+    static Dictionary<string, string> Icons() => icons ??= provider!.Files.Keys
+        .Select(k => (k, m: IconRe.Match(k)))
+        .Where(x => x.m.Success)
+        .GroupBy(x => x.m.Groups[1].Value, StringComparer.OrdinalIgnoreCase)
+        .ToDictionary(g => g.Key, g => g.First().k[..g.First().k.LastIndexOf('.')], StringComparer.OrdinalIgnoreCase);
+
+    [JSExport]
+    public static string ListIcons() =>
+        provider is null ? Json(new() { ["error"] = "The game files aren't open yet." })
+            : Json(new() { ["icons"] = Icons().Keys.OrderBy(n => n, StringComparer.OrdinalIgnoreCase).ToList() });
+
+    /// <summary>
+    /// One pal's icon decoded at up to maxEdge pixels, as raw pixels in
+    /// /x/_icons/{codename}.raw for the worker to read and turn into WebP.
+    /// </summary>
+    [JSExport]
+    public static string ExportIcon(string codename, int maxEdge)
+    {
+        if (provider is null) return Json(new() { ["error"] = "The game files aren't open yet." });
+        if (!Icons().TryGetValue(codename, out var path)) return Json(new() { ["error"] = $"No icon for {codename}." });
+        try
+        {
+            TextureDecoder.UseAssetRipperTextureDecoder = true;
+            var tex = provider.LoadPackageObject<UTexture2D>(path);
+            var decoded = TextureDecoder.Decode(tex, maxEdge, ETexturePlatform.DesktopMobile);
+            if (decoded is null) return Json(new() { ["error"] = $"{codename}: decoded to nothing" });
+            Directory.CreateDirectory("/x/_icons");
+            var file = $"/x/_icons/{codename}.raw";
+            File.WriteAllBytes(file, decoded.Data);
+            return Json(new() { ["path"] = file, ["width"] = decoded.Width, ["height"] = decoded.Height, ["format"] = decoded.PixelFormat.ToString() });
+        }
+        catch (Exception e) { return Json(new() { ["error"] = $"{codename}: {e.GetType().Name}: {e.Message}" }); }
+    }
+
+    /// <summary>Delete one file the worker has read.</summary>
+    [JSExport]
+    public static void DeleteFile(string path) { if (File.Exists(path)) File.Delete(path); }
 
     static string? Find(string suffix)
     {

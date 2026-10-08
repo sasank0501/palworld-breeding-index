@@ -12,14 +12,18 @@
  */
 
 import roles from '../../scripts/anim-roles.json';
-import type { PalExport, PalList } from './types.ts';
+import pals from '../data/pals.json';
+import { iconFallbacks, iconPaths } from './icons.ts';
+import { toRgba } from './pixels.ts';
+import type { IconExport, PalExport, PalList } from './types.ts';
 
 export type Call =
   | { call: 'boot' }
   | { call: 'mount'; pak: File }
   | { call: 'useMappings'; bytes: Uint8Array }
   | { call: 'listPals' }
-  | { call: 'exportPal'; name: string; maxEdge: number };
+  | { call: 'exportPal'; name: string; maxEdge: number }
+  | { call: 'exportIcons'; maxEdge: number };
 
 export type Request = Call & { id: number };
 export type Reply = { id: number; ok: true; value: unknown } | { id: number; ok: false; error: string };
@@ -33,6 +37,48 @@ interface Exports {
   ExportPal(name: string, rolesJson: string, maxEdge: number): Promise<string>;
   ReadFile(path: string): Uint8Array;
   Clear(name: string): number;
+  ListIcons(): string;
+  ExportIcon(codename: string, maxEdge: number): string;
+  DeleteFile(path: string): void;
+}
+
+/**
+ * Every pal icon the app shows, as WebP named for the pack (pals/<name>.webp).
+ * Encoded by the browser (OffscreenCanvas), which is fast and needs nothing more
+ * from .NET than the decoded pixels.
+ */
+async function exportIcons(x: Exports, maxEdge: number): Promise<IconExport> {
+  const t0 = performance.now();
+  const { icons: codenames, error } = JSON.parse(x.ListIcons()) as { icons: string[]; error?: string };
+  if (error) throw new Error(error);
+  const named = iconPaths(codenames, pals as Record<string, { img?: string }>);
+  const out: IconExport = { icons: [], failed: [], unmatched: codenames.filter((c) => !named.has(c)), ms: 0 };
+  const seen = new Set<string>();
+  for (const [codename, path] of named) {
+    if (seen.has(path)) continue; // SheepBall and Sheepball: one file
+    seen.add(path);
+    try {
+      const r = JSON.parse(x.ExportIcon(codename, maxEdge)) as { error?: string; path: string; width: number; height: number; format: string };
+      if (r.error) throw new Error(r.error);
+      const raw = x.ReadFile(r.path);
+      x.DeleteFile(r.path);
+      const canvas = new OffscreenCanvas(r.width, r.height);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('No 2D canvas in this worker.');
+      ctx.putImageData(new ImageData(toRgba(raw, r.width, r.height, r.format), r.width, r.height), 0, 0);
+      const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.9 });
+      out.icons.push({ codename, path, size: r.width, blob });
+    } catch (e) {
+      out.failed.push({ codename, error: e instanceof Error ? e.message : String(e) });
+    }
+  }
+  // A form with no icon of its own shows its base form's (Gumoss (Special): Gumoss).
+  for (const [want, base] of iconFallbacks(out.icons.map((i) => i.path), pals as Record<string, { img?: string }>)) {
+    const from = out.icons.find((i) => i.path === base);
+    if (from) out.icons.push({ ...from, path: want, codename: `${from.codename} (stands in)` });
+  }
+  out.ms = Math.round(performance.now() - t0);
+  return out;
 }
 
 /** ExportPal's JSON. */
@@ -162,6 +208,8 @@ async function handle(r: Request): Promise<unknown> {
       return JSON.parse(exports.ListPals()) as PalList;
     case 'exportPal':
       return exportAndMeasure(exports, r.name, r.maxEdge);
+    case 'exportIcons':
+      return exportIcons(exports, r.maxEdge);
   }
 }
 

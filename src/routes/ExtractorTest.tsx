@@ -58,6 +58,7 @@ export default function ExtractorTest() {
   const [progress, setProgress] = useState<RunProgress | null>(null);
   const [exporting, setExporting] = useState(false);
   const stop = useRef<AbortController | null>(null);
+  const [iconPreview, setIconPreview] = useState<string | null>(null);
   const extractor = useRef<Extractor | null>(null);
   const say = (line: string) => setLog((l) => [...l, `${(performance.now() / 1000).toFixed(1)}s  ${line}`]);
 
@@ -108,6 +109,26 @@ export default function ExtractorTest() {
     }
   }
 
+  async function exportIcons() {
+    const x = extractor.current;
+    if (!x) return;
+    setExporting(true);
+    try {
+      const r = await x.exportIcons();
+      const bytes = r.icons.reduce((n, i) => n + i.blob.size, 0);
+      const sizes = [...new Set(r.icons.map((i) => i.size))].join(', ');
+      say(`Icons: ${r.icons.length} in ${r.ms} ms, ${(bytes / 1e6).toFixed(1)} MB as WebP, ${sizes} px; ${r.failed.length} failed; ${r.unmatched.length} game icons for no listed pal`);
+      for (const f of r.failed.slice(0, 5)) say(`  ✕ ${f.codename}: ${f.error}`);
+      const shown = r.icons.find((i) => i.path === 'pals/sheep-ball.webp') ?? r.icons[0];
+      if (shown) setIconPreview(URL.createObjectURL(shown.blob));
+      (window as unknown as { __icons: unknown }).__icons = { count: r.icons.length, paths: r.icons.map((i) => i.path), unmatched: r.unmatched, failed: r.failed };
+    } catch (e) {
+      say(`Icons failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <main className="sc-shell" data-skin="pal" style={{ minHeight: '100vh', padding: 24 }}>
       <div style={{ display: 'grid', gap: 16, maxWidth: 900, margin: '0 auto' }}>
@@ -128,6 +149,9 @@ export default function ExtractorTest() {
             <button type="button" className="sc-btn" data-testid="export" onClick={() => void exportPals()} disabled={exporting}>
               Export pals
             </button>
+            <button type="button" className="sc-btn ghost" data-testid="icons" onClick={() => void exportIcons()} disabled={exporting}>
+              Export icons
+            </button>
             {exporting && (
               <button type="button" className="sc-btn ghost" onClick={() => stop.current?.abort()}>
                 Stop after this pal
@@ -142,6 +166,7 @@ export default function ExtractorTest() {
           </p>
         )}
         {ready && !exporting && progress && progress.done === progress.total && <p data-testid="export-done">Export done.</p>}
+        {iconPreview && <img src={iconPreview} alt="Lamball’s icon, from the game" data-testid="icon-preview" width={128} height={128} />}
       </div>
     </main>
   );
