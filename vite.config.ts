@@ -135,8 +135,12 @@ export default defineConfig(({ mode }) => ({
       // scripts/ holds build-time tooling, none of which the app imports. The
       // dotnet extractor in scripts/pal-textures/ locks its .csproj and churns
       // bin/obj while building, and the watcher crashes the whole dev server
-      // with EBUSY when it tries to follow that.
-      ignored: ['**/scripts/**'],
+      // with EBUSY when it tries to follow that. The in-browser extractor
+      // (extractor/) and the spikes build the same way, and do the same. Only
+      // the top-level folders: a glob like **/extractor/** would also hide
+      // public/extractor/, and Vite would then answer the runtime files built
+      // after it started with the app's HTML.
+      ignored: (file: string) => /^(scripts|extractor|spikes)(\/|$)/.test(path.relative(__dirname, file).replace(/\\/g, '/')),
     },
   },
   build: {

@@ -18,6 +18,10 @@ const OUT = path.join(ROOT, 'public', 'extractor', '_framework');
 // Cloudflare Pages refuses any single file over 25 MiB.
 const MAX_FILE = 25 * 1024 * 1024;
 
+// A fresh publish: the folder otherwise keeps every earlier build's fingerprinted
+// files (PalDocExtractor.<hash>.wasm), and they would all be copied and deployed.
+fs.rmSync(path.join(PROJECT, 'bin', 'Release', 'net10.0', 'publish'), { recursive: true, force: true });
+
 const run = spawnSync('dotnet', ['publish', '-c', 'Release', '-v', 'q', '--nologo'], { cwd: PROJECT, stdio: 'inherit' });
 if (run.status !== 0) process.exit(run.status ?? 1);
 
