@@ -464,8 +464,20 @@ Measured, all 333 pal meshes in Edge on the bench (`scripts/.cache/extract/expor
 | WebAssembly memory | 412 MB, 495 MB at the heaviest pal, flat after |
 | Handed over | 9.4 GB in total (raw RGBA textures); the builder compresses as it goes |
 
-Still to do in step 5: the flat 2D icons (`pals/<slug>.webp`, from the game's PalIcon textures),
-which the pack shows first.
+**Icons (step 5, done):** the flat 2D icons the pack shows first now come from the game too
+(`Pal/Texture/PalIcon/Normal/T_<Codename>_icon_normal`), decoded at up to 256 px and encoded to
+WebP by the browser (`OffscreenCanvas`, in the worker), named for the pack by `iconPaths`
+(`src/extract/icons.ts`: pals.json `img`, ignoring case). 289 of 289 in 5.3 s, 1.6 MB: 288 of
+their own, and Gumoss (Special) borrowing Gumoss's (`iconFallbacks`: the longest name it starts
+with), as its 3D model borrows Gumoss's mesh. 124 more game icons are people and NPCs, left out.
+The first version took 164 s: the icon list was rebuilt from all 185,141 file names for every
+icon (half a second each in the interpreter); built once per mount now.
+
+**Dev server fixes found here:** Vite's watcher crashed with EBUSY while `dotnet build` wrote
+`extractor/obj` (the same crash `scripts/` had), so `extractor/` and `spikes/` are unwatched; the
+rule matches only top-level folders, since a `**/extractor/**` glob also hid `public/extractor/`
+and Vite then answered newly built runtime files with the app's HTML. `build-extractor` now
+clears the publish folder first, which otherwise kept every earlier build's fingerprinted files.
 
 ### Phase 7 — Accessibility and cross-browser pass
 
