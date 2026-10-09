@@ -10,7 +10,16 @@ import { useState } from 'react';
 import { checkPak, PAK_NAME, PAK_PATH_HINT, pickPak, type PakCheck } from '../extract/pickPak.ts';
 import '../design/extract.css';
 
-export default function GameFilePicker({ onPak, disabled = false }: { onPak: (pak: File, check: Extract<PakCheck, { ok: true }>) => void; disabled?: boolean }) {
+export default function GameFilePicker({
+  onPak,
+  disabled = false,
+  intro = true,
+}: {
+  onPak: (pak: File, check: Extract<PakCheck, { ok: true }>) => void;
+  disabled?: boolean;
+  /** The opening paragraph; off where the surrounding notice already says it. */
+  intro?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
   const [checking, setChecking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -40,10 +49,12 @@ export default function GameFilePicker({ onPak, disabled = false }: { onPak: (pa
 
   return (
     <div className="gfp">
-      <p>
-        PalDoc makes the 3D pals from your own copy of Palworld. Choose the game’s file, <b>{PAK_NAME}</b>. It’s read here in
-        your browser, and only the parts with pal art: nothing is uploaded or changed.
-      </p>
+      {intro && (
+        <p>
+          PalDoc makes the 3D pals from your own copy of Palworld. Choose the game’s file, <b>{PAK_NAME}</b>. It’s read here in
+          your browser, and only the parts with pal art: nothing is uploaded or changed.
+        </p>
+      )}
       <p>If Steam installed Palworld in its usual place, paste this into the file dialog’s “File name” box:</p>
       <div className="gfp-path">
         <code id="pak-path">{PAK_PATH_HINT}</code>

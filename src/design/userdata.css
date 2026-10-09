@@ -199,3 +199,13 @@
 .sc-artwhere code, .sc-artcmd code { font: 600 14px var(--font-mono); padding: 2px 6px; border-radius: 6px; background: var(--panel-2); }
 .sc-artcmd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .sc-artcmd code { padding: 8px 12px; }
+.sc-artalt { flex-basis: 100%; padding-top: 10px; border-top: 1px solid var(--hair); }
+.sc-artalt > summary { cursor: pointer; font-weight: 700; min-height: 24px; }
+.sc-artalt[open] > summary { margin-bottom: 10px; }
+.sc-artalt .sc-artwhere { border-top: 0; }
+.sc-artfull { flex-basis: 100%; margin: 0; }
+.sc-artcmd label.sc-btn { cursor: pointer; }
+.sc-artcmd label.sc-btn:focus-within { outline: 3px solid currentColor; outline-offset: 2px; }
+.sc-artnotice > .gfp { flex-basis: 100%; max-width: none; }
+/* The app's first inline link: ink (contrast in every theme) and an underline (not colour alone). */
+.sc-artwhere a { color: var(--ink); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }

@@ -508,9 +508,35 @@ Measured in Edge (dev server, real pak, fresh profile, OPFS, `scripts/.cache/ext
 | Failures | 0 |
 | Then | the app on the same profile made stills for an 8-pal pack in 2 s (`pack-app.mjs`) |
 
-Not measured yet: a laptop without a GPU, Firefox and Safari, a stop and resume in a real
-browser, and the full pack through stills. **Left for Phase 6:** the player-facing screen (the
-bench's "Extract to pack" is the only way to run it) and the learning chapter.
+**Step 8 built (2026-10-09): the player's screen.** The "Add the game art" notice
+(`src/routes/showcase/Art.tsx`) now leads with the game file (`GameFilePicker`, full width, its
+intro left to the notice); the art-pack folder moved under "Already have an art pack folder?".
+`src/extract/extractRunner.ts` is the shared state (like `src/art/loader.ts`): start .NET (90 s
+timeout, since dotnet/runtime#114918 reports rare hangs), open the pak, find mappings, then
+`extractToPack`. The notice shows the steps, then "N of 333 pals · <name> · about M min left"
+(player names, not codenames; the estimate counts only pals built in this run) with Stop. Screen
+readers hear the phase and every 10%, not every pal. Leaving mid-run gets the browser's "leave
+site?" question. A stopped or interrupted run leaves "Finish adding the game art: N pals are in
+already", and choosing the file again carries on. If no mappings work, the notice asks for a
+`.usmap` file with a link to UsefulFiles and a "What was tried" list; when nothing could be
+downloaded at all it says offline/blocked instead of "wrong version". Card stills wait until the
+pack is complete. Settings: "Add the art from your game…" / "Make the art again from your game…"
+beside the folder route. The extractor (about 500 MB of WebAssembly memory) is ended when a run ends.
+
+**Phase 6 "done when", met (2026-10-09)** on the public build (`npm run build`, `vite preview`),
+Edge, fresh profile, `scripts/.cache/extract/e2e.mjs`: landing page → demo save → the notice →
+the real `Pal-Windows.pak` → stopped at 25 of 333 → reload → "Finish adding" (25 in) → chosen
+again → resumed from 25, the other 308 in 738 s → 288 card stills in 392 s → Knocklem live in 3D
+in the spotlight. Pack: 333 models, 288 stills, 289 icons, 213 MB of storage; no page errors.
+About 2.4 s a pal with the app open behind it, against 1.8 s on the bench (the app re-reads the
+pack every 10 pals). The stills took 392 s here against 94 s in Phase 5: headless Edge's
+renderer, probably; to measure in a normal window. axe (WCAG 2.2 AA) on the notice's four
+states (ready, running, stopped, asking for mappings) in all four skins: clean, after giving the
+app's first inline link the ink colour and an underline (the browser's blue was 1.95:1 on
+Obsidian).
+
+Not measured yet: a laptop without a GPU, Firefox and Safari, and NVDA through the flow
+(Phase 7). **Left for Phase 6:** the learning chapter.
 
 ### Phase 7 — Accessibility and cross-browser pass
 
