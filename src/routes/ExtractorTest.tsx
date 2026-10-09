@@ -55,6 +55,7 @@ export default function ExtractorTest() {
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [only, setOnly] = useState('');
+  const [buildModels, setBuildModels] = useState(false);
   const [progress, setProgress] = useState<RunProgress | null>(null);
   const [exporting, setExporting] = useState(false);
   const stop = useRef<AbortController | null>(null);
@@ -91,6 +92,12 @@ export default function ExtractorTest() {
     stop.current = new AbortController();
     const report: unknown[] = [];
     (window as unknown as { __palReport: unknown[] }).__palReport = report;
+    // Step 6: with "Build models" on, each pal also goes through the model builder, and the
+    // result is kept on window.__models (name -> { entry, notes, ms, glb as base64 }) for comparing.
+    const models: Record<string, unknown> = {};
+    (window as unknown as { __models: unknown }).__models = models;
+    const { buildModel } = buildModels ? await import('../extract/model/build.ts') : { buildModel: null };
+    const { encodeWebp } = buildModels ? await import('../extract/model/encodeWebp.ts') : { encodeWebp: null };
     const t0 = performance.now();
     try {
       const names = only.split(/[\s,]+/).filter(Boolean);
@@ -98,7 +105,14 @@ export default function ExtractorTest() {
         only: names.length ? names : undefined,
         signal: stop.current.signal,
         onProgress: setProgress,
-        onPal: async (p) => void report.push(await record(p)),
+        onPal: async (p) => {
+          report.push(await record(p));
+          if (buildModel && encodeWebp) {
+            const t = performance.now();
+            const m = await buildModel(p, { encode: encodeWebp });
+            models[p.name] = { entry: m.entry, notes: m.notes, ms: Math.round(performance.now() - t), bytes: m.glb.byteLength, glb: base64(m.glb) };
+          }
+        },
       });
       say(`Exported ${end.done - end.failed.length} of ${end.total} pals in ${((performance.now() - t0) / 1000).toFixed(0)} s (${(end.bytes / 1e6).toFixed(0)} MB handed over); ${end.failed.length} failed`);
       for (const f of end.failed) say(`  ✕ ${f.name}: ${f.error}`);
@@ -145,6 +159,9 @@ export default function ExtractorTest() {
             <label>
               Only these pals (blank for all){' '}
               <input data-testid="only" value={only} onChange={(e) => setOnly(e.target.value)} placeholder="SheepBall, JetDragon" disabled={exporting} />
+            </label>
+            <label>
+              <input type="checkbox" data-testid="models" checked={buildModels} onChange={(e) => setBuildModels(e.target.checked)} disabled={exporting} /> Build models
             </label>
             <button type="button" className="sc-btn" data-testid="export" onClick={() => void exportPals()} disabled={exporting}>
               Export pals
