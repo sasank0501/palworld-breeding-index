@@ -479,6 +479,39 @@ rule matches only top-level folders, since a `**/extractor/**` glob also hid `pu
 and Vite then answered newly built runtime files with the app's HTML. `build-extractor` now
 clears the publish folder first, which otherwise kept every earlier build's fingerprinted files.
 
+**Step 6 built (2026-10-09): the models, in the browser.** `src/extract/model/` is a port of
+`build-pal-models.mjs --lite` (psa reader, chibi reshaping, psa -> glTF loops, texture channel
+remaps, meshopt); only the WebP step touches a canvas (`encodeWebp.ts`), and it is passed in so the
+tests can use sharp. **Lite only, by decision (user, 2026-10-09):** chibi model, 512 px textures,
+meshopt, manifest entries `normal: false`; no normal-proportion option. `build.local.test.ts`
+(skipped without the desktop's `scripts/pal-textures/out` and `public/pal-models-lite`) rebuilds
+pals from the staged files and compares with the desktop's models: all 288 match on bone
+transforms, every animation value, material wiring, geometry and the manifest line (textures by
+size only, since two encoders never agree to the byte). `ALL=1` runs every model; `BROWSER=<dir>`
+compares models built in Edge from the real pak (`scripts/.cache/extract/models.mjs` saves them):
+5 of 5 match. Canvas keeps colour premultiplied, so fully transparent texels lose their colour;
+they are never drawn. The pixel loops run on the page's thread; not a problem at these sizes.
+
+**Step 7 built (2026-10-09): game to pack, measured.** `src/extract/pipeline.ts`
+(`extractToPack`, 4 tests): icons first, then each pal's model as it is built, then the pack is
+marked complete. The pack goes live (`complete: false`) as soon as the icons are in, the manifest
+is rewritten every 10 pals, and a stopped run resumes the same pack, skipping pals whose model is
+stored. A re-extraction therefore replaces an older pack at once; the old files are deleted when
+the new pack is whole. Aliases are folded into the manifest at the end.
+
+Measured in Edge (dev server, real pak, fresh profile, OPFS, `scripts/.cache/extract/pack.mjs`):
+
+| | Result |
+|---|---|
+| Whole run | 617 s: icons 5 s, then 333 models at about 1.8 s each |
+| Pack | 333 models, 289 icons, 656 files, 207 MB (the desktop's lite set: 179 MB for 288) |
+| Failures | 0 |
+| Then | the app on the same profile made stills for an 8-pal pack in 2 s (`pack-app.mjs`) |
+
+Not measured yet: a laptop without a GPU, Firefox and Safari, a stop and resume in a real
+browser, and the full pack through stills. **Left for Phase 6:** the player-facing screen (the
+bench's "Extract to pack" is the only way to run it) and the learning chapter.
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:

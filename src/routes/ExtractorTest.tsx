@@ -10,6 +10,9 @@ import { findMappings, mappingsStore, type MappingsStatus } from '../art/mapping
 import GameFilePicker from '../components/GameFilePicker.tsx';
 import { startExtractor, type Extractor } from '../extract/client.ts';
 import type { PakCheck } from '../extract/pickPak.ts';
+import { artChanged } from '../art/resolve.ts';
+import { openStorage } from '../art/storage.ts';
+import { extractToPack, type PipelineProgress } from '../extract/pipeline.ts';
 import { extractAll, type RunProgress } from '../extract/run.ts';
 import type { PalExport } from '../extract/types.ts';
 import '../design/showcase.css';
@@ -56,6 +59,7 @@ export default function ExtractorTest() {
   const [ready, setReady] = useState(false);
   const [only, setOnly] = useState('');
   const [buildModels, setBuildModels] = useState(false);
+  const [pack, setPack] = useState<PipelineProgress | null>(null);
   const [progress, setProgress] = useState<RunProgress | null>(null);
   const [exporting, setExporting] = useState(false);
   const stop = useRef<AbortController | null>(null);
@@ -123,6 +127,36 @@ export default function ExtractorTest() {
     }
   }
 
+  /** Step 7: the whole thing into this browser's art storage, resumable. */
+  async function extractPack() {
+    const x = extractor.current;
+    if (!x) return;
+    setExporting(true);
+    stop.current = new AbortController();
+    try {
+      const storage = await openStorage();
+      if (!storage) throw new Error('This browser has no storage for the art.');
+      const [{ buildModel, foldAliases, manifestText }, { encodeWebp }] = await Promise.all([import('../extract/model/build.ts'), import('../extract/model/encodeWebp.ts')]);
+      const names = only.split(/[\s,]+/).filter(Boolean);
+      const r = await extractToPack(x, storage, {
+        only: names.length ? names : undefined,
+        build: (pal) => buildModel(pal, { encode: encodeWebp }),
+        foldAliases,
+        manifestText,
+        signal: stop.current.signal,
+        onProgress: setPack,
+        onChange: artChanged,
+      });
+      (window as unknown as { __pack: unknown }).__pack = { info: r.info, failed: r.failed, notes: r.notes, ms: r.ms, storage: storage.kind };
+      say(`Pack ${r.info.id} (${storage.kind}): ${r.info.models} models, ${r.info.icons} icons, ${(r.info.bytes / 1e6).toFixed(0)} MB, ${r.failed.length} failed, ${(r.ms / 1000).toFixed(0)} s`);
+      for (const f of r.failed) say(`  ✕ ${f.name}: ${f.error}`);
+    } catch (e) {
+      say(`Pack stopped: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   async function exportIcons() {
     const x = extractor.current;
     if (!x) return;
@@ -166,6 +200,9 @@ export default function ExtractorTest() {
             <button type="button" className="sc-btn" data-testid="export" onClick={() => void exportPals()} disabled={exporting}>
               Export pals
             </button>
+            <button type="button" className="sc-btn" data-testid="pack" onClick={() => void extractPack()} disabled={exporting}>
+              Extract to pack
+            </button>
             <button type="button" className="sc-btn ghost" data-testid="icons" onClick={() => void exportIcons()} disabled={exporting}>
               Export icons
             </button>
@@ -180,6 +217,11 @@ export default function ExtractorTest() {
           <p aria-live="polite" data-testid="progress">
             {progress.done} of {progress.total}
             {progress.current ? ` · ${progress.current}` : ''} · {(progress.bytes / 1e6).toFixed(0)} MB · {progress.failed.length} failed
+          </p>
+        )}
+        {pack && (
+          <p aria-live="polite" data-testid="pack-progress">
+            {pack.phase} · {pack.done} of {pack.total} ({pack.resumed} already there) · {pack.icons} icons · {(pack.bytes / 1e6).toFixed(0)} MB · {pack.failed.length} failed
           </p>
         )}
         {ready && !exporting && progress && progress.done === progress.total && <p data-testid="export-done">Export done.</p>}
