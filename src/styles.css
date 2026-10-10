@@ -156,6 +156,24 @@ model-viewer.dl-model[data-kbd-focus] {
 .sc-notice p { margin: 0; }
 .sc-notice .sc-btn { flex: none; }
 @media (max-width: 520px) { .sc-notice { flex-direction: column; align-items: stretch; } }
+/* Windows High Contrast (forced colors) replaces every colour with the system palette and
+   drops box-shadow. Focus rings drawn as shadows (search, Paldex tiles) vanished, and a
+   pressed element chip looked like the rest, since only its colours said so. Both get a
+   system-coloured cue here. */
+@media (forced-colors: active) {
+  :focus-visible, input:focus { outline: 3px solid Highlight !important; outline-offset: 2px; }
+  [aria-pressed='true'], [aria-selected='true'], [aria-checked='true'] {
+    forced-color-adjust: none;
+    background: Highlight !important;
+    color: HighlightText !important;
+    border-color: Highlight !important;
+  }
+  [aria-pressed='true'] *, [aria-selected='true'] * { color: HighlightText !important; }
+}
+
+/* A short window (400% zoom on a laptop is 256 px tall) has no room for a floating card:
+   with the sticky nav it covered everything (WCAG 1.4.10). It scrolls with the page there. */
+@media (max-height: 500px) { .sc-notice { position: relative; left: auto; right: auto; bottom: auto; margin: 12px 16px; } }
 @media (prefers-reduced-motion: no-preference) {
   .sc-notice { animation: sc-notice-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
 }

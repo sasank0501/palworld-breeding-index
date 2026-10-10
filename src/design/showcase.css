@@ -1003,6 +1003,12 @@
   .sc-spot-stage { min-height: 300px; }
 }
 
+/* Short windows (400% zoom is 256 px tall): a sticky bar would take half the screen, so it
+   scrolls away with the page (WCAG 1.4.10 Reflow). It keeps its layer for the settings panel. */
+@media (max-height: 500px) {
+  .sc-nav { position: relative; }
+}
+
 @media (max-width: 640px) {
   .sc-nav { gap: 10px; padding: 8px 12px; flex-wrap: wrap; }
   .sc-brand { font-size: 22px; }
