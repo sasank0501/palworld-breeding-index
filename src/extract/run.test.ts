@@ -88,4 +88,23 @@ describe('extractAll', () => {
     expect(asked).toEqual(['A', 'B']);
     expect(seen.find((p) => p.current === 'B')).toMatchObject({ done: 1, total: 3 });
   });
+
+  it('gives up with the first error when the first pals all fail: the browser, not the pals', async () => {
+    const { x, asked } = fake(['A', 'B', 'C', 'D', 'E']);
+    const run = extractAll(x, {
+      giveUpAfter: 3,
+      onPal: () => {
+        throw new Error('OffscreenCanvas is not defined');
+      },
+    });
+    await expect(run).rejects.toThrow('No pal could be made in this browser. The first error: OffscreenCanvas is not defined');
+    expect(asked).toEqual(['A', 'B', 'C']);
+  });
+
+  it('keeps going past failures once a pal has worked', async () => {
+    const { x } = fake(['A', 'B', 'C', 'D', 'E'], { broken: ['B', 'C', 'D'] });
+    const end = await extractAll(x, { giveUpAfter: 3, onPal: () => undefined });
+    expect(end.failed.map((f) => f.name)).toEqual(['B', 'C', 'D']);
+    expect(end.done).toBe(5);
+  });
 });

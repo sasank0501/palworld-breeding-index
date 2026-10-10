@@ -116,12 +116,12 @@ export async function startExtraction(pak: File): Promise<void> {
 
     const storage = await openStorage();
     if (!storage) throw new Error('This browser is blocking site storage, so the art has nowhere to go. Allow site data for this page and try again.');
-    const [{ buildModel, foldAliases, manifestText }, { encodeWebp }] = await Promise.all([import('./model/build.ts'), import('./model/encodeWebp.ts')]);
+    const [{ buildModel, foldAliases, manifestText }, { encodeImage }] = await Promise.all([import('./model/build.ts'), import('./model/encodeImage.ts')]);
 
     // Time left comes from the pals built in this run (resumed ones cost nothing).
     let runStart = 0;
     const result = await extractToPack(x, storage, {
-      build: (pal) => buildModel(pal, { encode: encodeWebp }),
+      build: (pal) => buildModel(pal, { encode: encodeImage }),
       foldAliases,
       manifestText,
       signal,

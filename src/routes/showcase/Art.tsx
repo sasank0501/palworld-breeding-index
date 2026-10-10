@@ -114,7 +114,7 @@ function ExtractProgress({ stage }: { stage: ExtractStage }) {
       <span>
         {p.phase === 'icons'
           ? `Icons: ${p.icons} so far`
-          : `${p.done} of ${p.total} pals${p.current && palName(p.current) ? ` · ${palName(p.current)}` : ''} · ${palsLeft(stage)}`}
+          : `${p.done} of ${p.total} pals${p.current && palName(p.current) ? ` · ${palName(p.current)}` : ''} · ${palsLeft(stage)}${p.failed.length ? ` · ${p.failed.length} couldn’t be read` : ''}`}
       </span>
       <span className="sr-only" aria-live="polite">
         {milestone(stage)}

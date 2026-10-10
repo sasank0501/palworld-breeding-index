@@ -20,8 +20,11 @@ import { toRgba } from '../pixels.ts';
 import type { PalTexture } from '../types.ts';
 import type { ChibiOverride } from './chibi.ts';
 
-/** Resize `rgba` to fit inside edge x edge (never enlarging) and encode it as WebP. */
-export type EncodeWebp = (rgba: Uint8ClampedArray, width: number, height: number, edge: number) => Promise<Uint8Array>;
+/**
+ * Resize `rgba` to fit inside edge x edge (never enlarging) and encode it: WebP where the
+ * browser can, otherwise whatever it produced (PNG in Safari), with `mime` saying which.
+ */
+export type EncodeImage = (rgba: Uint8ClampedArray, width: number, height: number, edge: number) => Promise<{ data: Uint8Array; mime: string }>;
 
 interface MaterialJson {
   Textures?: Record<string, string>;
@@ -46,7 +49,7 @@ export async function applyMaterials(
   textures: PalTexture[],
   override: ChibiOverride,
   edge: number,
-  encode: EncodeWebp,
+  encode: EncodeImage,
   note: (m: string) => void = () => undefined,
 ): Promise<void> {
   // The game is loose about case (MI_DarKCrow_Body, Ml_Ganesha_Body with a lower-case L).
@@ -54,7 +57,7 @@ export async function applyMaterials(
   const textureByName = new Map(textures.map((t) => [t.name.toLowerCase(), t]));
   const rgba = (t: PalTexture) => toRgba(t.data, t.width, t.height, t.format);
 
-  const make = (tex: PalTexture, bytes: Uint8Array): Texture => doc.createTexture(tex.name).setImage(bytes).setMimeType('image/webp');
+  const make = (tex: PalTexture, img: { data: Uint8Array; mime: string }): Texture => doc.createTexture(tex.name).setImage(img.data).setMimeType(img.mime);
   const opaque = (px: Uint8ClampedArray) => {
     for (let i = 3; i < px.length; i += 4) px[i] = 255;
   };

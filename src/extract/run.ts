@@ -37,6 +37,12 @@ export interface RunOptions {
   signal?: AbortSignal;
   /** Texture edge to decode at; 1024 by default. */
   maxEdge?: number;
+  /**
+   * Stop with the first error when this many pals fail before any succeeds: then it's
+   * the browser, not the pals (a missing canvas, say), and carrying on would only
+   * count failures. Off when absent.
+   */
+  giveUpAfter?: number;
 }
 
 export async function extractAll(x: Pick<Extractor, 'listPals' | 'exportPal'>, opts: RunOptions): Promise<RunProgress> {
@@ -46,6 +52,7 @@ export async function extractAll(x: Pick<Extractor, 'listPals' | 'exportPal'>, o
   const report = () => opts.onProgress?.({ ...progress, failed: [...progress.failed] });
   report();
 
+  let succeeded = 0;
   for (const name of wanted) {
     opts.signal?.throwIfAborted();
     if (await opts.isDone?.(name)) {
@@ -62,9 +69,14 @@ export async function extractAll(x: Pick<Extractor, 'listPals' | 'exportPal'>, o
       progress.bytes += pal.bytes;
       if (!pal.glb) throw new Error(pal.errors[0] ?? 'the mesh didn’t export');
       await opts.onPal(pal);
+      succeeded++;
     } catch (e) {
       if (opts.signal?.aborted) throw e;
-      progress.failed.push({ name, error: e instanceof Error ? e.message : String(e) });
+      // Some engines reject with an empty error (null, no message): say something useful.
+      progress.failed.push({ name, error: e instanceof Error ? e.message : e ? String(e) : 'the browser gave no reason' });
+      if (opts.giveUpAfter && !succeeded && progress.failed.length >= opts.giveUpAfter) {
+        throw new Error(`No pal could be made in this browser. The first error: ${progress.failed[0].error}`);
+      }
     }
     progress.done++;
     progress.current = null;

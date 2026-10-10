@@ -125,6 +125,8 @@ export async function extractToPack(
     const run = await extractAll(x, {
       only: opts.only,
       signal: opts.signal,
+      // Three failures before the first success means the browser can't do it: say so.
+      giveUpAfter: 3,
       isDone: (name) => have.has(name),
       onProgress: (p) => {
         progress.done = p.done;

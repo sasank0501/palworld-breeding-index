@@ -124,12 +124,21 @@ export function idbStorage(store = createStore('palworld-art', 'files')): ArtSto
     current: async () => (await get<PackInfo>(CURRENT, store)) ?? null,
     setCurrent: async (info) => (info ? set(CURRENT, info, store) : del(CURRENT, store)),
     async read(id, path) {
-      const b = await get<Blob>(`${id}/${path}`, store);
-      return b ? new Blob([b], { type: mimeOf(path) }) : null;
+      // Bytes since 2026-10-09; packs stored before that hold Blobs, which still read.
+      const v = await get<Blob | ArrayBuffer>(`${id}/${path}`, store);
+      return v ? new Blob([v], { type: mimeOf(path) }) : null;
     },
-    // Copied into a plain Blob: a File from a picked folder can't always be stored
-    // as itself once its folder is gone, and the copy is what survives.
-    write: async (id, path, data) => set(`${id}/${path}`, new Blob([await data.arrayBuffer()], { type: mimeOf(path) }), store),
+    // Stored as plain bytes, not a Blob: some WebKit builds refuse Blobs in IndexedDB
+    // (Playwright's Windows WebKit, and Safari private windows have had the same bug),
+    // and bytes are a copy that survives the picked folder going away.
+    async write(id, path, data) {
+      try {
+        await set(`${id}/${path}`, await data.arrayBuffer(), store);
+      } catch (e) {
+        if ((e as DOMException)?.name === 'QuotaExceededError') throw e;
+        throw new Error(`This browser wouldn’t store ${path} (${(e as Error)?.name ?? 'IndexedDB refused it'}).`);
+      }
+    },
     async ids() {
       const all = (await keys(store)).map(String).filter((k) => k !== CURRENT);
       return [...new Set(all.map((k) => k.slice(0, k.indexOf('/'))))];

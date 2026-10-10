@@ -22,7 +22,7 @@ import { describe, expect, it } from 'vitest';
 import roleFile from '../../../scripts/anim-roles.json';
 import type { PalExport, PalTexture } from '../types.ts';
 import { buildModel, type ModelEntry } from './build.ts';
-import type { EncodeWebp } from './materials.ts';
+import type { EncodeImage } from './materials.ts';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..', '..');
 const STAGED = path.join(ROOT, 'scripts', 'pal-textures', 'out');
@@ -32,12 +32,12 @@ const have = fs.existsSync(STAGED) && fs.existsSync(path.join(LITE, 'index.json'
 const walk = (dir: string): string[] =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
 
-const encode: EncodeWebp = (rgba, width, height, edge) =>
+const encode: EncodeImage = (rgba, width, height, edge) =>
   sharp(Buffer.from(rgba.buffer, rgba.byteOffset, rgba.byteLength), { raw: { width, height, channels: 4 } })
     .resize(edge, edge, { fit: 'inside', withoutEnlargement: true })
     .webp({ quality: 88 })
     .toBuffer()
-    .then((b) => new Uint8Array(b));
+    .then((b) => ({ data: new Uint8Array(b), mime: 'image/webp' }));
 
 /** What the extractor would hand over for `name`, rebuilt from the desktop's staged export. */
 async function staged(name: string, animFiles: Map<string, string>): Promise<PalExport> {

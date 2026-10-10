@@ -101,7 +101,7 @@ export default function ExtractorTest() {
     const models: Record<string, unknown> = {};
     (window as unknown as { __models: unknown }).__models = models;
     const { buildModel } = buildModels ? await import('../extract/model/build.ts') : { buildModel: null };
-    const { encodeWebp } = buildModels ? await import('../extract/model/encodeWebp.ts') : { encodeWebp: null };
+    const { encodeImage } = buildModels ? await import('../extract/model/encodeImage.ts') : { encodeImage: null };
     const t0 = performance.now();
     try {
       const names = only.split(/[\s,]+/).filter(Boolean);
@@ -111,9 +111,9 @@ export default function ExtractorTest() {
         onProgress: setProgress,
         onPal: async (p) => {
           report.push(await record(p));
-          if (buildModel && encodeWebp) {
+          if (buildModel && encodeImage) {
             const t = performance.now();
-            const m = await buildModel(p, { encode: encodeWebp });
+            const m = await buildModel(p, { encode: encodeImage });
             models[p.name] = { entry: m.entry, notes: m.notes, ms: Math.round(performance.now() - t), bytes: m.glb.byteLength, glb: base64(m.glb) };
           }
         },
@@ -136,11 +136,11 @@ export default function ExtractorTest() {
     try {
       const storage = await openStorage();
       if (!storage) throw new Error('This browser has no storage for the art.');
-      const [{ buildModel, foldAliases, manifestText }, { encodeWebp }] = await Promise.all([import('../extract/model/build.ts'), import('../extract/model/encodeWebp.ts')]);
+      const [{ buildModel, foldAliases, manifestText }, { encodeImage }] = await Promise.all([import('../extract/model/build.ts'), import('../extract/model/encodeImage.ts')]);
       const names = only.split(/[\s,]+/).filter(Boolean);
       const r = await extractToPack(x, storage, {
         only: names.length ? names : undefined,
-        build: (pal) => buildModel(pal, { encode: encodeWebp }),
+        build: (pal) => buildModel(pal, { encode: encodeImage }),
         foldAliases,
         manifestText,
         signal: stop.current.signal,

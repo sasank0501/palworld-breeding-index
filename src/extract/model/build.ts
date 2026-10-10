@@ -16,7 +16,7 @@ import overridesFile from '../../../scripts/chibi-overrides.json';
 import type { PalExport } from '../types.ts';
 import { attachLoop } from './animate.ts';
 import { axisAngle, CHIBI, chibify, type ChibiOverrides } from './chibi.ts';
-import { applyMaterials, type EncodeWebp } from './materials.ts';
+import { applyMaterials, type EncodeImage } from './materials.ts';
 
 const ROLES = roleFile.roles.map((r) => r.role);
 const OVERRIDES = overridesFile as unknown as ChibiOverrides;
@@ -42,7 +42,7 @@ export interface BuiltModel {
 }
 
 export interface BuildOptions {
-  encode: EncodeWebp;
+  encode: EncodeImage;
   /** Texture edge in px; 512 matches the portfolio's lite set. */
   edge?: number;
   /** Stamp for the manifest entry; tests pin it. */
@@ -59,7 +59,7 @@ export async function buildModel(pal: PalExport, { encode, edge = 512, now = Dat
     .registerExtensions(ALL_EXTENSIONS)
     .registerDependencies({ 'meshopt.decoder': MeshoptDecoder, 'meshopt.encoder': MeshoptEncoder });
   const doc = await io.readBinary(pal.glb);
-  doc.createExtension(EXTTextureWebP).setRequired(true);
+  const webp = doc.createExtension(EXTTextureWebP).setRequired(true);
 
   // Unreal stores masks in vertex colour, which glTF multiplies into the base colour
   // (near-black pals), and every material samples UV 0, so the other UV sets are dead weight.
@@ -76,6 +76,8 @@ export async function buildModel(pal: PalExport, { encode, edge = 512, now = Dat
   }
 
   await applyMaterials(doc, pal.materials, pal.textures, OVERRIDES[pal.name] ?? {}, edge, encode, (m) => note(`${pal.name}: ${m}`));
+  // Safari's canvas can't write WebP and hands back PNG: the model then declares no WebP.
+  if (!doc.getRoot().listTextures().some((t) => t.getMimeType() === 'image/webp')) webp.dispose();
 
   const { missing, legScale, jaw, shift, head } = chibify(doc, pal.name, OVERRIDES, (m) => note(m));
   const jawDegrees = OVERRIDES[pal.name]?.jaw ?? CHIBI.jawDegrees;
