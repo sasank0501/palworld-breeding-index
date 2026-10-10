@@ -128,9 +128,10 @@ export function idbStorage(store = createStore('palworld-art', 'files')): ArtSto
       const v = await get<Blob | ArrayBuffer>(`${id}/${path}`, store);
       return v ? new Blob([v], { type: mimeOf(path) }) : null;
     },
-    // Stored as plain bytes, not a Blob: some WebKit builds refuse Blobs in IndexedDB
-    // (Playwright's Windows WebKit, and Safari private windows have had the same bug),
-    // and bytes are a copy that survives the picked folder going away.
+    // Stored as plain bytes, not a Blob: WebKit has refused Blobs in IndexedDB in Safari
+    // private windows more than once (WebKit bugs 188438, 198278, 268037), Playwright's
+    // Windows WebKit refuses them outright, and reading Blobs back crashed iOS 18.4
+    // (292142). Bytes are also a copy that survives the picked folder going away.
     async write(id, path, data) {
       try {
         await set(`${id}/${path}`, await data.arrayBuffer(), store);
