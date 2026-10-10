@@ -50,20 +50,37 @@ const KEY = 'palworld-sc-skin';
 const isSkin = (v: unknown): v is Skin => SKINS.some((s) => s.id === v);
 
 /**
+ * Until the player picks a skin, PalDoc follows the system's light/dark setting:
+ * Palpagos when light, Mount Obsidian (already dark and contrast-checked) when
+ * dark, switching live if the setting changes (docs/A11Y.md, item 6: people who
+ * choose dark often do so for light sensitivity). A pick always wins.
+ */
+const DARK = '(prefers-color-scheme: dark)';
+const systemSkin = (): Skin => (typeof matchMedia === 'function' && matchMedia(DARK).matches ? 'obsidian' : 'pal');
+
+/**
  * A per-browser preference. localStorage answers synchronously, so the first
  * paint is already in the right skin; the user-data store (src/userdata) keeps a
  * copy that goes into backups, and fills in when localStorage was cleared or a
  * backup was restored. Storage can be unavailable, so every access is guarded.
  */
 export function useSkin(): [Skin, (s: Skin) => void] {
-  const [skin, setSkin] = useState<Skin>(() => {
+  const [chosen, setChosen] = useState<Skin | null>(() => {
     try {
       const v = localStorage.getItem(KEY);
-      return isSkin(v) ? v : 'pal';
+      return isSkin(v) ? v : null;
     } catch {
-      return 'pal';
+      return null;
     }
   });
+  const [system, setSystem] = useState<Skin>(systemSkin);
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const mq = matchMedia(DARK);
+    const follow = () => setSystem(systemSkin());
+    mq.addEventListener('change', follow);
+    return () => mq.removeEventListener('change', follow);
+  }, []);
   useEffect(() => {
     let live = true;
     void readPrefs().then((p) => {
@@ -73,14 +90,15 @@ export function useSkin(): [Skin, (s: Skin) => void] {
       } catch {
         /* unavailable */
       }
-      if (live && !local && isSkin(p.skin)) setSkin(p.skin);
+      if (live && !local && isSkin(p.skin)) setChosen(p.skin);
     });
     return () => {
       live = false;
     };
   }, []);
+  const skin = chosen ?? system;
   const choose = (s: Skin): void => {
-    setSkin(s);
+    setChosen(s);
     try {
       localStorage.setItem(KEY, s);
     } catch {
