@@ -10,8 +10,8 @@ Learning page: claude.ai artifact `9hUfnrC8NXRkssEC4Tjcz6` (read it with the Art
 editing); Chapter 24 is Phase 6, with quiz and evidence. One chapter per phase, at the phase's end.
 
 **The site is called PalDoc.** The portfolio build is live at **https://paldoc.pages.dev** (Cloudflare
-Pages project `paldoc`, Direct Upload). The old https://sasank-paldex.pages.dev still serves the
-pre-rename build. The public site isn't deployed: Phase 6 no longer blocks it; Phase 7 and the
+Pages project `paldoc`, Direct Upload). The old `sasank-paldex` project was deleted on 2026-10-09
+(its address no longer resolves). The public site isn't deployed: Phase 6 no longer blocks it; Phase 7 and the
 Phase 8 must-haves do (below).
 
 ## Phases
@@ -28,10 +28,8 @@ Phase 8 must-haves do (below).
 1. **Cloudflare Web Analytics** (nothing counts visits yet): dashboard → Workers & Pages → paldoc →
    Metrics → Enable, then redeploy. The status-line mod `paldoc-visits` needs an API token (Account
    Analytics: Read) in `PALDOC_CF_ANALYTICS_TOKEN`; untested on the real account.
-2. **Delete or redirect `sasank-paldex`?** Recommended delete; `npx wrangler@4 pages project delete
-   sasank-paldex` can't be undone, so ask first.
-3. Reddit follow-up `reddit/post-2.md` (gitignored): replace `LINK` with the first post's URL.
-4. **Hand tests for Phase 7** (only you can do these): NVDA through the extraction notice (Add the
+2. Reddit follow-up `reddit/post-2.md` (gitignored): replace `LINK` with the first post's URL.
+3. **Hand tests for Phase 7** (only you can do these): NVDA through the extraction notice (Add the
    game art → choose the pak → progress → Stop → Finish adding), High Contrast, Safari on a Mac or
    iPhone, and the extraction in Firefox.
 
