@@ -936,23 +936,24 @@
 @media (hover: hover) { .sc-dex:hover .sc-dex-art img { transform: scale(1.08); } }
 
 
-/* a rarity gem in the corner of the art */
-.sc-dex-art::after {
-  content: '';
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  width: 11px;
-  height: 11px;
+/* rarity gems in the corner of the art: 1 (common) to 5 (legendary), so the count says
+   the tier in any colour vision (RarityPips in parts.tsx) */
+.sc-gems { position: absolute; left: 9px; bottom: 9px; display: flex; gap: 4px; }
+.sc-gems i {
+  width: 8px;
+  height: 8px;
   background: var(--tier);
   transform: rotate(45deg);
   border-radius: 2px;
-  box-shadow: 0 0 8px var(--tier);
+  /* An ink edge: gold on a light panel is about 1.7:1, and now that the count carries the
+     rarity each gem needs 3:1 against what's behind it (WCAG 1.4.11). */
+  box-shadow: 0 0 0 1.5px var(--ink), 0 0 6px var(--tier);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .sc-dex.tier-legendary .sc-dex-art::after { animation: sc-gem 2.4s ease-in-out infinite; }
+  .sc-dex.tier-legendary .sc-gems i { animation: sc-gem 2.4s ease-in-out infinite; }
 }
-@keyframes sc-gem { 50% { box-shadow: 0 0 16px 3px var(--tier); transform: rotate(225deg) scale(1.2); } }
+@media (forced-colors: active) { .sc-gems i { forced-color-adjust: none; background: CanvasText; box-shadow: none; } }
+@keyframes sc-gem { 50% { box-shadow: 0 0 0 1.5px var(--ink), 0 0 14px 2px var(--tier); transform: rotate(225deg) scale(1.15); } }
 
 .sc-dex-name { font: var(--d-weight) 17px/1.1 var(--font-display); letter-spacing: var(--d-track); text-transform: var(--d-case); overflow-wrap: anywhere; }
 .sc-dex-foot { display: flex; align-items: center; justify-content: space-between; min-height: 18px; font: 800 12px var(--font-mono); letter-spacing: 0.06em; color: var(--ink-soft); }

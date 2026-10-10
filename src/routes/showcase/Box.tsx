@@ -6,7 +6,7 @@ import { isFavourite, toggleFavourite } from '../../userdata/edit.ts';
 import { FavStar } from './Fav.tsx';
 import { rankFor } from './shared.tsx';
 import type { Ctx } from './ctx.ts';
-import { TraitChips, elementOf, stagger, tierOf } from './parts.tsx';
+import { RarityPips, TraitChips, elementOf, stagger, tierOf } from './parts.tsx';
 
 /** Pals added per batch as you scroll. Fixed: with loading ahead of you, the size is invisible. */
 const PAGE = 60;
@@ -256,8 +256,12 @@ function PalTile({ pal, index, onOpen }: { pal: RosterPal; index: number; onOpen
       )}
       <span className="sc-dex-art">
         <Portrait pal={pal} />
+        <RarityPips tier={tierOf(id)} />
       </span>
-      <span className="sc-dex-name">{displayName(pal)}</span>
+      <span className="sc-dex-name">
+        {displayName(pal)}
+        <span className="sr-only">, {tierOf(id)}</span>
+      </span>
       <span className="sc-pal-ivs" title={`HP ${pal.ivs.hp} · ATK ${pal.ivs.attack} · DEF ${pal.ivs.defense}`}>
         {[pal.ivs.hp, pal.ivs.attack, pal.ivs.defense].map((v, n) => (
           <i key={n} className={v >= 80 ? 'top' : ''}>

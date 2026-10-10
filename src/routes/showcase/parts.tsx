@@ -86,6 +86,23 @@ export function ElementChips({ id, labels = false }: { id: string; labels?: bool
 
 export const tierOf = (id: string | null): RarityTier => rarityTier(rarityFor(id));
 
+const TIERS: RarityTier[] = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+
+/**
+ * Rarity as 1 to 5 gems in the tier's colour: one gem told the tiers apart by colour
+ * alone (WCAG 1.4.1), and a count reads in any colour vision. Decorative: the tile's
+ * accessible name says the tier in words.
+ */
+export function RarityPips({ tier }: { tier: RarityTier }) {
+  return (
+    <span className="sc-gems" aria-hidden="true">
+      {TIERS.slice(0, TIERS.indexOf(tier) + 1).map((t) => (
+        <i key={t} />
+      ))}
+    </span>
+  );
+}
+
 /** The squash and grow, start to finish (showcase.css, "Hatch"). */
 const HATCH_MS = 550;
 /**

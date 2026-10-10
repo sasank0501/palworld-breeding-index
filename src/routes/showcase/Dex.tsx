@@ -11,6 +11,7 @@ import {
   ELEMENTS,
   ElementChips,
   ElementIcon,
+  RarityPips,
   Ring,
   Stage,
   TraitChips,
@@ -254,12 +255,13 @@ function DexTile({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: numb
       className={`sc-dex is-${status} tier-${tier} e-${elementOf(id)}`}
       style={stagger(Math.min(index, 40))}
       onClick={onOpen}
-      aria-label={`${nameOf(id)}, ${status === 'owned' ? 'discovered' : status === 'ready' ? 'can be bred now' : 'not discovered'}${mine ? `, ${mine.length} owned` : ''}`}
+      aria-label={`${nameOf(id)}, ${tier}, ${status === 'owned' ? 'discovered' : status === 'ready' ? 'can be bred now' : 'not discovered'}${mine ? `, ${mine.length} owned` : ''}`}
     >
       <span className="sc-dex-no">{dexNo(id)}</span>
       {mine && <span className="sc-dex-count">×{mine.length}</span>}
       <span className="sc-dex-art">
         <SpeciesArt id={id} />
+        <RarityPips tier={tier} />
       </span>
       <span className="sc-dex-name">{nameOf(id)}</span>
       <ElementChips id={id} />
