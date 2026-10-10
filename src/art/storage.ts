@@ -35,7 +35,7 @@ export const mimeOf = (path: string): string => TYPES[path.slice(path.lastIndexO
 // ---------------------------------------------------------------- OPFS
 
 type Dir = FileSystemDirectoryHandle;
-/** Only in dedicated workers; the page writes through createWritable instead. */
+/** Only in dedicated workers; see writeFile for the page. */
 type SyncHandle = { write(b: BufferSource, o: { at: number }): number; truncate(n: number): void; flush(): void; close(): void };
 
 async function walk(dir: Dir, parts: string[], create: boolean): Promise<Dir> {
@@ -44,8 +44,14 @@ async function walk(dir: Dir, parts: string[], create: boolean): Promise<Dir> {
   return d;
 }
 
-async function writeFile(dir: Dir, name: string, data: Blob): Promise<void> {
-  const fh = await dir.getFileHandle(name, { create: true });
+/**
+ * Write one file under the art root. In a worker: a sync access handle, the fastest
+ * write there is. On the page: createWritable, then the size is checked, because a
+ * WebKit was found reporting success and leaving the file empty; when that fails or
+ * createWritable is missing (stable Safari), a small worker writes it with a sync handle.
+ */
+async function writeFile(root: Dir, parts: string[], name: string, data: Blob): Promise<void> {
+  const fh = await (await walk(root, parts, true)).getFileHandle(name, { create: true });
   const sync = (fh as unknown as { createSyncAccessHandle?: () => Promise<SyncHandle> }).createSyncAccessHandle;
   if (sync) {
     const h = await sync.call(fh);
@@ -58,9 +64,44 @@ async function writeFile(dir: Dir, name: string, data: Blob): Promise<void> {
     }
     return;
   }
-  const w = await fh.createWritable();
-  await w.write(data);
-  await w.close();
+  if (typeof fh.createWritable === 'function') {
+    try {
+      const w = await fh.createWritable();
+      await w.write(data);
+      await w.close();
+      if ((await fh.getFile()).size === data.size) return;
+    } catch (e) {
+      if ((e as DOMException)?.name === 'QuotaExceededError') throw e;
+    }
+  }
+  await writeInWorker(['art', ...parts], name, data);
+  if ((await fh.getFile()).size !== data.size) throw new Error(`This browser didn’t keep ${[...parts, name].join('/')} (it came back the wrong size).`);
+}
+
+let writer: Worker | null = null;
+let nextWrite = 0;
+const waiting = new Map<number, { resolve: () => void; reject: (e: Error) => void }>();
+
+function writeInWorker(parts: string[], name: string, data: Blob): Promise<void> {
+  if (!writer) {
+    writer = new Worker(new URL('./opfsWrite.worker.ts', import.meta.url), { type: 'module' });
+    writer.addEventListener('message', (e: MessageEvent<import('./opfsWrite.worker.ts').WriteReply>) => {
+      const w = waiting.get(e.data.id);
+      if (!w) return;
+      waiting.delete(e.data.id);
+      if (e.data.ok) w.resolve();
+      else w.reject(Object.assign(new Error(e.data.message || `Writing ${name} failed`), { name: e.data.name }));
+    });
+  }
+  const w = writer;
+  return data.arrayBuffer().then(
+    (buf) =>
+      new Promise<void>((resolve, reject) => {
+        const id = ++nextWrite;
+        waiting.set(id, { resolve, reject });
+        w.postMessage({ id, parts, name, data: buf }, [buf]);
+      }),
+  );
 }
 
 const notFound = (e: unknown) => (e as DOMException)?.name === 'NotFoundError' || (e as DOMException)?.name === 'TypeMismatchError';
@@ -82,7 +123,7 @@ async function opfs(): Promise<ArtStorage> {
       }
     },
     async setCurrent(info) {
-      if (info) await writeFile(root, 'current.json', new Blob([JSON.stringify(info)], { type: 'application/json' }));
+      if (info) await writeFile(root, [], 'current.json', new Blob([JSON.stringify(info)], { type: 'application/json' }));
       else await root.removeEntry('current.json').catch(() => undefined);
     },
     async read(id, path) {
@@ -97,7 +138,7 @@ async function opfs(): Promise<ArtStorage> {
     },
     async write(id, path, data) {
       const { dirs, name } = split(path);
-      await writeFile(await walk(root, [id, ...dirs], true), name, data);
+      await writeFile(root, [id, ...dirs], name, data);
     },
     async ids() {
       const out: string[] = [];
