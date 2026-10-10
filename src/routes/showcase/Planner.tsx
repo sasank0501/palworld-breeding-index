@@ -386,9 +386,26 @@ export function Planner({
             </div>
           </section>
 
-          <button className="sc-btn sc-solve sc-in" style={stagger(5)} disabled={!canSolve || solving} onClick={solve}>
+          {/* aria-disabled while working, not disabled: a disabled button drops keyboard focus
+              onto <body>, and the next Tab would start from the top of the page. */}
+          <button
+            className="sc-btn sc-solve sc-in"
+            style={stagger(5)}
+            disabled={!canSolve}
+            aria-disabled={solving || undefined}
+            onClick={() => !solving && solve()}
+          >
             {solving ? 'Working it out…' : 'Find the lineage'}
           </button>
+          <span className="sr-only" role="status">
+            {solving
+              ? 'Working it out.'
+              : result
+                ? result.ok
+                  ? `Lineage found for ${nameOf(target)}. The tree follows this button.`
+                  : result.reason
+                : ''}
+          </span>
           {!canSolve && !solving && <p className="sc-muted center">Choose a species and at least one passive.</p>}
         </div>
 

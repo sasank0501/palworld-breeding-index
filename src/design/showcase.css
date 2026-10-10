@@ -610,6 +610,7 @@
 @media (hover: hover) { .sc-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: var(--shadow-hover); } }
 .sc-btn:active:not(:disabled) { transform: translateY(1px); }
 .sc-btn:disabled { opacity: 0.45; cursor: default; }
+.sc-btn[aria-disabled='true'] { opacity: 0.45; cursor: progress; }
 .sc-btn.ghost { background: var(--panel); color: var(--ink); }
 
 .sc-empty { padding: 60px 24px; text-align: center; font-size: 18px; color: var(--ink-soft); grid-column: 1 / -1; }
