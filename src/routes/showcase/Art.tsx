@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { cancelArtLoad, formatBytes, loadArtFolder, removeArt, useLoadStage, type LoadStage } from '../../art/loader.ts';
 import { useArtState } from '../../art/resolve.ts';
@@ -251,6 +251,19 @@ export function ArtNotice() {
     if (art?.kind === 'local' && art.info.complete && !running) void ensureStills();
   }, [art, running]);
 
+  // Each stage swaps the notice's controls (Choose → Stop → Choose again), and the button
+  // just pressed is gone, which drops keyboard focus onto <body>. After a change of stage,
+  // a lost focus goes to the notice's heading, or to the page when the notice has gone.
+  const lastKinds = useRef(`${run.kind}|${stage.kind}`);
+  useEffect(() => {
+    const kinds = `${run.kind}|${stage.kind}`;
+    if (kinds === lastKinds.current) return;
+    lastKinds.current = kinds;
+    if (document.activeElement && document.activeElement !== document.body) return;
+    const to = document.getElementById('art-h') ?? document.getElementById('main');
+    to?.focus({ preventScroll: true });
+  }, [run.kind, stage.kind]);
+
   const folderBusy = stage.kind === 'loading' || stage.kind === 'error';
   const runNote = run.kind === 'stopped' || run.kind === 'error' || (run.kind === 'done' && run.failed.length > 0);
   if (!folderBusy && !running && !partial && !runNote && art?.kind !== 'none') return <StillsNotice />;
@@ -260,7 +273,9 @@ export function ArtNotice() {
     <div className="sc-missing">
       <section className="sc-missing-notice sc-artnotice" aria-labelledby="art-h">
         <div>
-          <h2 id="art-h">{heading}</h2>
+          <h2 id="art-h" tabIndex={-1}>
+            {heading}
+          </h2>
           <p className="sc-sethint">
             {running
               ? 'Keep this tab open; you can use PalDoc meanwhile. Pals fill in as they arrive.'
