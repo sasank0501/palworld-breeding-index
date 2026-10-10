@@ -1,6 +1,7 @@
-# Handoff — 2026-10-09 (end of day)
+# Handoff — 2026-10-09 (end of day, second wrap)
 
-Branch `paldb-ranks-and-theme`, pushed to origin. Type-check, 156 tests and `npm run build` ("no game
+Branch `paldb-ranks-and-theme`, pushed to origin except the Safari storage fix below (committed
+unverified; see "Pick up here"). Type-check, 158 tests and `npm run build` ("no game
 art") pass; `npm run audit-a11y` is 0 axe violations and no text under 12px; the new extraction notice
 is axe-clean in its four states (ready, running, stopped, asking for mappings) in all four themes.
 **Phase 6 is done**: on the public build, a fresh Edge profile goes from the landing page to the 3D
@@ -19,7 +20,7 @@ Phase 8 must-haves do (below).
 | Phase | Status |
 |---|---|
 | 0–6 | done (6: 333 models in ~10 min, 207 MB, matching the desktop's; stop/resume works) |
-| 7 A11y + cross-browser | started: A11Y.md items 2, 3, 4, 5, 8, 9 done; two NVDA passes 2026-10-05. Left: NVDA through the extraction notice and species → My Pals → pal sheet, keyboard-only Planner, 200% zoom, High Contrast, colour alone, Safari, Firefox for the extractor, phone first tile (10), dark mode decision (6), timing on a laptop without a GPU |
+| 7 A11y + cross-browser | **automated part done 2026-10-09** (A11Y.md items 1–14: dark mode follows the system, phone filters fold, 400% reflow, forced colors, focus fixes, rarity gems). Left, by hand: NVDA through the extraction notice and species → My Pals → pal sheet (script in A11Y.md), Windows' real contrast themes, real Safari/iPhone, Firefox extraction, a laptop without a GPU. **Safari work in progress** (below) |
 | 8 Ship | portfolio site **live**. Public site needs: our own work/element icons (replacing paldb's), self-hosted fonts, deploy + GitHub issues link; pal URLs nice to have |
 
 ## Pick up here
@@ -33,11 +34,30 @@ Phase 8 must-haves do (below).
    game art → choose the pak → progress → Stop → Finish adding), High Contrast, Safari on a Mac or
    iPhone, and the extraction in Firefox.
 
-**Next task, by size** (rough estimate to ship: 4–6 sessions)
+**First job next session: finish the Safari storage fix.** Running the extraction in Playwright's
+WebKit (Safari's engine, on Windows; no Mac at hand) found real bugs; three are fixed and pushed
+(`encodeImage`: Safari's canvas can't encode WebP and returns PNG, textures carry their real type;
+no `OffscreenCanvas` fallback; IndexedDB fallback stores bytes, since WebKit has refused Blobs;
+`extractAll` gives up after 3 failures before any success). The fourth is **committed but not
+verified**: on that WebKit the page's OPFS `createWritable()` reports success and leaves **empty
+files**, so an extraction looks fine and keeps nothing, and the app then shows "Add the game art" as
+if no pack exists. Stable Safari mostly lacks `createWritable` too. The fix (`src/art/storage.ts`
+`writeFile`, new `src/art/opfsWrite.worker.ts`): check each write's size, fall back to a worker that
+writes with a sync access handle. To verify: `npm run build`, `npx vite preview --port 4180
+--strictPort` (background task), then `PUB=http://localhost:4180/ node
+scripts/.cache/a11y/webkit-short.mjs` (a few pals, stop, reload: the pack must still be there, files
+non-empty), then the full `scripts/.cache/extract/e2e-webkit.mjs` (~25 min, with a watcher on its
+log: an earlier run sat silent for hours). Also worth a line in the learning page's Phase 6 chapter
+once confirmed. Note `getDirectory()` failed with `UnknownError` in fresh non-persistent WebKit
+contexts, and worked in persistent ones: the app falls back to IndexedDB when it throws.
+Not Safari itself: a pass is "probably fine on a Mac", not proof.
+
+**Then, by size** (rough estimate to ship: 4–6 sessions)
 - Phase 8 must-haves: **our own work and element icons** (design work, the biggest piece; Opus),
   **self-host the fonts** (Google Fonts sees every visitor's IP; Sonnet), deploy the public site.
 - Phase 7 fixes from the hand tests above (Opus for whatever NVDA/Safari turn up).
 - Measure the card stills in a normal (headed) window: 392 s in the headless e2e vs 94 s in Phase 5.
+- Phase 7 hand tests (above), then the learning chapter for Phase 7.
 
 **Small cleanups** (Sonnet-sized): `@tanstack/react-virtual` is imported nowhere;
 `docs/UX-BRIEF.md:39` says "virtualised"; `docs/data-gaps.md:12,16` are stale; the species page's
@@ -67,6 +87,14 @@ collection card says "8 owned" twice; some spotlight pals are framed from above 
   First inline link styled (ink + underline; the default blue was 1.95:1 on Obsidian).
 - Learning page Chapter 24, and a phone-overflow fix in Chapter 22 (a long verdict pill).
 
+## Built later on 2026-10-09 (Phase 7, automated; details in A11Y.md)
+
+Dark mode follows the system until a theme is picked; the Paldex filters fold behind a "Filters"
+button under 640 px (first tile 1,695 → 1,421 px); sticky nav and notice scroll on short windows
+(400% reflow); forced-colors focus and pressed states; focus kept on "Find the lineage" and in the
+art notice; rarity as 1–5 gems with an ink edge and the tier in the tile's name. WebKit findings
+and fixes above. Seven commits, 0 axe violations, no text under 12 px.
+
 ## Local tools (gitignored under `scripts/.cache/`)
 
 - `extract/`: `e2e.mjs` (the Phase 6 "done when", public build: landing → demo save → pak → stop →
@@ -75,6 +103,10 @@ collection card says "8 owned" twice; some spotlight pals are framed from above 
   `offline-check.mjs`, `pack.mjs` (bench "Extract to pack", fresh profile), `pack-app.mjs`,
   `models.mjs`, `export.mjs`, `compare.mjs`, `icons.mjs`, `picker.mjs`, `bench.mjs`,
   `peek-profile.mjs` (reopen the last e2e profile and read its pack).
+- `a11y/`: `p7-checks.mjs`, `p7-reflow-hc.mjs`, `p7-planner-kbd.mjs`, `p7-pips.mjs`, `webkit.mjs`
+  (all screens + axe + iPhone size + extraction start in WebKit), `webkit-short.mjs`,
+  `webkit-storage-probe.mjs`, `webkit-opfs-write.mjs`; `extract/`: `e2e-webkit.mjs`,
+  `notice-kbd.mjs`. WebKit install: `npx playwright-core install webkit`.
 - **Ports**: another project's Vite starter was on 5173 this session; PalDoc ran on **5174**
   (`npx vite --port 5174 --strictPort` as a background task). Most scripts take `APP=`.
 - `learn-check.mjs PAGE` (quiz option lengths, axe on Chapter 24, phone overflow) and
@@ -96,6 +128,8 @@ has no `roster.json`, Steam id, world names or source maps.
 ## Decisions
 
 - **Extractor output**: lite models only (user, 2026-10-09).
+- **Dark mode**: follow the system until a pick (Palpagos light, Obsidian dark). **Phones**: filters
+  fold behind a button, spotlight unchanged. **Rarity**: 1–5 gems (all user's choices, 2026-10-09).
 - **Pack during extraction**: live from the first icon, resumable; deliberately different from the
   folder load's "write first, switch last".
 - **Mappings**: latest `UsefulFiles`, verified by a real decode, older commits and TheNaeem's
