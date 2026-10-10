@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 
 import { displayName, ivTotal, speciesName } from '../../components/PalCards.tsx';
 import { passiveScore } from '../../lib/passiveCategories.ts';
@@ -64,6 +64,9 @@ export function Dex({
   const { roster, byPal } = ctx;
   const [view, setView] = useState<View>('all');
   const [element, setElement] = useState<Element | 'all'>('all');
+  // Phones fold the view switch and the element chips behind one button (docs/A11Y.md, item 10).
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filtersId = useId();
   const [query, setQuery] = useState('');
 
   const stats = useMemo(
@@ -176,7 +179,7 @@ export function Dex({
         )}
       </header>
 
-      <section className="sc-section" aria-label="All species">
+      <section className={`sc-section${filtersOpen ? ' filters-open' : ''}`} aria-label="All species">
         <div className="sc-bar">
           <h2 className="sc-h2">
             The Paldex <span>{visible.length} shown</span>
@@ -187,7 +190,23 @@ export function Dex({
           <label className="sc-search">
             <input value={query} aria-label="Search the Paldex by name or number" placeholder="Search name or number…" onChange={(e) => setQuery(e.target.value)} />
           </label>
-          <div className="sc-seg" role="group" aria-label="Show">
+          {/* Shown on phones only (CSS); says which filters are on while they're folded away. */}
+          <button
+            type="button"
+            className="sc-filtoggle"
+            aria-expanded={filtersOpen}
+            aria-controls={`${filtersId}-view ${filtersId}-el`}
+            onClick={() => setFiltersOpen((o) => !o)}
+          >
+            Filters
+            {(view !== 'all' || element !== 'all') && (
+              <span>
+                {[view !== 'all' && VIEWS.find(([k]) => k === view)?.[1], element !== 'all' && title(element)].filter(Boolean).join(' · ')}
+              </span>
+            )}
+            <Chevron dir="right" />
+          </button>
+          <div className="sc-seg sc-dexfilter" id={`${filtersId}-view`} role="group" aria-label="Show">
             {VIEWS.map(([k, label]) => (
               <button key={k} className={view === k ? 'on' : ''} aria-pressed={view === k} onClick={() => setView(k)}>
                 {label}
@@ -196,7 +215,7 @@ export function Dex({
           </div>
         </div>
 
-        <div className="sc-elbar" role="group" aria-label="Element">
+        <div className="sc-elbar sc-dexfilter" id={`${filtersId}-el`} role="group" aria-label="Element">
           <button className={element === 'all' ? 'on' : ''} aria-pressed={element === 'all'} onClick={() => setElement('all')}>
             All <span>{SPECIES.length}</span>
           </button>

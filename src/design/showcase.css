@@ -860,6 +860,11 @@
 .sc-seg button.on { background: var(--accent-strong); color: var(--accent-ink); }
 
 .sc-elbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+/* Phones fold the view switch and element chips behind this button (see the 640px query). */
+.sc-filtoggle { display: none; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; background: var(--panel); border: var(--border); border-radius: 999px; color: var(--ink); font: 800 14px var(--font-body); cursor: pointer; backdrop-filter: var(--blur); }
+.sc-filtoggle span { font: 600 12px var(--font-mono); color: var(--ink-soft); }
+.sc-filtoggle svg { transform: rotate(90deg); }
+.sc-filtoggle[aria-expanded='true'] svg { transform: rotate(-90deg); }
 .sc-elbar button {
   display: inline-flex;
   align-items: center;
@@ -1005,10 +1010,12 @@
   .sc-tabs { order: 3; width: 100%; overflow-x: auto; margin: 0; padding-block: 4px 6px; }
   .sc-tabs button { padding: 7px 13px; font-size: 14px; white-space: nowrap; }
   .sc-search input { width: 100%; }
-  .sc-search { flex: 1 1 100%; }
+  .sc-search { flex: 1 1 160px; } /* shares its row with the Filters button */
   /* At 320 px the four-way switch (All / Discovered / Within reach / Undiscovered)
      is wider than the screen: let it wrap onto two lines. */
   .sc-seg { flex-wrap: wrap; max-width: 100%; border-radius: var(--radius-s); }
+  .sc-filtoggle { display: inline-flex; }
+  .sc-section:not(.filters-open) .sc-dexfilter { display: none; }
   .sc-dexgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 10px; }
   .sc-dex-name { font-size: 15px; }
   .sc-ring { width: 120px; height: 120px; }
