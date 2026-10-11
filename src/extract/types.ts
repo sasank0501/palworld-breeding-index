@@ -5,6 +5,13 @@
  * browser each pal goes straight from here to the builder to the art pack.
  */
 
+/**
+ * The longest texture edge the pack keeps (the lite set). The extractor decodes the game's
+ * 512 px mip directly, so no texture is decoded at a size the builder would only shrink:
+ * decode time is proportional to pixels, and 1024 px cost three times as much for the same pack.
+ */
+export const TEXTURE_EDGE = 512;
+
 export interface PalList {
   /** Every pal mesh in the pak (SK_<Name> under Model/Character/Monster/), sorted. */
   pals: string[];

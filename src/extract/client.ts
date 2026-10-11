@@ -6,7 +6,7 @@
 
 import type { Call, Reply, Request } from './extractor.worker.ts';
 import type { Verify } from '../art/mappings.ts';
-import type { IconExport, PalExport, PalList } from './types.ts';
+import { type IconExport, type PalExport, type PalList, TEXTURE_EDGE } from './types.ts';
 
 export interface BootInfo {
   cue4parse: string;
@@ -30,7 +30,7 @@ export interface Extractor {
   verify: Verify;
   /** Every pal mesh in the pak, and the Blueprint-only pals that borrow one. */
   listPals(): Promise<PalList>;
-  /** One pal, textures decoded at up to maxEdge pixels (default 1024). */
+  /** One pal, textures decoded at up to maxEdge pixels (default TEXTURE_EDGE). */
   exportPal(name: string, maxEdge?: number): Promise<PalExport>;
   /** Every pal icon the app shows, from the game, as WebP named for the pack (up to 256 px). */
   exportIcons(maxEdge?: number): Promise<IconExport>;
@@ -67,7 +67,7 @@ export function startExtractor(): Extractor {
     // A copy goes to the worker, so the caller's bytes stay usable (findMappings stores them).
     verify: (bytes) => send<string | null>({ call: 'useMappings', bytes: bytes.slice() }),
     listPals: () => send<PalList>({ call: 'listPals' }),
-    exportPal: (name, maxEdge = 1024) => send<PalExport>({ call: 'exportPal', name, maxEdge }),
+    exportPal: (name, maxEdge = TEXTURE_EDGE) => send<PalExport>({ call: 'exportPal', name, maxEdge }),
     exportIcons: (maxEdge = 256) => send<IconExport>({ call: 'exportIcons', maxEdge }),
     stop() {
       worker.terminate();

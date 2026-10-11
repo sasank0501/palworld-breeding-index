@@ -13,7 +13,7 @@ import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
 
 import roleFile from '../../../scripts/anim-roles.json';
 import overridesFile from '../../../scripts/chibi-overrides.json';
-import type { PalExport } from '../types.ts';
+import { type PalExport, TEXTURE_EDGE } from '../types.ts';
 import { attachLoop } from './animate.ts';
 import { axisAngle, CHIBI, chibify, type ChibiOverrides } from './chibi.ts';
 import { applyMaterials, type EncodeImage } from './materials.ts';
@@ -43,13 +43,13 @@ export interface BuiltModel {
 
 export interface BuildOptions {
   encode: EncodeImage;
-  /** Texture edge in px; 512 matches the portfolio's lite set. */
+  /** Texture edge in px; TEXTURE_EDGE matches the portfolio's lite set. */
   edge?: number;
   /** Stamp for the manifest entry; tests pin it. */
   now?: number;
 }
 
-export async function buildModel(pal: PalExport, { encode, edge = 512, now = Date.now() }: BuildOptions): Promise<BuiltModel> {
+export async function buildModel(pal: PalExport, { encode, edge = TEXTURE_EDGE, now = Date.now() }: BuildOptions): Promise<BuiltModel> {
   if (!pal.glb) throw new Error(`${pal.name}: the mesh didn’t export`);
   const notes: string[] = [];
   const note = (m: string) => notes.push(m);
