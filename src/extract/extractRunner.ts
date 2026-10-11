@@ -16,6 +16,7 @@ import { buildSpeciesIndex, type PalDexEntry } from '../save/species.ts';
 import { openStorage } from '../art/storage.ts';
 import { startExtractor, type Extractor } from './client.ts';
 import { extractToPack, type PipelineProgress } from './pipeline.ts';
+import { extractorCount, startHelpers, type Helpers } from './pool.ts';
 
 export type ExtractStage =
   | { kind: 'idle' }
@@ -55,6 +56,8 @@ export function palName(codename: string): string | null {
 export const isExtracting =(s: ExtractStage): boolean => s.kind === 'starting' || s.kind === 'running' || s.kind === 'needMappings';
 
 let extractor: Extractor | null = null;
+/** The extra extractors that share the work on machines with the processors and memory for them. */
+let helpers: Helpers | null = null;
 let abort: AbortController | null = null;
 /** Set while the run waits for the player's mappings file. */
 let mappingsWaiter: ((file: File) => void) | null = null;
@@ -74,9 +77,11 @@ const askBeforeLeaving = (e: BeforeUnloadEvent) => e.preventDefault();
 
 function release() {
   window.removeEventListener('beforeunload', askBeforeLeaving);
-  // The extractor holds ~500 MB of WebAssembly memory: let it go as soon as the run ends.
+  // Each extractor holds ~500 MB of WebAssembly memory: let them go as soon as the run ends.
   extractor?.stop();
   extractor = null;
+  helpers?.stop();
+  helpers = null;
   abort = null;
   mappingsWaiter = null;
 }
@@ -98,6 +103,7 @@ export async function startExtraction(pak: File): Promise<void> {
 
     const store = mappingsStore();
     const found = await findMappings({ store, verify: x.verify, signal, onStatus: (s) => set({ kind: 'starting', step: describeMappings(s) }) });
+    let mappings = found.ok ? found.mappings.bytes : null;
     if (!found.ok) {
       // Wait for a file from the player, as many tries as they like, or a stop.
       let problem: string | null = null;
@@ -109,10 +115,19 @@ export async function startExtraction(pak: File): Promise<void> {
         });
         set({ kind: 'needMappings', attempts: found.attempts, problem: null, checking: true });
         const r = await acceptPlayerFile(file, { store, verify: x.verify });
-        if (r.ok) break;
+        if (r.ok) {
+          mappings = r.mappings.bytes;
+          break;
+        }
         problem = r.problem;
       }
     }
+    signal.throwIfAborted();
+
+    // The reader runs on one thread: more of them share the pals. They start in the
+    // background and join the run when ready; one that can't start is left out.
+    const extra = extractorCount() - 1;
+    if (mappings && extra > 0) helpers = startHelpers(extra, pak, mappings, { timeoutMs: BOOT_TIMEOUT });
 
     const storage = await openStorage();
     if (!storage) throw new Error('This browser is blocking site storage, so the art has nowhere to go. Allow site data for this page and try again.');
@@ -125,6 +140,7 @@ export async function startExtraction(pak: File): Promise<void> {
       foldAliases,
       manifestText,
       signal,
+      helpers: helpers?.ready,
       onChange: artChanged,
       onProgress: (p) => {
         if (p.phase === 'models' && !runStart) runStart = performance.now();

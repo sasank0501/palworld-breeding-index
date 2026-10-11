@@ -13,6 +13,7 @@ import type { PakCheck } from '../extract/pickPak.ts';
 import { artChanged } from '../art/resolve.ts';
 import { openStorage } from '../art/storage.ts';
 import { extractToPack, type PipelineProgress } from '../extract/pipeline.ts';
+import { extractorCount, startHelpers } from '../extract/pool.ts';
 import { extractAll, type RunProgress } from '../extract/run.ts';
 import type { PalExport } from '../extract/types.ts';
 import '../design/showcase.css';
@@ -65,6 +66,9 @@ export default function ExtractorTest() {
   const stop = useRef<AbortController | null>(null);
   const [iconPreview, setIconPreview] = useState<string | null>(null);
   const extractor = useRef<Extractor | null>(null);
+  // What extra extractors need to catch up with the first: the game file and the mappings that passed.
+  const source = useRef<{ pak: File; mappings: Uint8Array } | null>(null);
+  const [workers, setWorkers] = useState(() => String(extractorCount()));
   const say = (line: string) => setLog((l) => [...l, `${(performance.now() / 1000).toFixed(1)}s  ${line}`]);
 
   async function run(pak: File, check: Extract<PakCheck, { ok: true }>) {
@@ -81,6 +85,7 @@ export default function ExtractorTest() {
       const found = await findMappings({ store: mappingsStore(), verify: x.verify, onStatus: (s) => say(describeStatus(s)) });
       for (const a of found.attempts) say(`  ${a.problem ? '✕' : '✓'} ${a.label}${a.problem ? `: ${a.problem}` : ''}`);
       say(found.ok ? `Mappings ready: ${found.mappings.label} (${(found.mappings.bytes.length / 1e6).toFixed(2)} MB)` : 'No mappings worked: the page would now ask for a file.');
+      source.current = found.ok ? { pak, mappings: found.mappings.bytes } : null;
       setReady(found.ok);
     } catch (e) {
       say(`Failed: ${e instanceof Error ? e.message : String(e)}`);
@@ -133,6 +138,10 @@ export default function ExtractorTest() {
     if (!x) return;
     setExporting(true);
     stop.current = new AbortController();
+    // Phase 6b: this many extractors share the pals (the first one is already running).
+    const extra = Math.max(0, (Number(workers) || 1) - 1);
+    const helpers = extra && source.current ? startHelpers(extra, source.current.pak, source.current.mappings, { timeoutMs: 90_000 }) : null;
+    void helpers?.ready.then((h) => say(`${h.length} of ${extra} extra extractors started`));
     try {
       const storage = await openStorage();
       if (!storage) throw new Error('This browser has no storage for the art.');
@@ -144,15 +153,19 @@ export default function ExtractorTest() {
         foldAliases,
         manifestText,
         signal: stop.current.signal,
+        helpers: helpers?.ready,
         onProgress: setPack,
         onChange: artChanged,
       });
       (window as unknown as { __pack: unknown }).__pack = { info: r.info, failed: r.failed, notes: r.notes, ms: r.ms, storage: storage.kind };
       say(`Pack ${r.info.id} (${storage.kind}): ${r.info.models} models, ${r.info.icons} icons, ${(r.info.bytes / 1e6).toFixed(0)} MB, ${r.failed.length} failed, ${(r.ms / 1000).toFixed(0)} s`);
+      const t = r.timing;
+      say(`Pack timing (s): icons ${(t.icons / 1000).toFixed(0)}, worker ${(t.worker / 1000).toFixed(0)} (mesh ${(t.mesh / 1000).toFixed(0)}, textures ${(t.textures / 1000).toFixed(0)}, animations ${(t.animations / 1000).toFixed(0)}), build ${(t.build / 1000).toFixed(0)}, write ${(t.write / 1000).toFixed(0)}, other ${((r.ms - t.icons - t.worker - t.build - t.write) / 1000).toFixed(0)}`);
       for (const f of r.failed) say(`  ✕ ${f.name}: ${f.error}`);
     } catch (e) {
       say(`Pack stopped: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
+      helpers?.stop();
       setExporting(false);
     }
   }
@@ -193,6 +206,10 @@ export default function ExtractorTest() {
             <label>
               Only these pals (blank for all){' '}
               <input data-testid="only" value={only} onChange={(e) => setOnly(e.target.value)} placeholder="SheepBall, JetDragon" disabled={exporting} />
+            </label>
+            <label>
+              Extractors (for “Extract to pack”){' '}
+              <input data-testid="workers" type="number" min={1} max={8} value={workers} onChange={(e) => setWorkers(e.target.value)} disabled={exporting} style={{ width: '4em' }} />
             </label>
             <label>
               <input type="checkbox" data-testid="models" checked={buildModels} onChange={(e) => setBuildModels(e.target.checked)} disabled={exporting} /> Build models

@@ -91,6 +91,23 @@ describe('extractToPack', () => {
     expect(r.info.models).toBe(3);
   });
 
+  it('with a helper, builds every pal once between them and saves a manifest that matches', async () => {
+    const s = fresh();
+    const x = fakeExtractor();
+    const helper = fakeExtractor();
+    const slowly = async (pal: PalExport) => (await new Promise((r) => setTimeout(r, 1)), build(pal));
+    const r = await extractToPack(x, s, { ...base, build: slowly, helpers: Promise.resolve([helper]) });
+
+    expect([...x.exported, ...helper.exported].sort()).toEqual([...PALS].sort());
+    expect(r.info).toMatchObject({ complete: true, models: 4 });
+    const manifest = JSON.parse(await (await s.read(r.info.id, 'pal-models/index.json'))!.text()) as Record<string, ModelEntry>;
+    for (const pal of PALS) {
+      expect(manifest[pal].file).toBeUndefined();
+      expect(await s.read(r.info.id, `pal-models/${pal}.chibi.glb`)).not.toBeNull();
+    }
+    expect(Object.keys(r.timing).sort()).toEqual(['animations', 'build', 'icons', 'mesh', 'textures', 'worker', 'write']);
+  });
+
   it('replaces an older pack once its icons are in, and deletes the old files when the new pack is complete', async () => {
     const s = fresh();
     const old = await extractToPack(fakeExtractor(), s, base);

@@ -47,6 +47,24 @@ export interface PipelineOptions {
   signal?: AbortSignal;
   /** Called whenever the stored pack changed, so the page re-reads it (artChanged). */
   onChange?: () => void;
+  /** More extractors on the same game file (src/extract/pool.ts): pals are then built several at once. */
+  helpers?: Promise<ReadonlyArray<Pick<Extractor, 'exportPal'>>>;
+}
+
+/** Where a run's time went, in ms (Phase 6b): the numbers that say what is worth speeding up. */
+export interface PipelineTiming {
+  /** Icons: export, WebP and writing. */
+  icons: number;
+  /** Inside the extractors, summed over pals: the three below, plus copying the files out. */
+  worker: number;
+  /** Parts of `worker`: reading and exporting the mesh, decoding textures, exporting animations. */
+  mesh: number;
+  textures: number;
+  animations: number;
+  /** The page's model builder, summed over pals. */
+  build: number;
+  /** Writing models and the manifest into the pack, summed. */
+  write: number;
 }
 
 export interface PipelineResult {
@@ -54,6 +72,7 @@ export interface PipelineResult {
   failed: PipelineProgress['failed'];
   notes: string[];
   ms: number;
+  timing: PipelineTiming;
 }
 
 const MANIFEST = 'pal-models/index.json';
@@ -94,9 +113,12 @@ export async function extractToPack(
     await storage.setCurrent(info);
     opts.onChange?.();
   };
+  const timing: PipelineTiming = { icons: 0, worker: 0, mesh: 0, textures: 0, animations: 0, build: 0, write: 0 };
   const put = async (path: string, blob: Blob) => {
     opts.signal?.throwIfAborted();
+    const t = performance.now();
     await storage.write(id, path, blob);
+    timing.write += performance.now() - t;
     progress.bytes += blob.size;
     written++;
   };
@@ -108,6 +130,7 @@ export async function extractToPack(
     // 1. Icons: the quick silhouettes, so the player sees something within seconds.
     if (!resuming || info.icons === 0) {
       report();
+      const tIcons = performance.now();
       const icons = await x.exportIcons();
       for (const i of icons.icons) {
         await put(i.path, i.blob);
@@ -115,16 +138,31 @@ export async function extractToPack(
       }
       if (icons.failed.length) notes.push(`${icons.failed.length} icons failed: ${icons.failed.map((f) => f.codename).join(', ')}`);
       await publish();
+      timing.icons = performance.now() - tIcons;
+      timing.write = 0; // the icon writes are inside `icons`, not model writes
       report();
     }
 
-    // 2. Models, one pal at a time.
+    // 2. Models: one pal at a time, or one per extractor when there are helpers.
     progress.phase = 'models';
     const { aliases } = await x.listPals();
     let sinceSave = 0;
+    // With helpers two pals can finish together: saves take turns, so the manifest
+    // is never being written twice at once (a sync access handle would refuse).
+    let saving: Promise<void> = Promise.resolve();
+    const checkpoint = () =>
+      (saving = saving
+        .catch(() => undefined) // one failed save is that pal's failure, not every later save's
+        .then(async () => {
+          await saveManifest();
+          const tPublish = performance.now();
+          await publish();
+          timing.write += performance.now() - tPublish;
+        }));
     const run = await extractAll(x, {
       only: opts.only,
       signal: opts.signal,
+      helpers: opts.helpers,
       // Three failures before the first success means the browser can't do it: say so.
       giveUpAfter: 3,
       isDone: (name) => have.has(name),
@@ -137,15 +175,19 @@ export async function extractToPack(
         report();
       },
       onPal: async (pal) => {
+        timing.mesh += pal.ms.mesh;
+        timing.textures += pal.ms.textures;
+        timing.animations += pal.ms.animations;
+        const tBuild = performance.now();
         const built = await opts.build(pal);
+        timing.build += performance.now() - tBuild;
         await put(`pal-models/${pal.name}.chibi.glb`, new Blob([built.glb as BlobPart], { type: 'model/gltf-binary' }));
         manifest[pal.name] = built.entry;
         have.add(pal.name);
         notes.push(...built.notes);
         if (++sinceSave >= SAVE_EVERY) {
           sinceSave = 0;
-          await saveManifest();
-          await publish();
+          await checkpoint();
         }
       },
     });
@@ -164,7 +206,9 @@ export async function extractToPack(
     await publish();
     // The new pack is live and whole: sweep the old one and anything left behind.
     for (const old of await storage.ids()) if (old !== id) await storage.remove(old).catch(() => undefined);
-    return { info, failed: run.failed, notes, ms: Math.round(performance.now() - t0) };
+    timing.worker = run.ms;
+    const rounded = Object.fromEntries(Object.entries(timing).map(([k, v]) => [k, Math.round(v)])) as unknown as PipelineTiming;
+    return { info, failed: run.failed, notes, ms: Math.round(performance.now() - t0), timing: rounded };
   } catch (e) {
     // Keep what was written (it resumes), but make sure the manifest on disk matches it.
     if (have.size) {
