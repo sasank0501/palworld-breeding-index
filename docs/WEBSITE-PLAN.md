@@ -538,6 +538,134 @@ Obsidian).
 Not measured yet: a laptop without a GPU, Firefox and Safari, and NVDA through the flow
 (Phase 7). **Left for Phase 6:** the learning chapter.
 
+### Phase 6b — Faster extraction (added 2026-10-11)
+
+The full run takes about 12 minutes (617 s on the bench, 738 s in the e2e). It is CPU work on one
+core: the .NET extractor is interpreted WebAssembly in one worker, and the page then builds each
+model on its own thread, one pal after the other. The GPU plays no part. Estimates below are
+guesses until stage 1 gives real numbers; each stage happens only if the one before shows it is
+worth it.
+
+1. **Measure** (Sonnet). Per-pal timers: worker export, page build, write. One full run in Edge.
+   Done when the split is written here.
+2. **Decode textures at 512 px, not 1024** (Sonnet). The lite pack keeps 512 px at most, but
+   `exportPal` defaults to `maxEdge = 1024` (`client.ts:70`, `run.ts:67`). Unreal's stored mips are
+   a different filter from our canvas resize, and the old tests compare textures by size only, so
+   extract about 10 pals both ways and compare pixels (PSNR and the largest single-pixel
+   difference; include a masked eye material, an emissive map, a non-square texture). Also check
+   that the decoder picks a stored mip at or below 512. Icons (256 px) and stills are unaffected.
+   Expected saving: about 2 minutes.
+3. **Overlap worker and page** (Sonnet). Export pal N+1 while the page builds pal N. Costs one extra
+   pal's pixels in memory (about 28 MB). Only if stage 1 shows the page side is a real share.
+4. **More extractor workers** (Opus). 2–3 runtimes at once, each about 0.6 GB; start at
+   `min(3, cores − 1)`, and 2 where memory is unknown (Firefox, Safari). The page thread's
+   build step becomes the ceiling, so it may need to move into the workers too. Touches stop,
+   resume, progress, failures, and the 90 s .NET start timeout (per worker).
+5. **AOT compile the hot assemblies** (Opus, experiment). Compile the texture decoder and Oodle
+   ahead of time instead of interpreting them. Costs: a bigger download than today's 14 MB, the
+   `wasm-tools` workload on the dev machine only, slower builds, possible new float rounding. Only
+   if stages 2–4 leave the run slower than wanted.
+6. **Player's own pals first** (Sonnet). Order the run by the imported save's roster so their pals
+   are in 3D within about a minute. Changes the feel, not the total.
+
+**Feasibility study (2026-10-11).** Measured in headless Edge on this machine (Ryzen 7 8845HS, 8
+cores, 15 GB), 42 pals (every 8th by name), the real pak, with the 512 px default patched in by the
+test harness only (no repo change). Extrapolated to 333 pals by 7.9×, so every full-run figure is
+an estimate. Method and data: the old `report-all.json` plus four sample runs.
+
+| Measured | 1024 px (today) | 512 px |
+|---|---|---|
+| Worker only, 42 pals | 69.2 s (mesh 26.4, textures 33.8, animations 6.0) | 44.1 s (mesh 26.0, textures 10.9, animations 5.6) |
+| Handed to the page | 1,269 MB | 394 MB |
+| Whole pipeline, 42 pals (icons 5 s of it) | 85 s | 57 s |
+| Full 333-pal run, measured | 654 s and 617 s (two days) | 576 s and 505 s (same code, same day) |
+
+The 42-pal sample over-promised: it projected about 410 s for 512 px (-33%); full runs gave 505–576 s
+(-12% to -23% against 654 s). Full runs of identical code differ by about 10% (576 s vs 505 s), so
+compare runs only in the same session, and more than once. The sample is lighter than the average pal.
+
+- **Texture time is linear in pixels** (132 ms per megapixel, r² 0.96 over all 333 pals), which is
+  why 512 px cuts textures by 68%. The mesh does not shrink, so **at 512 px the mesh export is 59%
+  of worker time**: the next target, and what AOT would mostly help.
+- **The worker is about 86% of the time, the page about 14%** (build, WebP, writes: 11 s of 80 s at
+  1024; 8 s of 52 s at 512). So stage 3 (overlap) can win at most about 14%, and is only worth
+  doing as a side effect of stage 4.
+- **Parallel runs** (independent Edge processes as a stand-in for workers, 512 px, same 42
+  pals): 2 at once took 27 s against 48 s alone (1.8×); 4 at once took 18 s (2.7×). Per-pal worker
+  time rose 9% and 20%, so the cores, memory bandwidth or the pak's disk cache start to bite. Each
+  runtime holds about 0.4–0.5 GB. The page's 8 s of building is not yet the limit at 4 workers.
+- **Unused work:** 392 of 2,131 texture decodes (18% of decodes, 16% of pixels) are never read by
+  `applyMaterials` (SSS 270, DM 17, BC 7, Noise, Extra and others). 450 decodes (21%) repeat a
+  texture another pal already decoded (variants). Normal maps are 20% of decoded pixels, not a
+  third. At 512 px all of these are worth only about 10 s each, so they come last.
+- **Where a full run's time goes (512 px, timers added to the pipeline, 505 s):** the extractor
+  worker 410 s (81%), the page's model build 56 s (11%), message transfer and queueing 33 s (7%),
+  icons 4 s, writing 2 s. So storage is not a cost, and the worker is where the time is.
+- **Estimates for the full run**, from the above: the worker's 410 s at 1.8× (2 workers) is about
+  230 s, at 2.7× (4 workers) about 150 s, with the page's 56 s of building overlapped; so about 4
+  min with 2 workers and about 3 min with 4 (from the 505 s run). AOT is untested: `wasm-tools` is available
+  (`dotnet workload search`) but not installed; the unknown is the download size when
+  CUE4Parse is compiled, and the speed-up on the mesh stage.
+- **Rejected:** the GPU (the work is decompression and decoding on the CPU), and .NET's threaded
+  WebAssembly runtime (experimental, and needs cross-origin isolation headers).
+
+Open choice for the user: whether the lite models need normal maps (about 20% of the texture
+work and part of the 207 MB pack, at a visual cost).
+
+**Status (2026-10-11):** stage 1 done in the pipeline (`PipelineTiming`, printed by the bench's
+"Pack timing" line); stage 2 done (`TEXTURE_EDGE = 512` in `src/extract/types.ts`; 59 textures
+compared against the old path: same wiring and geometry, median 41.8 dB, worst 34.5 dB, the
+eye-texture outliers being hidden colour under transparent texels). **Stage 4 built and measured**
+(below), which gives stage 3's overlap for free.
+
+**Stage 4 built (2026-10-11): several extractors, one list.** `src/extract/pool.ts`
+(`extractorCount`, `startHelpers`) and a rewritten `src/extract/run.ts`:
+
+- **One shared list.** The first extractor starts at once (icons, then pals); helpers boot, open
+  the pak, check the mappings and list the pals in the background, and take pals as soon as they
+  are ready (about 7 s). The run never waits for a helper, and one that fails or takes over 90 s
+  to start is left out.
+- **Count from the machine:** half the logical processors, capped by `navigator.deviceMemory`
+  (8 GB or more: 3; 4 GB: 2; less: 1) and at 2 where the browser won't say (Firefox, Safari).
+- **A sick extractor retires.** Two exports failing in a row on one extractor while another is
+  working means that extractor (out of memory, say), not the pals: it stops and its pals go back
+  on the list, once each, so a pal that is really broken is still recorded. The page's own
+  failures (the model builder) don't count towards this. The last extractor never retires.
+- **Stop and resume unchanged:** a stop is checked between pals and waits for every extractor,
+  so nothing is written after the run has reported. Manifest saves take turns (two pals can
+  finish together). Pals finish out of order; the manifest is sorted when written, so the pack
+  is the same.
+
+Measured, full 333 pals, Edge on this machine (8 cores, 16 threads), dev bench, same session:
+
+| Extractors | Run | Speed-up | Browser's peak memory |
+|---|---|---|---|
+| 1 | 485 s (8 min 5 s) | 1× | 1.5 GB |
+| 2 | 208 s, 218 s (3 min 28 s, 3 min 38 s) | 2.3× | 2.1 GB |
+| 3 (what this machine gets) | 143 s (2 min 23 s) | 3.4× | 2.5 GB |
+| 4 | 115 s (1 min 55 s) | 4.2× | 3.0 GB |
+
+All runs: 333 models, 0 failures. The packs from 1 and 3 extractors are **byte for byte the
+same** (622 models and icons; the manifest equal apart from its timestamp). Better than the 1.8×
+and 2.7× the stand-in test predicted, because the page's model building now overlaps the
+extraction as well. Each extractor adds about 0.5 GB. **Caveat:** the first run of a session
+with 3 extractors took 223 s (3 min 43 s), not 143 s (the summed worker time was 536 s against 342 s), most
+likely the pak being read cold from disk; a player's first run is always cold, so expect
+something between the two. The cap stays at 3: a fourth saves 28 s for another 0.5 GB.
+
+**The player's flow, end to end** (public build, `vite preview`, fresh Edge profile,
+`scripts/.cache/extract/e2e.mjs`, 3 extractors): landing page → demo save → the notice → the real
+pak → stopped at 25 of 333 → reload → "Finish adding" (25 in) → chosen again → the other 308 pals
+in **183 s (3 min 3 s)**, against 738 s (12 min 18 s) on 2026-10-09 → 288 stills in 396 s (6 min
+36 s) → pack complete (333 models, 288 stills, 289 icons, 214 MB), no page errors. The card stills
+are now the longer wait (396 s headless, 94 s in a normal window in Phase 5; still to measure).
+
+**Where this leaves the run:** 617–654 s before today (10 min 17 s to 10 min 54 s), 143–223 s
+now on this machine (2 min 23 s to 3 min 43 s). Left in this phase: stage 6 (the player's own pals first) and stage 5 (AOT) only if still
+wanted; the mesh export is now about 58% of worker time and is what AOT would address.
+**Done when:** a full run in a normal window is timed against the 617 s baseline, the output is
+checked as in stage 2, and `build.local.test.ts` and the e2e still pass.
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:
@@ -547,7 +675,8 @@ Run against the Phase 0 checklist:
 - `prefers-reduced-motion`: skin backgrounds, the spotlight, auto-playing models.
 - Text equivalents for the models; the animation picker uses `aria-pressed`.
 - Focus moves to the new heading on navigation and goes back to the tile on Back/Esc.
-- Chrome, Edge, Firefox, Safari; a phone for the landing page.
+- Chrome, Edge, Firefox; a phone for the landing page. **Safari is optional for now** (user,
+  2026-10-11): the storage fix is committed, unverified, and verifying it is not a blocker.
 
 **Done when:** every checklist item is closed or written down as a known issue with a reason.
 
@@ -572,7 +701,7 @@ Run against the Phase 0 checklist:
 ## Order and dependencies
 
 ```
-Phase 0 ──► Phase 1 (spike) ──────────────────────────────► Phase 6 ──► Phase 7 ──► Phase 8
+Phase 0 ──► Phase 1 (spike) ──────────────────────────────► Phase 6 ──► 6b ──► Phase 7 ──► Phase 8
        └──► Phase 2 (save) ──► Phase 3 (user data)            ▲
        └──► Phase 4 (art loader) ──► Phase 5 (stills) ────────┘
 ```
