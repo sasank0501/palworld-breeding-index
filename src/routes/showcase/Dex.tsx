@@ -8,6 +8,7 @@ import { hideFromSpotlight, showInSpotlight } from '../../userdata/edit.ts';
 import { readPrefs, writePrefs } from '../../userdata/store.ts';
 import { Chevron, DEX, UNBREEDABLE, SpeciesArt, fmt, nameOf, rankFor } from './shared.tsx';
 import { statusOf, type Ctx } from './ctx.ts';
+import { PairCalc } from './PairCalc.tsx';
 import {
   ELEMENTS,
   ElementChips,
@@ -162,6 +163,7 @@ export function Dex({
               </li>
             </ol>
           </aside>
+          <PairCalc combos={ctx.combos} onSpecies={onSpecies} />
           </>
         ) : (
           <div className="sc-hero-copy sc-in" style={stagger(0)}>
