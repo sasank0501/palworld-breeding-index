@@ -53,7 +53,8 @@ them on your own machine, from a copy of the game you own:
    five animations (Rest, Idle, Walk, Sleep, Petting; the list is `scripts/anim-roles.json`),
    which the species and pal pages let you switch between,
 3. renders a chibi still of each pal with headless Edge or Chrome, and
-4. fetches the game's twelve work-suitability icons and nine element icons.
+4. fetches the game's twelve work-suitability icons and nine element icons (the app no longer shows
+   these: it draws its own, see Credits).
 
 ```bash
 npm run build-portraits                                 # everything (long; resumable)
@@ -208,7 +209,8 @@ sent to Google; their licence text is in `public/font-licenses.txt`.
 Pal extraction uses [CUE4Parse](https://github.com/FabianFG/CUE4Parse) (Apache-2.0). The 3D view
 is [`<model-viewer>`](https://modelviewer.dev) (Apache-2.0), and models are built with
 [glTF-Transform](https://gltf-transform.dev) and [meshoptimizer](https://github.com/zeux/meshoptimizer)
-(both MIT). Work-suitability and element icons are fetched from paldb.cc's mirror of the game's files.
+(both MIT). The work-suitability and element icons are PalDoc's own drawings (`src/design/iconData.ts`), made after the
+game's in what each one shows; no icon file from the game is used or shipped.
 
 ## Disclaimer
 

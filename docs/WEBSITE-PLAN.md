@@ -746,14 +746,40 @@ Run against the Phase 0 checklist:
 
 ### Phase 8 — Ship
 
-1. **Reminder: make our own work and element icons** (replacing the ones from paldb).
+1. **Our own work and element icons. Done 2026-10-13:** nine element marks and twelve work icons drawn as
+   SVG path data (`src/design/iconData.ts`, drawn by `src/design/icons.tsx`), after the game's in what
+   each shows. Elements are the mark alone in the skin's element colour (the owner's pick, "C", from three
+   on the Figma file "paldoc icons"); work icons keep the game's hue per job, darkened on the light skins.
+   No icon file from the game is loaded any more.
 2. Shareable URLs for species and pals (also from the handoff list).
 3. Self-host the fonts. **Done 2026-10-12:** `src/design/fonts.ts` bundles the six typefaces from the
    Fontsource packages (SIL OFL; 17 files, 352 KB, a page fetches about 3); no request leaves the site;
    `public/font-licenses.txt` carries the notices and both footers link to it. Zen Antique ships its Latin
    sets only (the Japanese sets are 4.8 MB), so non-Latin text in Sakurajima falls back to a system serif.
 4. Deploy the public site; deploy the portfolio page separately with its disclaimer.
-5. Link GitHub issues for feedback.
+5. Link GitHub issues for feedback. **Done 2026-10-13:** "Found a problem? Report it on GitHub" in the
+   landing page's footer and the app's.
+
+**Also built 2026-10-13** (the owner's list of that day):
+- **The lineage tree in a frame that zooms and drags** (`src/routes/showcase/tree.tsx`, `src/lib/viewport.ts`,
+  14 tests). Parents are packed against the join, so each pair sits beside the pal it makes and every
+  breeding has its own column (they used to slide to the far left); each join carries its step number. The
+  frame opens fitted; drag, Ctrl + wheel or pinch, the wheel alone once the frame is clicked, arrows and
+  + − 0, and Fit and Full screen buttons. Under 640 px it is a ladder of steps instead. Species pages keep
+  the plain scrolling tree, with the alignment and the numbers.
+- **Pair calculator on the Breeding page** (`BreedingPair.tsx`): three of the page's list cards in a row,
+  two parents with a search box each and the result, which says whether the player can breed it today
+  (`pairStatus` in `src/lib/pair.ts`: ready, wrong sexes, or which parent is missing).
+- **Extraction notice:** elapsed time; a warning that it uses most of the processor, beside the heading;
+  Stop pinned right; a "Speed and memory" choice of how many extractors run, each with its measured time
+  and memory (`EXTRACTOR_FACTS` in `src/extract/pool.ts`), "Let PalDoc decide" the default, kept per browser.
+  The art-pack folder route shows on the dev server only: a player never has such a folder.
+- **Landing page theme switcher**; the first tab is called **Paldex** (the site stays PalDoc); the Planner's
+  Saved plans and Save this plan sit on the result's header line.
+- **Cawgnito's hat:** skinned to `neck_03`, not the head, so the chibi's doubled head swallowed it;
+  `chibi-overrides.json` now scales that bone with the head. A pack extracted before this keeps the old
+  model until the art is made again: **there is no pack version that tells the app a stored pack is stale.**
+- **The served data names no source:** a build plugin drops `source` from `passives.json`.
 
 **Owner's decisions (2026-10-13).** Panthalus stays as the game's rarity puts it (epic). "Upload save" keeps
 its wording. Pocketpair's permission is not sought before shipping: content is removed on notice. The site
