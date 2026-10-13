@@ -23,16 +23,28 @@ export interface MachineHints {
 }
 
 /**
- * How many extractors to run at once: half the logical processors (the page builds
- * the models on its own thread, and the machine should stay usable), capped by
- * memory. Where the browser won't say how much memory there is (Firefox, Safari),
- * two is the most: about a gigabyte.
+ * How many extractors to run at once, in three steps (the owner's rule, 2026-10-12):
+ *
+ *   4  a strong machine: 16 or more logical processors and 8 GB or more of memory
+ *   3  the usual: 8 or more processors and 8 GB or more
+ *   2  weaker: 4 or more processors and 4 GB or more
+ *   1  too small for two (under 4 processors, or 2 GB or less of memory)
+ *
+ * Processors matter because the page builds the models on its own thread and the
+ * machine should stay usable. Browsers cap the memory they report at 8 GB, so a
+ * machine with 16 can't be told from one with 8; a helper that can't start is left
+ * out (startHelpers), so a four that was too ambitious becomes a three, not a failure.
+ * Where the browser won't say how much memory there is (Firefox, Safari), two is the
+ * most: about a gigabyte.
  */
 export function extractorCount(machine: MachineHints = navigator): number {
-  const byProcessors = Math.floor((machine.hardwareConcurrency || 2) / 2);
+  const processors = machine.hardwareConcurrency || 2;
   const memory = machine.deviceMemory;
-  const byMemory = memory === undefined ? 2 : memory >= 8 ? 3 : memory >= 4 ? 2 : 1;
-  return Math.max(1, Math.min(byProcessors, byMemory));
+  if (memory === undefined) return processors >= 4 ? 2 : 1;
+  if (memory >= 8 && processors >= 16) return 4;
+  if (memory >= 8 && processors >= 8) return 3;
+  if (memory >= 4 && processors >= 4) return 2;
+  return 1;
 }
 
 export interface HelperOptions {

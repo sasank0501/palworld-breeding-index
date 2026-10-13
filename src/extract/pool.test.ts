@@ -5,13 +5,18 @@ import { extractorCount, startHelpers } from './pool.ts';
 
 describe('extractorCount', () => {
   it.each([
-    [{ hardwareConcurrency: 16, deviceMemory: 8 }, 3, 'a strong machine: three, the most'],
+    [{ hardwareConcurrency: 32, deviceMemory: 8 }, 4, 'a strong machine: four'],
+    [{ hardwareConcurrency: 16, deviceMemory: 8 }, 4, 'the measured one: 8 cores, 16 threads'],
+    [{ hardwareConcurrency: 12, deviceMemory: 8 }, 3, 'the usual: three'],
     [{ hardwareConcurrency: 8, deviceMemory: 8 }, 3, ''],
-    [{ hardwareConcurrency: 4, deviceMemory: 8 }, 2, 'half the processors'],
+    [{ hardwareConcurrency: 6, deviceMemory: 8 }, 2, 'weaker: two'],
+    [{ hardwareConcurrency: 4, deviceMemory: 8 }, 2, ''],
     [{ hardwareConcurrency: 2, deviceMemory: 8 }, 1, 'two processors: the page needs one'],
-    [{ hardwareConcurrency: 16, deviceMemory: 4 }, 2, 'memory caps it'],
-    [{ hardwareConcurrency: 16, deviceMemory: 2 }, 1, ''],
+    [{ hardwareConcurrency: 32, deviceMemory: 4 }, 2, 'memory caps it at two'],
+    [{ hardwareConcurrency: 16, deviceMemory: 4 }, 2, ''],
+    [{ hardwareConcurrency: 16, deviceMemory: 2 }, 1, 'too little memory for two'],
     [{ hardwareConcurrency: 16 }, 2, 'memory unknown (Firefox, Safari): two at most'],
+    [{ hardwareConcurrency: 4 }, 2, ''],
     [{ hardwareConcurrency: 2 }, 1, ''],
     [{}, 1, 'nothing known: one, as before'],
   ])('%j -> %i %s', (machine, expected, _why) => {
