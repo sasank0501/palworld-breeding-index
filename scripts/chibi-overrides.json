@@ -48,7 +48,10 @@
     "head": 2
   },
   "DarkCrow": {
-    "head": 2
+    "head": 2,
+    "bones": {
+      "neck_03": 2
+    }
   },
   "DarkFlameFox": {
     "head": 2
