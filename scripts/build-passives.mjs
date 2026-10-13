@@ -11,6 +11,11 @@
  *
  * Anything not confidently resolved is emitted with `name: null` so the UI shows
  * the raw id instead of a plausible-looking lie. Run with --report to list them.
+ *
+ * DO NOT RE-RUN THIS TO REFRESH src/data/passives.json. It rebuilds the original 104-id table, with
+ * the 13 op.gg entries untiered; the committed file has been edited since (the 2026-08 audit made
+ * it 108 ids, all tiered) and `node scripts/compare-sources.mjs --apply` has added more (117 on
+ * 2026-10-12). Running this overwrites all of that. Add new passives in compare-sources.mjs.
  */
 import fs from 'node:fs';
 import path from 'node:path';

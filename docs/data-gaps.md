@@ -12,7 +12,7 @@ database. Every "have" below was verified by counting the actual files, not assu
 | `src/data/pals.json` | 289 pals: id, name, power, num, variant, types[], img, work[{job,level}] | complete; 288 have artwork |
 | `src/data/combos.json` | 41,617 parent pairs across all 288 breedable-matrix children | **exhaustive** — see note |
 | `src/data/meta.json` | 25 unbreedable, 1 gender-dependent pairing | complete |
-| `src/data/passives.json` | 108 ids — all named, all tiered, 22 with lock info | complete bar one id, see Tier 3 |
+| `src/data/passives.json` | 118 ids — all named, all tiered, 22 with lock info | complete bar one id, see Tier 3 (10 added 2026-10-12, below) |
 | `public/roster.json` | 1,361 pals; 218 of 289 species owned | live, re-run `npm run import-save` |
 
 **combos.json is a complete matrix, not a table of special cases.** The 288 pals in the
@@ -232,3 +232,33 @@ DataTable extraction on Palworld is still unproven in this repo.
    alongside the existing `extract-data.mjs`
 4. Passive inheritance mechanics — the one item no dump provides
 5. Passive planner (#3)
+
+---
+
+## Cross-check against PalSphere, paldb and palworld.gg (2026-10-12, game 1.0.5)
+
+`npm run compare-sources` fetches each source once (cached in `scripts/.cache/sources/`) and prints
+what disagrees. **The rule: a value of ours changes only when two independent sources agree on a
+different one.** Run on 2026-10-12 it found:
+
+- **Pals (288 in every source): no change.** Names, elements, breeding rank, rarity and partner skill
+  names agree everywhere. Work levels agree with palworld.gg on all 288. PalSphere differs on Medicine
+  for 36 pals and paldb on 9 pals' work levels; each is one source against ours and palworld.gg.
+  Appetite differs for 68 (PalSphere, which has it for only 147 pals) and 85 (paldb) with no two
+  sources agreeing against ours, so it is unchanged. Gumoss (Special) is ours alone.
+- **Active skills: no change.** Ours equals paldb on all 317 skills both list. PalSphere's power and
+  cooldown are the Early Access ones (3 of 294 equal ours) and it still names six skills the game has
+  renamed, so it is not used for skills. paldb lists 63 more, nearly all boss, gym and internal actions.
+  palworld.gg's table is filled in by the browser and was spot-checked (12 of 12 once its boss-version
+  figure for Purifying Light, 1250 against the 250 Hartalis uses, is accounted for).
+- **Passives: 10 added** (PalSphere and paldb both list them): Mentally unstable, Sharing is Caring,
+  Babysitter, Blood Is Fuel, Savior, Hermit Sage, Sanctified Meat Shield, Twin-Edged Holy Blade, World
+  Tree's Bounty, plus Sky Strider (`RideJumpCount_Increase2`, on two boss pals in the demo save; named and described by paldb, its "+2" matching the id). Not added: seven PalSphere-only ranch-drop passives (Berry Picker, Egg Layer…), Tempest
+  Fury (both sources call it unreleased) and . Open: Eternal Flame is tier 3 in
+  ours and rank 4 on paldb; "Demon's Hand" is spelled with a typographic apostrophe by both sites, left
+  straight so a plain apostrophe still finds it in search.
+- **Breeding: no change.** All 184 of PalSphere's 257 special rules that name Paldex pals are in our
+  matrix; the other 73 involve pals that are not in the Paldex.
+- PalCalc's skills table was last regenerated for 1.0 (2026-07-10), before 1.0.1 to 1.0.5, but paldb at
+  1.0.5 agrees with it exactly, so it is current.
+- **Using PalSphere's data requires crediting PalSphere** (non-commercial). README Credits does.
