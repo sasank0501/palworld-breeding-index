@@ -3,7 +3,7 @@
  * The save import, off the page's thread: a 2,000-pal Level.sav takes seconds to
  * parse, and the page must stay responsive (and announce progress) meanwhile.
  *
- *   page -> { type: 'scan', files }    the picked folder's .sav files (File handles)
+ *   page -> { type: 'scan', files }    the picked folder's files (File handles)
  *   worker -> { type: 'worlds', ... }  the worlds found, with names from LevelMeta.sav
  *   page -> { type: 'import', id }     import one of them
  *   worker -> { type: 'progress' } ... { type: 'done', roster } or { type: 'error' }
@@ -13,6 +13,7 @@ import pals from '../data/pals.json';
 import { findWorlds, type FoundWorld, type PickedFile } from './findWorlds.ts';
 import { importWorld, readWorldMeta, type WorldMeta } from './importWorld.ts';
 import { buildSpeciesIndex, type PalDexEntry } from './species.ts';
+import { hasXboxIndex, xboxToSteamLayout } from './xbox.ts';
 import type { Roster } from '../types.ts';
 
 export interface WorldSummary {
@@ -41,7 +42,6 @@ function explain(e: unknown): string {
   if (name === 'NotReadableError' || name === 'NotFoundError')
     return 'A save file changed or disappeared while it was being read. Close Palworld, then try again.';
   const msg = e instanceof Error ? e.message : String(e);
-  if (/CNK|Xbox/i.test(msg)) return 'This looks like an Xbox or Game Pass save, which this importer cannot read yet. Steam saves work.';
   return `The save could not be read: ${msg}`;
 }
 
@@ -49,7 +49,17 @@ onmessage = async (e: MessageEvent<ToWorker>) => {
   const msg = e.data;
   try {
     if (msg.type === 'scan') {
-      const result = findWorlds(msg.files);
+      let result = findWorlds(msg.files);
+      // An Xbox / Game Pass folder has no Level.sav by name: map its containers to the Steam layout first.
+      if (!result.worlds.length && hasXboxIndex(msg.files)) {
+        const layout = await xboxToSteamLayout(
+          msg.files,
+          async (f) => new Uint8Array(await f.arrayBuffer()),
+          (parts) => new File(parts, 'Level.sav'),
+        );
+        const xbox = findWorlds(layout);
+        result = xbox.worlds.length ? { ...xbox, missingGlobal: false } : { ...xbox, hint: 'xbox' };
+      }
       found = new Map(result.worlds.map((w) => [w.id, w]));
       const worlds: WorldSummary[] = [];
       for (const w of result.worlds) {

@@ -4,18 +4,25 @@
  *   u32 rawSize | u32 compressedSize | char[3] magic | u8 compressionType
  *
  * Magic tells you the codec, and it changed under us: `PlZ` is the original zlib
- * era, `PlM` is the Oodle (Kraken) format shipped from Palworld 0.6 onward, and
- * `CNK` is the Xbox chunked container. Saves written by current builds are `PlM`,
- * which is why most zlib-era tooling simply cannot open them.
+ * era, and `PlM` is the Oodle (Kraken) format shipped from Palworld 0.6 onward.
+ * Saves written by current builds are `PlM`, which is why most zlib-era tooling
+ * simply cannot open them.
+ *
+ * Xbox / Game Pass saves put one more 12-byte header in front, with the magic
+ * `CNK`; the real header and the same payload follow it.
  */
 
-export type SaveMagic = 'PlZ' | 'PlM' | 'CNK';
+export type SaveMagic = 'PlZ' | 'PlM';
 
 export interface SaveContainer {
   rawSize: number;
   compressedSize: number;
   magic: SaveMagic;
   compressionType: number;
+  /** True for an Xbox / Game Pass save: a CNK header came first. */
+  chunked: boolean;
+  /** Where the payload starts. */
+  dataOffset: number;
   data: Uint8Array;
 }
 
@@ -23,26 +30,26 @@ const HEADER_BYTES = 12;
 
 export function readContainerHeader(bytes: Uint8Array): Omit<SaveContainer, 'data'> {
   if (bytes.length < HEADER_BYTES) throw new Error('file is too short to be a Palworld save');
+  const magicAt = (at: number) => String.fromCharCode(bytes[at + 8], bytes[at + 9], bytes[at + 10]);
+  const chunked = magicAt(0) === 'CNK';
+  const at = chunked ? HEADER_BYTES : 0;
+  if (bytes.length < at + HEADER_BYTES) throw new Error('file is too short to be a Palworld save');
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const magic = String.fromCharCode(bytes[8], bytes[9], bytes[10]) as SaveMagic;
   return {
-    rawSize: view.getUint32(0, true),
-    compressedSize: view.getUint32(4, true),
-    magic,
-    compressionType: bytes[11],
+    rawSize: view.getUint32(at, true),
+    compressedSize: view.getUint32(at + 4, true),
+    magic: magicAt(at) as SaveMagic,
+    compressionType: bytes[at + 11],
+    chunked,
+    dataOffset: at + HEADER_BYTES,
   };
 }
 
 /** Unwraps a `.sav` file to its decompressed GVAS bytes. */
 export async function decodeSave(bytes: Uint8Array): Promise<SaveContainer> {
   const head = readContainerHeader(bytes);
-  const payload = bytes.subarray(HEADER_BYTES);
+  const payload = bytes.subarray(head.dataOffset);
 
-  if (head.magic === 'CNK') {
-    throw new Error(
-      'Xbox/Game Pass chunked saves (CNK) are not supported — this reader handles the Steam PlZ/PlM formats.',
-    );
-  }
   if (head.magic !== 'PlZ' && head.magic !== 'PlM') {
     throw new Error(`unrecognised save magic ${JSON.stringify(head.magic)}`);
   }

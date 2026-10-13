@@ -30,3 +30,6 @@ export function pickSaveFolder(): Promise<Array<PickedFile<File>> | null> {
 
 /** Where Steam keeps Palworld saves on Windows, to copy into the picker's address bar. */
 export const SAVE_PATH_HINT = '%LOCALAPPDATA%\\Pal\\Saved\\SaveGames';
+
+/** Where the Xbox app and PC Game Pass keep them: the wgs folder inside the game's package. */
+export const XBOX_SAVE_PATH_HINT = '%LOCALAPPDATA%\\Packages\\PocketpairInc.Palworld_ad4psfrxyesvt\\SystemAppData\\wgs';
