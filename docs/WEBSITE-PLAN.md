@@ -51,6 +51,57 @@ After a play session
   └─ "Re-import save" (art is kept; only the roster changes)
 ```
 
+### The landing page (2026-10-12)
+
+The first screen is `src/routes/home/` (`Import.tsx` shows it until a folder is chosen). A full-screen
+hero (the name, one headline, one button: **Upload save**), then a scroll-driven tour of the five pages
+(Spotlight, Paldex, My Pals, Breeding, Planner), then the button again. **There is no demo button**:
+the public build no longer carries `demo-roster.json` (the portfolio build still opens its demo by
+itself). "Upload save" opens a native `<dialog>` with the steps and both save paths (Xbox marked beta);
+choosing a folder hands over to the old import card (looking for worlds, choose a world, reading, errors,
+now with "Back to the start").
+
+The tour: description on the left and the app in a window on the right, both `position: sticky` while the
+page scrolls. Nothing fades; the window's page moves with the scroll position and glides after it
+(`reel.ts` holds the geometry, 14 tests), and each new page rides up over the last. Phones, narrow
+windows and reduced motion get no pinning: the five chapters stacked, one picture each.
+
+The pictures are screenshots of the app on the sample roster with every pal as a silhouette
+(`npm run capture-tour` -> `src/design/tour/`, 1.5x, about 0.7 MB per theme). They are made from game
+art, and **committed on purpose**: the owner's decision (2026-10-12) is that the landing page shows
+silhouettes, an exception to "the public repo ships no game art". Scope of the exception: these 8
+silhouette screenshots only; no colour stills, no 3D models, no icons. A tree without them still builds
+(a plain window). The build message says "no game art except 8 silhouette screenshots for the homepage
+tour". Checked on the built page in Edge: axe clean in all four skins (dialog open and closed), tour
+pinned, Escape and focus return, a real Steam save importing, the error card, no overflow on a phone.
+Not checked by hand: NVDA, Firefox, Safari, a laptop without a GPU (four large screenshots stay decoded).
+
+**Browse the Paldex (2026-10-12): a visit with no save.** A second button beside "Upload save" opens the
+app on an empty roster (`src/lib/browse.ts`, `BrowseContext`; nothing stored, a reload is the landing page
+again). It shows only the Paldex: all 289 species as flat silhouettes, search and element filters, and every
+species page with its **Every parent pair** list, whose parents are links, so a chain can be walked by hand
+(Esc steps back). Hidden in this mode: My Pals, Breeding, the Planner, the spotlight, the Discovered / Within
+reach filter, ranks, "Your collection", the art notice and the art, spotlight and backup settings. Why: the
+owner's rule that a session without a save should be as workable as one with, and **a phone has no Palworld
+save** (saves live on the PC or console the game is played on), so on a touch screen under 640 px Browse is
+the way in and uploading is replaced by "open PalDoc on the computer you play on". The silhouettes are
+`public/silhouettes/*.webp` (`npm run build-silhouettes`, from the chibi stills: 289 files, 256 px, black with
+the shape in the alpha channel, 1.4 MB). **Committed on purpose**, a second use of the 2026-10-12 exception
+(shapes only); `src/lib/browse.test.ts` fails if one is missing, stray, large, or has any colour in it.
+Checked on the built page in Edge: 289 tiles, search, element filter, species page, a parent opening its own
+page, Esc, the settings panel, the way back to upload, a reload, axe clean in all four skins (Paldex and a
+species page), a phone with a touch screen. Not done: phone-width tour screenshots.
+
+**Pair calculator (2026-10-13), on the browse page.** A card under the hero: choose two parents from two
+native `<select>`s (all 289 species by name), see the pal they breed as a chip that opens its species page.
+`src/lib/pair.ts` turns `combos.json` (child -> pairs) round into pair -> child once; the one pair the game
+decides by sex (Katress with Wixen) shows both children with which parent must be female; a pair the data
+doesn't cover (anything with Astralym) says "no breeding data", not "can't breed". 7 tests, one of which
+asks every pair in the matrix for exactly one child. `src/routes/showcase/PairCalc.tsx`. Built as a demo for
+the owner to try: **browse mode only** so far; showing it to a visitor with a save is undecided. Checked on
+the built page in Edge (`scripts/.cache/home-mock/pair.mjs`): the four kinds of answer, the chip opening the
+species page and Esc coming back, a phone width, axe clean in all four skins.
+
 ---
 
 ## Phases
@@ -202,8 +253,14 @@ IndexedDB. axe: clean apart from the accent-button contrast already in `docs/A11
 - **Consequence for Phase 6:** the same block covers Program Files, the default Steam install
   (`C:Program Files (x86)Steam`). Use the classic input for the game folder too, or offer
   `showDirectoryPicker` only when it succeeds and fall back on refusal.
-- Xbox / Game Pass: detected and explained, not read. Possible later phase: an adapter that turns the
-  `wgs` container into the same in-memory files (needs a real Xbox save to build against).
+- Xbox / Game Pass (2026-10-12): read, by choosing the `wgs` folder. `src/save/xbox.ts` reads
+  `containers.index` and each `container.<n>` and maps the containers to the Steam layout
+  (`<worldid>-Players-<uid>` is `<worldid>/Players/<uid>.sav`), so `findWorlds` and the importer are
+  unchanged; `decodeSave` skips the extra 12-byte `CNK` header. Layout from Z1ni's
+  XGP-save-extractor and Palworld Save Pal (read for the format, no code taken: Save Pal is GPLv3).
+  **Not tried on a real Game Pass save**: the tests pack a Steam save into the layout
+  (`xbox.fixture.ts`), and the same world gives the same 1,990 pals either way in Edge. Guessed, so
+  first to check with a real save: a Level stored as `Level-01`, `Level-02` is joined in order.
 
 ### Phase 3 — User data layer
 
@@ -666,6 +723,13 @@ wanted; the mesh export is now about 58% of worker time and is what AOT would ad
 **Done when:** a full run in a normal window is timed against the 617 s baseline, the output is
 checked as in stage 2, and `build.local.test.ts` and the e2e still pass.
 
+**How many extractors (owner's rule, 2026-10-12).** Four on a strong machine (16 or more logical processors
+and 8 GB or more of reported memory), three on the usual one (8 or more processors, 8 GB), two on a weaker one
+(4 or more processors, 4 GB), one on anything too small for two. Where the browser won't report memory
+(Firefox, Safari): two. Browsers cap the memory they report at 8 GB, so a four on a machine that can't take
+it falls back through `startHelpers` (a helper that can't start is left out). `extractorCount` in
+`src/extract/pool.ts`, with 14 cases in its tests.
+
 ### Phase 7 — Accessibility and cross-browser pass
 
 Run against the Phase 0 checklist:
@@ -684,9 +748,17 @@ Run against the Phase 0 checklist:
 
 1. **Reminder: make our own work and element icons** (replacing the ones from paldb).
 2. Shareable URLs for species and pals (also from the handoff list).
-3. Self-host the fonts.
+3. Self-host the fonts. **Done 2026-10-12:** `src/design/fonts.ts` bundles the six typefaces from the
+   Fontsource packages (SIL OFL; 17 files, 352 KB, a page fetches about 3); no request leaves the site;
+   `public/font-licenses.txt` carries the notices and both footers link to it. Zen Antique ships its Latin
+   sets only (the Japanese sets are 4.8 MB), so non-Latin text in Sakurajima falls back to a system serif.
 4. Deploy the public site; deploy the portfolio page separately with its disclaimer.
 5. Link GitHub issues for feedback.
+
+**Owner's decisions (2026-10-13).** Panthalus stays as the game's rarity puts it (epic). "Upload save" keeps
+its wording. Pocketpair's permission is not sought before shipping: content is removed on notice. The site
+itself names no data-source websites (no PalSphere, paldb or palworld.gg credit in the app or its footer);
+the credits stay in the README, which PalSphere's data terms need.
 
 ---
 

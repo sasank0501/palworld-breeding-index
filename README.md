@@ -25,6 +25,7 @@ Four skins, switched from the top bar: **Palpagos** (the game's bright, chunky l
 npm install
 npm run import-save      # reads your Pal Box from your own save (see below)
 npm run build-portraits  # optional: pal art and 3D models, from your own copy of the game
+npm run build-silhouettes # after build-portraits: the outlines the "Browse the Paldex" page ships
 npm run build-extractor  # optional: the in-browser extractor (needs the .NET 10 SDK)
 npm run dev
 ```
@@ -81,11 +82,12 @@ deployed from a private place and is not part of this repository.
 
 ## Importing your save
 
-**In the browser (the usual way).** Open the app, choose **Choose save folder**, and pick
+**In the browser (the usual way).** Open the app, choose **Upload save**, then **Choose save folder**, and pick
 `%LOCALAPPDATA%PalSavedSaveGames`. Every world inside is listed by name; choose one. The
 save is parsed in a Web Worker on your machine and kept in this browser's IndexedDB, so the next
 visit opens straight to the Paldex. Nothing is uploaded. **Open a different save** in the footer
-goes back to the import screen. Steam saves only for now; Xbox / Game Pass saves are not read yet.
+goes back to the import screen. Steam saves, and Xbox / Game Pass saves by choosing the game's `wgs`
+folder (beta: not yet tried on a real Game Pass save).
 
 **From the command line**, for development:
 
@@ -113,7 +115,7 @@ regenerated every time you play, so it does not belong in version control.
 | `src/data/pals.json` | 289 pals — name, power, dex number, types, work suitabilities |
 | `src/data/combos.json` | 41,617 parent pairs — an exhaustive matrix, not special cases |
 | `src/data/meta.json` | 25 unbreedable species, 1 gender-dependent pairing |
-| `src/data/passives.json` | 108 passive skills — names, effects, tiers, species locks |
+| `src/data/passives.json` | 118 passive skills — names, effects, tiers, species locks |
 | `src/data/skills.json` | 320 active skills — name, element, power, cooldown, keyed by the save's internal id |
 
 `combos.json` covers every unordered pair of the 288 breedable-matrix species
@@ -191,6 +193,17 @@ build-pal-extras` takes partner skills from paldb.cc (v1.0.5), food amounts from
 Cargo tables and the pal exp curve from [The Pal Professor](https://thepalprofessor.com/xp-tables/);
 the curve is tested against every pal in an imported save. Portraits are
 mirrored from a third-party host by `npm run fetch-images` and are not redistributed here.
+
+`npm run compare-sources` cross-checks all of this against [PalSphere](https://palsphere.app),
+paldb.cc and [palworld.gg](https://palworld.gg), and changes a value only when two independent
+sources agree it is wrong. **Data from [PalSphere](https://palsphere.app)** (its open data export,
+game 1.0.5, for non-commercial use with attribution to PalSphere) is used to confirm and add passive
+skills: nine were added on 2026-10-12 (Babysitter, Savior, Blood Is Fuel, Mentally unstable, Sharing
+is Caring and the four World Tree implants). Palworld's game data belongs to Pocketpair, Inc.
+
+Typefaces (Nunito, JetBrains Mono, Oxanium, Josefin Sans, Lilita One, Zen Antique; SIL Open Font License) are
+bundled from the [Fontsource](https://fontsource.org) packages by `src/design/fonts.ts`, so no visitor's address is
+sent to Google; their licence text is in `public/font-licenses.txt`.
 
 Pal extraction uses [CUE4Parse](https://github.com/FabianFG/CUE4Parse) (Apache-2.0). The 3D view
 is [`<model-viewer>`](https://modelviewer.dev) (Apache-2.0), and models are built with
