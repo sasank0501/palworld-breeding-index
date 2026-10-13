@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import { PalModel } from '../../design/PalModel.tsx';
 import { ArtPlaceholder } from '../../components/ArtPlaceholder.tsx';
+import { ElementGlyph } from '../../design/icons.tsx';
 import { useBrowse } from '../../lib/browse.ts';
 import { HATCH_AFTER_MS, Portrait } from '../../components/PalCards.tsx';
 import { rarityFor, rarityTier, type RarityTier } from '../../design/palExtras.ts';
@@ -27,47 +28,9 @@ export const DEX_ORDER = Object.values(DEX).sort((a, b) => dexOrder(a.id) - dexO
 
 export const title = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
-/** Fallback 24px glyphs, one per element, for builds without the game's icons (they are not in the repo). */
-const GLYPH: Record<Element, ReactNode> = {
-  fire: <path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z" />,
-  water: <path d="M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.500 6-11 6-11z" />,
-  grass: <path d="M20 4C9 4 4 9 4 16c0 1.500.4 2.800 1 4 1-4 4-8 9-10-4 3-6 6-7 11 7 0 13-4 13-17z" />,
-  electric: <path d="M13 2 5 13h6l-1 9 9-12h-6z" />,
-  ice: <path d="M12 2v20M3.400 7l17.200 10M20.600 7 3.400 17M9 4l3 2 3-2M9 20l3-2 3 2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />,
-  ground: <path d="M2 20 9 7l4 6 3-4 6 11z" />,
-  dark: <path d="M20 14.500A8.500 8.500 0 0 1 9.500 4 8.500 8.500 0 1 0 20 14.500z" />,
-  dragon: <path d="M12 2 4 8l2 6 6 8 6-8 2-6zM9 10l3 4 3-4" />,
-  neutral: <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="3" />,
-};
-
-/**
- * An element's icon: the game's own (public/element-icons/, fetched by
- * `npm run build-portraits`), or a drawn glyph in a build without game art.
- * A missing icon fails once per page load, so the glyph takes over everywhere.
- */
-let gameIcons = true;
+/** An element's icon: PalDoc's own mark (src/design/icons.tsx), in the skin's colour for that element. */
 export function ElementIcon({ element, size = 18 }: { element: Element; size?: number }) {
-  const [failed, setFailed] = useState(!gameIcons);
-  if (!failed) {
-    return (
-      <img
-        className={`sc-eico game e-${element}`}
-        src={`${import.meta.env.BASE_URL}element-icons/${element}.webp`}
-        width={size}
-        height={size}
-        alt=""
-        onError={() => {
-          gameIcons = false;
-          setFailed(true);
-        }}
-      />
-    );
-  }
-  return (
-    <svg className={`sc-eico e-${element}`} width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      {GLYPH[element]}
-    </svg>
-  );
+  return <ElementGlyph element={element} size={size} className={`sc-eico e-${element}`} />;
 }
 
 /** The species' element(s) as glyph chips. */

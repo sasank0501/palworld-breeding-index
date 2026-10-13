@@ -672,6 +672,10 @@
 .sc-elem:not(:has(+ *)):not(:has(:not(svg))) { padding: 2px 5px; }
 
 .sc-eico { color: var(--elem); flex: none; }
+/* Work icons keep the game's hue per job (set inline as --w); the light skins darken it so it
+   holds against a pale panel, the dark skins use it as it is. */
+.sc-wico { --w-main: color-mix(in srgb, var(--w) 78%, #000); flex: none; }
+.sc-shell[data-skin='obsidian'] .sc-wico, .sc-shell[data-skin='feybreak'] .sc-wico { --w-main: var(--w); }
 
 .sc-traits { display: inline-flex; flex-wrap: wrap; gap: 5px; }
 .sc-notrait { font-size: 13px; font-style: italic; color: var(--ink-soft); }

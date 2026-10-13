@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { silhouetteUrl, useBrowse } from '../lib/browse.ts';
 import { artJson, onArtChange, onStillsChange, useArtState, useArtUrl, useArtVersion, useStillsVersion } from '../art/resolve.ts';
 import { ArtPlaceholder } from './ArtPlaceholder.tsx';
+import { WorkGlyph } from '../design/icons.tsx';
 import palsJson from '../data/pals.json';
 import passivesJson from '../data/passives.json';
 import { stripBoss } from '../save/species.ts';
@@ -156,23 +157,9 @@ export function Portrait({ pal }: { pal: RosterPal }) {
   return <ArtImage still={still} icon={dex?.img} element={dex?.types?.[0]} />;
 }
 
-/**
- * A work-suitability icon. The icons are game art fetched locally by
- * `npm run build-portraits` and are not in the repo, so a build without them
- * hides the broken image and keeps the slot, leaving the text label to carry
- * the row.
- */
+/** A work-suitability icon: PalDoc's own drawing (src/design/icons.tsx), so every build has it. */
 export function WorkIcon({ job, className }: { job: string; className?: string }) {
-  return (
-    <img
-      className={className}
-      src={`${import.meta.env.BASE_URL}work-icons/${job}.webp`}
-      alt=""
-      onError={(e) => {
-        e.currentTarget.style.visibility = 'hidden';
-      }}
-    />
-  );
+  return <WorkGlyph job={job} className={className} />;
 }
 
 /** How a pal is named once it may have left the save: "Fluff (Lamball)", or "Lamball". */
