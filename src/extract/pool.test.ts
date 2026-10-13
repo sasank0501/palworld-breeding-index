@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { Extractor } from './client.ts';
-import { extractorCount, startHelpers } from './pool.ts';
+import { EXTRACTOR_FACTS, extractorChoices, extractorCount, extractorsToUse, startHelpers } from './pool.ts';
 
 describe('extractorCount', () => {
   it.each([
@@ -21,6 +21,43 @@ describe('extractorCount', () => {
     [{}, 1, 'nothing known: one, as before'],
   ])('%j -> %i %s', (machine, expected, _why) => {
     expect(extractorCount(machine)).toBe(expected);
+  });
+});
+
+describe("the player's choice of extractors", () => {
+  it.each([
+    [{ hardwareConcurrency: 16, deviceMemory: 8 }, [1, 2, 3, 4], 'half of 16 threads is more than four: four'],
+    [{ hardwareConcurrency: 8, deviceMemory: 8 }, [1, 2, 3, 4], 'half of 8 is four'],
+    [{ hardwareConcurrency: 6, deviceMemory: 8 }, [1, 2, 3], ''],
+    [{ hardwareConcurrency: 4 }, [1, 2], ''],
+    [{ hardwareConcurrency: 2 }, [1], 'two processors: only one to offer'],
+    [{}, [1], ''],
+  ])('%j offers %j %s', (machine, expected, _why) => {
+    expect(extractorChoices(machine)).toEqual(expected);
+  });
+
+  it('always offers the count the rule itself would pick', () => {
+    for (const hardwareConcurrency of [1, 2, 4, 6, 8, 12, 16, 32]) {
+      for (const deviceMemory of [undefined, 2, 4, 8]) {
+        const machine = { hardwareConcurrency, deviceMemory };
+        expect(extractorChoices(machine)).toContain(extractorCount(machine));
+      }
+    }
+  });
+
+  it('uses the pick where the machine offers it, and the rule otherwise', () => {
+    const machine = { hardwareConcurrency: 8, deviceMemory: 8 };
+    expect(extractorsToUse(machine, null)).toBe(3);
+    expect(extractorsToUse(machine, 1)).toBe(1);
+    expect(extractorsToUse(machine, 4)).toBe(4);
+    // A pick carried over from a stronger machine's browser profile is not offered here.
+    expect(extractorsToUse({ hardwareConcurrency: 4, deviceMemory: 8 }, 4)).toBe(2);
+  });
+
+  it('has the measured cost of every count it can offer', () => {
+    for (const n of [1, 2, 3, 4]) expect(EXTRACTOR_FACTS[n].seconds).toBeGreaterThan(0);
+    expect(EXTRACTOR_FACTS[1].seconds).toBeGreaterThan(EXTRACTOR_FACTS[4].seconds);
+    expect(EXTRACTOR_FACTS[1].memoryGb).toBeLessThan(EXTRACTOR_FACTS[4].memoryGb);
   });
 });
 

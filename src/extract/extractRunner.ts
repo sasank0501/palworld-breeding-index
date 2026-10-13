@@ -16,7 +16,7 @@ import { buildSpeciesIndex, type PalDexEntry } from '../save/species.ts';
 import { openStorage } from '../art/storage.ts';
 import { startExtractor, type Extractor } from './client.ts';
 import { extractToPack, type PipelineProgress } from './pipeline.ts';
-import { extractorCount, startHelpers, type Helpers } from './pool.ts';
+import { extractorsToUse, startHelpers, type Helpers } from './pool.ts';
 
 export type ExtractStage =
   | { kind: 'idle' }
@@ -55,6 +55,10 @@ export function palName(codename: string): string | null {
 
 export const isExtracting =(s: ExtractStage): boolean => s.kind === 'starting' || s.kind === 'running' || s.kind === 'needMappings';
 
+/** When the current run began (performance.now()), for the elapsed-time line; 0 when none has. */
+let runStartedAt = 0;
+export const runStartTime = (): number => runStartedAt;
+
 let extractor: Extractor | null = null;
 /** The extra extractors that share the work on machines with the processors and memory for them. */
 let helpers: Helpers | null = null;
@@ -91,7 +95,7 @@ export async function startExtraction(pak: File): Promise<void> {
   abort = new AbortController();
   const signal = abort.signal;
   window.addEventListener('beforeunload', askBeforeLeaving);
-  const t0 = performance.now();
+  const t0 = (runStartedAt = performance.now());
   try {
     set({ kind: 'starting', step: 'Starting the reader (about 40 MB the first time)…' });
     const x = (extractor = startExtractor());
@@ -126,7 +130,7 @@ export async function startExtraction(pak: File): Promise<void> {
 
     // The reader runs on one thread: more of them share the pals. They start in the
     // background and join the run when ready; one that can't start is left out.
-    const extra = extractorCount() - 1;
+    const extra = extractorsToUse() - 1;
     if (mappings && extra > 0) helpers = startHelpers(extra, pak, mappings, { timeoutMs: BOOT_TIMEOUT });
 
     const storage = await openStorage();

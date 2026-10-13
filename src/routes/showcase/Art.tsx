@@ -9,12 +9,15 @@ import {
   giveMappingsFile,
   isExtracting,
   palName,
+  runStartTime,
   startExtraction,
   stopExtraction,
   useExtractStage,
   type ExtractStage,
 } from '../../extract/extractRunner.ts';
 import { checkPak, pickPak } from '../../extract/pickPak.ts';
+import { EXTRACTOR_FACTS, chooseExtractors, chosenExtractors, extractorChoices, extractorCount, extractorsToUse } from '../../extract/pool.ts';
+import { formatDuration } from '../../lib/duration.ts';
 
 /**
  * The game art, from the player's side: the notice that asks for it while there
@@ -94,12 +97,95 @@ function milestone(s: Extract<ExtractStage, { kind: 'running' }>): string {
   return `${tenth * 10}% of the pals are in.`;
 }
 
+/**
+ * Time since the run began, ticking every second. Plain text, not a live region: a screen reader
+ * would otherwise announce every tick.
+ */
+function Elapsed() {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => tick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return <span>{formatDuration((performance.now() - runStartTime()) / 1000)} elapsed</span>;
+}
+
+/** What a run costs the computer, said before it starts and while it runs. */
+const CPU_WARNING =
+  'This uses most of your computer’s processor for a few minutes (about 2 to 4 minutes on a recent computer; a slower one can take 10 or more). Other programs and this page may feel slow, and a laptop’s fans may spin up. Plug a laptop in, and close heavy programs first.';
+
+/**
+ * Loading the art from a folder (`npm run make-art-pack`) is a developer's route: a player has no
+ * such folder, since an extraction goes into the browser's storage, not onto the disk. So it is
+ * offered on the dev server only, and a built site shows the game file alone.
+ */
+const PACK_FOLDER = import.meta.env.DEV;
+
+/**
+ * How hard the run works: how many readers go at once. More is faster and takes more memory and
+ * processor; the figures beside each are from one 8-core test computer, so they are a guide.
+ * "Let PalDoc decide" is the rule in src/extract/pool.ts, and stays the default.
+ */
+function ExtractorChoice() {
+  const choices = extractorChoices();
+  const auto = extractorCount();
+  const [picked, setPicked] = useState<number | null>(() => (chosenExtractors() !== null ? extractorsToUse() : null));
+  const pick = (n: number | null) => {
+    chooseExtractors(n);
+    setPicked(n);
+  };
+  if (choices.length < 2) return null;
+  const memoryKnown = (navigator as { deviceMemory?: number }).deviceMemory !== undefined;
+  return (
+    <details className="sc-artalt sc-artchoice">
+      <summary>
+        Speed and memory: {picked === null ? `PalDoc decides (${auto} at once)` : `${picked} at once`}
+      </summary>
+      <fieldset>
+        <legend>How many readers run at once</legend>
+        <label className={picked === null ? 'on' : ''}>
+          <input type="radio" name="sc-extractors" checked={picked === null} onChange={() => pick(null)} />
+          <span>
+            <b>Let PalDoc decide</b>
+            <small>
+              It picks {auto} for this computer, from its processor
+              {memoryKnown ? ' and memory.' : '. This browser doesn’t say how much memory there is, so it stays at two or fewer.'}
+            </small>
+          </span>
+        </label>
+        {choices.map((n) => {
+          const f = EXTRACTOR_FACTS[n];
+          return (
+            <label key={n} className={picked === n ? 'on' : ''}>
+              <input type="radio" name="sc-extractors" checked={picked === n} onChange={() => pick(n)} />
+              <span>
+                <b>
+                  {n} at once · about {formatDuration(f.seconds)} · about {f.memoryGb.toFixed(1)} GB of memory
+                </b>
+                <small>{f.tradeoff}</small>
+              </span>
+            </label>
+          );
+        })}
+      </fieldset>
+      <p className="sc-sethint">
+        Times and memory were measured on one 8-core computer, so treat them as a guide: yours may be faster or slower, and a first
+        run is slower than a repeat. If the computer runs short of memory, a reader that can’t start is left out and the run carries
+        on with fewer.
+      </p>
+    </details>
+  );
+}
+
 /** The run itself: its steps, its progress, and the way to stop it. */
 function ExtractProgress({ stage }: { stage: ExtractStage }) {
   if (stage.kind === 'starting') {
     return (
       <div className="sc-artprog">
-        <span role="status">{stage.step}</span>
+        <div className="sc-artprog-line">
+          <span role="status">{stage.step}</span>
+          <Elapsed />
+        </div>
         <button type="button" className="sc-btn ghost" onClick={stopExtraction}>
           Stop
         </button>
@@ -111,11 +197,14 @@ function ExtractProgress({ stage }: { stage: ExtractStage }) {
   return (
     <div className="sc-artprog">
       <progress max={p.total || 1} value={p.phase === 'icons' ? 0 : p.done} aria-label="Adding the game art" />
-      <span>
-        {p.phase === 'icons'
-          ? `Icons: ${p.icons} so far`
-          : `${p.done} of ${p.total} pals${p.current && palName(p.current) ? ` · ${palName(p.current)}` : ''} · ${palsLeft(stage)}${p.failed.length ? ` · ${p.failed.length} couldn’t be read` : ''}`}
-      </span>
+      <div className="sc-artprog-line">
+        <span>
+          {p.phase === 'icons'
+            ? `Icons: ${p.icons} so far`
+            : `${p.done} of ${p.total} pals${p.current && palName(p.current) ? ` · ${palName(p.current)}` : ''} · ${palsLeft(stage)}${p.failed.length ? ` · ${p.failed.length} couldn’t be read` : ''}`}
+        </span>
+        <Elapsed />
+      </div>
       <span className="sr-only" aria-live="polite">
         {milestone(stage)}
       </span>
@@ -284,6 +373,18 @@ export function ArtNotice() {
                 : 'Your pals appear in 3D, made from your own copy of Palworld: choose the game’s file, Pal-Windows.pak. It’s read here in your browser, only the parts with pal art; nothing is uploaded or changed.'}
           </p>
         </div>
+        {/* One place for what a run costs, beside the heading, so nothing below shifts when it changes. */}
+        {stage.kind !== 'loading' && run.kind !== 'needMappings' && (
+          <p className="sc-sethint sc-artcpu">
+            {running ? (
+              'Using most of your processor: the computer may feel slow until this finishes.'
+            ) : (
+              <>
+                <b>Before you start:</b> {CPU_WARNING}
+              </>
+            )}
+          </p>
+        )}
         {stage.kind === 'loading' ? (
           <Progress stage={stage} />
         ) : running ? (
@@ -302,7 +403,7 @@ export function ArtNotice() {
             {run.kind === 'done' && run.failed.length > 0 && (
               <p className="sc-arterr" role="alert">
                 {run.failed.length} {run.failed.length === 1 ? 'pal' : 'pals'} couldn’t be read: {run.failed.map((f) => f.name).join(', ')}. The
-                rest are in.{' '}
+                rest are in (the run took {formatDuration(run.seconds)}).{' '}
                 <button type="button" className="sc-btn ghost" onClick={dismissExtraction}>
                   OK
                 </button>
@@ -314,13 +415,16 @@ export function ArtNotice() {
               </p>
             )}
             <GameFilePicker intro={false} onPak={(pak) => void startExtraction(pak)} />
-            <details className="sc-artalt">
-              <summary>Already have an art pack folder?</summary>
-              <button type="button" className="sc-btn" onClick={() => void loadArtFolder()} disabled={stage.kind === 'picking'}>
-                Choose the art folder
-              </button>
-              <Where />
-            </details>
+            <ExtractorChoice />
+            {PACK_FOLDER && (
+              <details className="sc-artalt">
+                <summary>Developers: load an art pack folder</summary>
+                <button type="button" className="sc-btn" onClick={() => void loadArtFolder()} disabled={stage.kind === 'picking'}>
+                  Choose the art folder
+                </button>
+                <Where />
+              </details>
+            )}
           </>
         )}
         {stage.kind === 'error' && (
@@ -373,7 +477,7 @@ export function ArtSettings() {
         {stage.kind === 'done'
           ? `Added: ${stage.info.models} 3D models.`
           : run.kind === 'done'
-            ? `Made from your game: ${run.models} 3D models in ${Math.max(1, Math.round(run.seconds / 60))} min.`
+            ? `Made from your game: ${run.models} 3D models in ${formatDuration(run.seconds)}.`
             : status}
       </p>
       {stage.kind === 'loading' ? (
@@ -385,9 +489,11 @@ export function ArtSettings() {
           <button type="button" className="sc-setitem" onClick={() => void fromGame()}>
             {art?.kind === 'local' ? 'Make the art again from your game…' : 'Add the art from your game…'}
           </button>
-          <button type="button" className="sc-setitem" onClick={() => void loadArtFolder()} disabled={stage.kind === 'picking'}>
-            {art?.kind === 'local' ? 'Replace it with an art pack folder…' : 'Add an art pack folder…'}
-          </button>
+          {PACK_FOLDER && (
+            <button type="button" className="sc-setitem" onClick={() => void loadArtFolder()} disabled={stage.kind === 'picking'}>
+              {art?.kind === 'local' ? 'Replace it with an art pack folder…' : 'Add an art pack folder…'}
+            </button>
+          )}
         </>
       )}
       {pakProblem && (

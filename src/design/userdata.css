@@ -98,13 +98,17 @@
 .sc-note-edit { padding: 7px 14px; font-size: 14px; }
 
 /* Saved plans: the Planner's bar and menu, and the full page (src/routes/showcase/SavedPlans.tsx). */
-.sc-planbar { position: relative; z-index: 20; /* above the cards below, so the menu opens over them */ display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 auto 18px; width: min(1200px, 100%); box-sizing: border-box; padding: 0 16px; }
+/* Saved plans and Save this plan. They sit in the planner's result column: on the result's header
+   line, at its right end, or alone at the column's top right while there is no result. */
+.sc-planbar { position: relative; z-index: 20; /* above the cards below, so the menu opens over them */ display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 0 18px; }
+.sc-rhead .sc-planbar { flex: none; flex-wrap: nowrap; margin: 0 0 0 auto; }
+.sc-rhead > div:not(.sc-planbar) { min-width: 0; }
 .sc-planmenu { position: relative; }
 .sc-planlist {
   position: absolute;
   z-index: 30;
   top: calc(100% + 8px);
-  left: 0;
+  right: 0; /* the bar is right-aligned, so the menu opens leftwards and stays on screen */
   width: min(340px, calc(100vw - 32px));
   box-sizing: border-box;
   padding: 8px;
@@ -190,9 +194,16 @@
 .sc-artnotice { align-items: flex-start; }
 .sc-artnotice > div:first-child { flex: 1 1 320px; }
 .sc-artnotice h2 { margin: 0 0 4px; font: var(--d-weight) 20px/1.2 var(--font-display); letter-spacing: var(--d-track); }
-.sc-artprog { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; width: 100%; }
-.sc-artprog progress { flex: 1 1 200px; height: 10px; accent-color: var(--accent-strong); }
+/* The bar and its words take the left column and Stop keeps the right one, so the button stays put
+   while the words beside it change length every second. */
+.sc-artprog { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 18px; width: 100%; }
+.sc-artprog progress { grid-column: 1; width: 100%; height: 10px; accent-color: var(--accent-strong); }
+.sc-artprog-line { grid-column: 1; display: flex; flex-wrap: wrap; gap: 2px 16px; font-variant-numeric: tabular-nums; }
 .sc-artprog span { font: 600 13px var(--font-mono); color: var(--ink-soft); }
+.sc-artprog > span { grid-column: 1; }
+.sc-artprog > .sc-btn { grid-column: 2; grid-row: 1 / span 2; }
+.sc-missing-notice .sc-artcpu { margin: 0; flex: 1 1 320px; }
+.sc-artcpu b { color: var(--ink); }
 .sc-arterr { flex-basis: 100%; margin: 4px 0 0; color: var(--r-neg-text); font-weight: 700; }
 .sc-artwhere { flex-basis: 100%; display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--hair); }
 .sc-artwhere p { margin: 0; }
@@ -204,6 +215,16 @@
 .sc-artalt[open] > summary { margin-bottom: 10px; }
 .sc-artalt .sc-artwhere { border-top: 0; }
 .sc-artfull { flex-basis: 100%; margin: 0; }
+/* How many readers at once: one row per choice, with what it costs. */
+.sc-artchoice fieldset { margin: 0 0 8px; padding: 0; border: 0; display: grid; gap: 6px; }
+.sc-artchoice legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.sc-artchoice label { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; box-sizing: border-box; padding: 8px 12px; border: 2px solid var(--hair); border-radius: var(--radius-s); cursor: pointer; }
+.sc-artchoice label.on { border-color: var(--ink); }
+.sc-artchoice label:focus-within { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+.sc-artchoice input { flex: none; width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--accent-strong); }
+.sc-artchoice span { display: grid; gap: 2px; }
+.sc-artchoice b { font-weight: 800; font-size: 14px; }
+.sc-artchoice small { font-size: 13px; line-height: 1.4; color: var(--ink-soft); }
 .sc-artcmd label.sc-btn { cursor: pointer; }
 .sc-artcmd label.sc-btn:focus-within { outline: 3px solid currentColor; outline-offset: 2px; }
 .sc-artnotice > .gfp { flex-basis: 100%; max-width: none; }
