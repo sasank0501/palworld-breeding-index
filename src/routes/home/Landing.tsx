@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { Skin } from '../showcase/skins.ts';
+import { SKINS, type Skin } from '../showcase/skins.ts';
 import { PalEgg } from '../showcase/parts.tsx';
 import { Tour } from './Tour.tsx';
 import { UploadDialog } from './UploadDialog.tsx';
@@ -30,7 +30,7 @@ function usePhone(): boolean {
   return phone;
 }
 
-export function Landing({ skin, onChoose, onBrowse }: { skin: Skin; onChoose: () => void; onBrowse: () => void }) {
+export function Landing({ skin, onSkin, onChoose, onBrowse }: { skin: Skin; onSkin: (s: Skin) => void; onChoose: () => void; onBrowse: () => void }) {
   const [asking, setAsking] = useState(false);
   const open = () => setAsking(true);
   const dark = skin === 'obsidian' || skin === 'feybreak';
@@ -64,6 +64,7 @@ export function Landing({ skin, onChoose, onBrowse }: { skin: Skin; onChoose: ()
               <PalEgg size={36} />
               PalDoc
             </span>
+            <ThemePicker skin={skin} onSkin={onSkin} />
           </header>
           <div className="home-hero-body">
             <p className="home-mono">For Palworld 1.0 · Steam, Xbox in beta</p>
@@ -103,11 +104,33 @@ export function Landing({ skin, onChoose, onBrowse }: { skin: Skin; onChoose: ()
       <footer className="home-foot">
         Unofficial fan project. Palworld and its characters, names and artwork are © Pocketpair, Inc.; not affiliated with or endorsed
         by Pocketpair. Typefaces are served from this site under the{' '}
-        <a href={`${import.meta.env.BASE_URL}font-licenses.txt`}>SIL Open Font License</a>.
+        <a href={`${import.meta.env.BASE_URL}font-licenses.txt`}>SIL Open Font License</a>. Found a problem?{' '}
+        <a href="https://github.com/sasank0501/palworld-breeding-index/issues">Report it on GitHub</a>.
       </footer>
 
       <UploadDialog open={asking} onClose={() => setAsking(false)} onChoose={onChoose} />
     </div>
+  );
+}
+
+/**
+ * The four themes, on the first screen: until one is picked the page follows the system's light or
+ * dark setting, and a pick sticks (the same stored choice as the settings panel inside the app).
+ * Radios in a group, so the arrow keys move between them; names show beside the swatches on wide
+ * screens and are spoken always.
+ */
+function ThemePicker({ skin, onSkin }: { skin: Skin; onSkin: (s: Skin) => void }) {
+  return (
+    <fieldset className="home-themes">
+      <legend className="sr-only">Theme</legend>
+      {SKINS.map((s) => (
+        <label key={s.id} className={skin === s.id ? 'on' : ''} title={s.blurb}>
+          <input type="radio" name="home-theme" value={s.id} checked={skin === s.id} onChange={() => onSkin(s.id)} />
+          <span className="sw" aria-hidden="true" style={{ '--a': s.swatch[0], '--b': s.swatch[1], '--c': s.swatch[2] } as React.CSSProperties} />
+          <span className="nm">{s.name}</span>
+        </label>
+      ))}
+    </fieldset>
   );
 }
 

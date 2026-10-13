@@ -33,7 +33,7 @@ import '../design/showcase-views.css';
  */
 type Section = 'dex' | 'box' | 'breeding' | 'planner';
 const SECTIONS: Array<[Section, string]> = [
-  ['dex', 'PalDoc'],
+  ['dex', 'Paldex'],
   ['box', 'My Pals'],
   ['breeding', 'Breeding'],
   ['planner', 'Planner'],
@@ -195,7 +195,9 @@ export default function Showcase({
         <i />
       </div>
 
-      <div className="sc-page" ref={page}>
+      {/* tabIndex -1: Firefox makes a scrolling box a Tab stop, and this one is the whole page.
+          The keyboard still scrolls it from whatever inside it has focus. */}
+      <div className="sc-page" ref={page} tabIndex={-1}>
         {/* Skips the top bar. It moves focus itself: the URL's hash belongs to the app (#chibi). */}
         <a
           className="sc-skip"

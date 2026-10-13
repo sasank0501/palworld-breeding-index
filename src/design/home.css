@@ -23,7 +23,18 @@
 
 /* ---- hero: the whole first screen ---- */
 .home-hero { min-height: 100vh; min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto; }
-.home-bar { padding: 22px clamp(16px, 2.4vw, 40px); }
+.home-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding: 22px clamp(16px, 2.4vw, 40px); }
+.home-themes { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; border: 0; }
+.home-themes label { display: flex; align-items: center; gap: 8px; min-height: 44px; min-width: 44px; box-sizing: border-box; padding: 6px 12px 6px 8px; border: 2px solid var(--hair); border-radius: 999px; background: var(--panel); color: var(--ink); font-weight: 800; font-size: 14px; cursor: pointer; }
+.home-themes label.on { border: 3px solid var(--ink); padding: 5px 11px 5px 7px; }
+.home-themes label:focus-within { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+.home-themes input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.home-themes .sw { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--ink); background: conic-gradient(from 200deg, var(--c) 0 34%, var(--b) 34% 66%, var(--a) 66%); }
+@media (max-width: 640px) {
+  .home-themes label { padding: 6px; justify-content: center; }
+  .home-themes label.on { padding: 5px; }
+  .home-themes .nm { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
 .home-brand { display: inline-flex; align-items: center; gap: 12px; font: var(--d-weight) 30px/1 var(--font-display); letter-spacing: var(--d-track); color: var(--ink); }
 .home-hero-body { display: grid; align-content: center; justify-items: center; gap: clamp(16px, 2.4vh, 28px); padding: 16px 20px 24px; text-align: center; }
 .home h1 {

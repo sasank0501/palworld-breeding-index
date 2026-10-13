@@ -131,6 +131,15 @@ export default function App() {
         SIL Open Font License
       </a>
       .
+      {import.meta.env.MODE !== 'resume' && (
+        <>
+          {' Found a problem? '}
+          <a className="legal-link" href="https://github.com/sasank0501/palworld-breeding-index/issues">
+            Report it on GitHub
+          </a>
+          .
+        </>
+      )}
       {/* Only the portfolio build ships game art (vite.config.ts), so only it says where the art came from. */}
       {import.meta.env.MODE === 'resume' && (
         <>

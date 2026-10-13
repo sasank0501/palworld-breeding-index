@@ -50,7 +50,7 @@ export default function Import({
   /** Open the Paldex with no save (lib/browse.ts). */
   onBrowse: () => void;
 }) {
-  const [skin] = useSkin();
+  const [skin, setSkin] = useSkin();
   const [stage, setStage] = useState<Stage>({ kind: 'intro' });
   const worker = useRef<Worker | null>(null);
   const focusTarget = useRef<HTMLHeadingElement>(null);
@@ -99,7 +99,7 @@ export default function Import({
     send({ type: 'scan', files });
   };
 
-  if (stage.kind === 'intro') return <Landing skin={skin} onChoose={choose} onBrowse={onBrowse} />;
+  if (stage.kind === 'intro') return <Landing skin={skin} onSkin={setSkin} onChoose={choose} onBrowse={onBrowse} />;
 
   return (
     <div className="sc-shell imp-shell" data-skin={skin}>
