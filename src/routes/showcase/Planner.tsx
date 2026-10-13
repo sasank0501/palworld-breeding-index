@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { Portrait, displayName, ivTotal } from '../../components/PalCards.tsx';
 import { PRESETS, RANK_ORDER, rankSort } from '../../lib/passiveCategories.ts';
@@ -178,6 +178,71 @@ export function Planner({
 
   const tdex = target ? DEX[target] : undefined;
 
+  // Saved plans and Save this plan: on the result's own header line ("N generations to …"), at its
+  // right end; with no result yet, at the top right of the same column.
+  const planBar = (
+    <div className="sc-planbar sc-in" style={stagger(3)}>
+      <div
+        className="sc-planmenu"
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && plansOpen) {
+            e.stopPropagation();
+            closePlans();
+          }
+        }}
+      >
+        <button
+          ref={plansBtn}
+          type="button"
+          className="sc-btn ghost"
+          aria-expanded={plansOpen}
+          aria-controls="sc-planlist"
+          disabled={!ctx.user.data}
+          onClick={() => setPlansOpen(!plansOpen)}
+        >
+          Saved plans ({saved.length}) <span aria-hidden="true">▾</span>
+        </button>
+        <div ref={plansBox} id="sc-planlist" className="sc-planlist" hidden={!plansOpen}>
+          {saved.length === 0 ? (
+            <p className="sc-planlist-empty">Nothing saved yet. Pick a species and passives, then Save this plan.</p>
+          ) : (
+            <>
+              <p className="sc-planlist-h">Recent</p>
+              <ul>
+                {saved.slice(0, 5).map((s) => (
+                  <li key={s.id}>
+                    <button type="button" onClick={() => loadPlan(s)}>
+                      <b>{nameOf(s.species)}</b>
+                      <span>{planLabel(s)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {onAllPlans && (
+                <button
+                  type="button"
+                  className="sc-planlist-all"
+                  onClick={() => {
+                    setPlansOpen(false);
+                    onAllPlans();
+                  }}
+                >
+                  See all {saved.length} plans →
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+      <button type="button" className="sc-btn" disabled={!ctx.user.data || !target || !picked.length || !!savedNow} onClick={saveCurrent}>
+        {savedNow ? 'Saved ✓' : 'Save this plan'}
+      </button>
+      <span className="sr-only" aria-live="polite">
+        {planSaid}
+      </span>
+    </div>
+  );
+
   return (
     <>
       <header className="sc-phero">
@@ -192,67 +257,6 @@ export function Planner({
           Inheritance is still random at every step, so expect to re-roll some eggs.
         </p>
       </header>
-
-      <div className="sc-planbar sc-in" style={stagger(3)}>
-        <div
-          className="sc-planmenu"
-          onKeyDown={(e) => {
-            if (e.key === 'Escape' && plansOpen) {
-              e.stopPropagation();
-              closePlans();
-            }
-          }}
-        >
-          <button
-            ref={plansBtn}
-            type="button"
-            className="sc-btn ghost"
-            aria-expanded={plansOpen}
-            aria-controls="sc-planlist"
-            disabled={!ctx.user.data}
-            onClick={() => setPlansOpen(!plansOpen)}
-          >
-            Saved plans ({saved.length}) <span aria-hidden="true">▾</span>
-          </button>
-          <div ref={plansBox} id="sc-planlist" className="sc-planlist" hidden={!plansOpen}>
-            {saved.length === 0 ? (
-              <p className="sc-planlist-empty">Nothing saved yet. Pick a species and passives, then Save this plan.</p>
-            ) : (
-              <>
-                <p className="sc-planlist-h">Recent</p>
-                <ul>
-                  {saved.slice(0, 5).map((s) => (
-                    <li key={s.id}>
-                      <button type="button" onClick={() => loadPlan(s)}>
-                        <b>{nameOf(s.species)}</b>
-                        <span>{planLabel(s)}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                {onAllPlans && (
-                  <button
-                    type="button"
-                    className="sc-planlist-all"
-                    onClick={() => {
-                      setPlansOpen(false);
-                      onAllPlans();
-                    }}
-                  >
-                    See all {saved.length} plans →
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-        <button type="button" className="sc-btn" disabled={!ctx.user.data || !target || !picked.length || !!savedNow} onClick={saveCurrent}>
-          {savedNow ? 'Saved ✓' : 'Save this plan'}
-        </button>
-        <span className="sr-only" aria-live="polite">
-          {planSaid}
-        </span>
-      </div>
 
       <div className="sc-plan">
         <div className="sc-plan-setup">
@@ -342,7 +346,10 @@ export function Planner({
               )}
             </div>
 
-            <div className="sc-picker">
+            {/* A scrolling box: Firefox would make it a Tab stop, and with no name NVDA then reads all
+                130 passives in it as one announcement (heard in the 2026-10-13 pass). Named, and out
+                of the Tab order: its buttons are the stops. */}
+            <div className="sc-picker" role="group" aria-label="Passives to choose from" tabIndex={-1}>
               {groups.map((g) => (
                 <div key={g.key}>
                   <h3>{RANK_NAMES[g.key]}</h3>
@@ -410,6 +417,7 @@ export function Planner({
         </div>
 
         <div className="sc-plan-result">
+          {!result?.ok && planBar}
           {!result && !solving && (
             <div className="sc-blank sc-in" style={stagger(4)}>
               <PalEgg size={84} />
@@ -452,6 +460,7 @@ export function Planner({
               byInstance={byInstance}
               onSpecies={onSpecies}
               onPal={onPal}
+              actions={planBar}
             />
           )}
         </div>
@@ -468,7 +477,10 @@ function Lineage({
   byInstance,
   onSpecies,
   onPal,
+  actions,
 }: {
+  /** The save buttons, shown at the right end of the header line. */
+  actions: ReactNode;
   plan: { root: PlanNode; steps: number; contamination: number };
   target: string;
   picked: string[];
@@ -525,11 +537,14 @@ function Lineage({
   if (steps.length === 0 && plan.root.kind === 'seed') {
     const s = plan.root;
     return (
-      <div className="sc-blank good">
+      <>
+        {actions}
+        <div className="sc-blank good">
         <p>
           No breeding needed. A {nameOf(s.species)} in your {LOCATION[s.pal.location ?? 'unknown']} already has them.
         </p>
-      </div>
+        </div>
+      </>
     );
   }
 
@@ -547,6 +562,7 @@ function Lineage({
               : `${plan.contamination} unwanted passive${plan.contamination === 1 ? '' : 's'} in the pools`}
           </span>
         </div>
+        {actions}
       </header>
 
       {scarce.length > 0 && (
@@ -566,9 +582,10 @@ function Lineage({
 
       <section className="sc-card sc-in" style={stagger(2)}>
         <h2 className="sc-h3">Lineage tree</h2>
-        <Tree root={tree} />
+        <Tree root={tree} sandbox />
         <p className="sc-legend">
-          <i className="own" /> a pal you own <i className="make" /> bred in this plan, carrying the passives shown
+          <i className="own" /> a pal you own <i className="make" /> bred in this plan, carrying the passives shown. Numbers are the order to
+          breed in.
         </p>
       </section>
 

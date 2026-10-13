@@ -161,7 +161,7 @@
 
 .sc-work { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .sc-work li { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 10px; font-weight: 700; }
-.sc-work img { width: 24px; height: 24px; object-fit: contain; }
+.sc-work svg { width: 24px; height: 24px; }
 .sc-work sup { margin-left: 3px; color: var(--accent-2); font-size: 11px; }
 .sc-work i { display: inline-flex; gap: 3px; }
 .sc-work i b { width: 5px; height: 16px; background: var(--hair); border-radius: 2px; transform: skewX(-10deg); }
@@ -200,7 +200,10 @@
 
 .sc-tree-scroll { overflow-x: auto; padding: 6px 4px 14px; }
 .sc-tree { --tline: color-mix(in srgb, var(--accent) 60%, transparent); display: flex; align-items: center; width: max-content; }
-.sc-tree-kids { display: flex; flex-direction: column; padding-right: 36px; }
+/* Parents are packed to the right, against the join: each pair sits beside the pal it makes, so
+   with cards of one width every breeding has a column of its own. (Left-packed, a pal you own
+   slid to the far left whatever step it was for.) */
+.sc-tree-kids { display: flex; flex-direction: column; align-items: flex-end; padding-right: 36px; }
 .sc-tree-kid { position: relative; padding: 7px 0; }
 .sc-tree-kid::after { content: ''; position: absolute; left: 100%; top: 50%; width: 18px; border-top: 2px solid var(--tline); }
 .sc-tree-kid::before { content: ''; position: absolute; left: calc(100% + 16px); top: 0; bottom: 0; border-left: 2px solid var(--tline); }
@@ -209,6 +212,33 @@
 .sc-tree-kid:only-child::before { display: none; }
 .sc-tree-node { position: relative; }
 .sc-tree-node.has-kids::before { content: ''; position: absolute; right: 100%; top: 50%; width: 20px; border-top: 2px solid var(--tline); }
+/* The step number, on the join. */
+.sc-tree-step { position: absolute; z-index: 1; right: calc(100% + 19px); top: 50%; transform: translate(50%, -50%); display: grid; place-items: center; min-width: 22px; height: 22px; box-sizing: border-box; padding: 0 5px; border-radius: 11px; background: var(--accent-strong); color: var(--accent-ink); font: 800 12px/1 var(--font-mono); }
+
+/* ---- the lineage in a frame that zooms and drags (tree.tsx, Sandbox) ---- */
+.sc-sandbox { display: grid; gap: 8px; }
+.sc-sandbox-bar { justify-self: end; display: inline-flex; align-items: center; gap: 4px; padding: 4px; border: var(--border); border-radius: 999px; background: var(--panel-solid); }
+.sc-sandbox-bar button { min-width: 36px; min-height: 36px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font: 800 14px var(--font-body); cursor: pointer; }
+.sc-sandbox-bar button:disabled { opacity: 0.4; cursor: default; }
+.sc-sandbox-bar button:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 1px; }
+.sc-sandbox-bar button[aria-pressed='true'] { background: var(--accent-strong); color: var(--accent-ink); }
+@media (hover: hover) { .sc-sandbox-bar button:not(:disabled):hover { background: color-mix(in srgb, var(--accent) 22%, transparent); } }
+.sc-sandbox-bar output { min-width: 4ch; text-align: center; font: 700 13px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.sc-sandbox-box { position: relative; height: clamp(360px, 68vh, 760px); overflow: hidden; border: 1px solid var(--hair); border-radius: var(--radius-s); background: color-mix(in srgb, var(--panel-2) 55%, transparent); cursor: grab; touch-action: none; user-select: none; }
+.sc-sandbox-box:active { cursor: grabbing; }
+.sc-sandbox-box:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+.sc-sandbox-inner { position: absolute; left: 0; top: 0; transform-origin: 0 0; padding: 8px; will-change: transform; }
+.sc-sandbox-hint { margin: 0; font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
+.sc-sandbox:fullscreen { grid-template-rows: auto 1fr auto; padding: 16px; background: var(--bg); }
+.sc-sandbox:fullscreen .sc-sandbox-box { height: auto; }
+
+/* ---- phones: the same lineage as a ladder of steps (tree.tsx, Ladder) ---- */
+.sc-ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.sc-ladder li { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--hair); border-radius: var(--radius-s); background: color-mix(in srgb, var(--panel-2) 55%, transparent); }
+.sc-ladder-n { font: 800 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-strong); }
+.sc-ladder-part { display: grid; gap: 8px; justify-items: stretch; }
+.sc-ladder-part > i { justify-self: center; font: var(--d-weight) 22px/1 var(--font-display); font-style: normal; color: var(--accent-strong); }
+.sc-ladder .sc-pcard, .sc-ladder-one .sc-pcard { width: 100%; box-sizing: border-box; }
 
 .sc-tcard {
   display: flex;
@@ -329,7 +359,7 @@
 .sc-pool { display: flex; flex-wrap: wrap; gap: 8px; }
 .sc-pool button { display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px 4px 5px; background: var(--panel); border: 1px solid var(--hair); border-radius: 999px; color: var(--ink); font: 800 14px var(--font-body); cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
 @media (hover: hover) { .sc-pool button:hover { border-color: var(--elem); transform: translateY(-2px); } }
-.sc-pool button span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--elem) 20%, var(--panel-2)); overflow: hidden; }
+.sc-pool button > span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--elem) 20%, var(--panel-2)); overflow: hidden; }
 .sc-pool button img { width: 90%; height: 90%; object-fit: contain; }
 .sc-pool small { font: 700 12px var(--font-mono); color: var(--ink-soft); }
 
@@ -353,6 +383,35 @@
 .sc-target .warn { display: block; margin-top: 6px; font-size: 13px; font-style: normal; color: var(--bad); }
 
 .sc-search.block input { width: 100%; box-sizing: border-box; }
+
+/* ---- the pair calculator on the Breeding page (BreedingPair.tsx): three of the page's list cards in a row ---- */
+.sc-bpair { margin-bottom: 26px; }
+.sc-bpair-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin: 0 0 12px; }
+.sc-bpair-head h2 { margin: 0; font: var(--d-weight) clamp(20px, 2vw, 24px) / 1 var(--font-display); letter-spacing: var(--d-track); text-transform: var(--d-case); }
+.sc-bpair-head p { margin: 0; font-size: 15px; color: var(--ink-soft); }
+.sc-bpair-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: 14px; }
+.sc-bpair-row > i { align-self: center; font: var(--d-weight) 30px/1 var(--font-display); font-style: normal; color: var(--accent-strong); }
+/* A list card that is not itself a button: the two parents, which hold a search box. */
+.sc-bpair .sc-gap { width: 100%; box-sizing: border-box; align-items: flex-start; min-height: 132px; }
+.sc-bpair div.sc-gap { cursor: default; }
+@media (hover: hover) { .sc-bpair div.sc-gap:hover { transform: none; box-shadow: var(--shadow); border-color: var(--hair); } }
+.sc-bpair .sc-gap-body { flex: 1 1 auto; align-items: stretch; }
+.sc-bpair-label { font: 700 12px var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
+.sc-bpair .sc-gap-art i { font: var(--d-weight) 34px var(--font-display); font-style: normal; color: var(--ink-soft); }
+.sc-bpair-find { position: relative; margin-top: auto; }
+/* On phones .sc-search takes a 160px flex basis for its row in a toolbar; in this column that would be height. */
+.sc-bpair .sc-bpair-find { flex: none; }
+.sc-bpair-find input { width: 100%; box-sizing: border-box; min-height: 40px; }
+.sc-bpair-find .sc-matches { position: absolute; z-index: 30; left: 0; right: 0; top: 100%; margin-top: 6px; background: var(--panel-solid); box-shadow: var(--shadow); max-height: 300px; overflow: auto; }
+.sc-bpair-out { display: grid; gap: 10px; align-content: stretch; }
+.sc-bpair-out .sc-gap.is-ready { border-color: var(--good); }
+.sc-bpair-note { font-weight: 800; font-size: 14px; line-height: 1.35; color: var(--ink-soft); }
+.sc-bpair-note.ready { color: var(--good-text); }
+.sc-bpair-blank { display: grid; place-items: center; min-height: 132px; box-sizing: border-box; padding: 14px; border: 2px dashed var(--hair); border-radius: var(--radius); text-align: center; font-weight: 700; color: var(--ink-soft); }
+@media (max-width: 1000px) {
+  .sc-bpair-row { grid-template-columns: minmax(0, 1fr); }
+  .sc-bpair-row > i { justify-self: center; }
+}
 
 .sc-matches { list-style: none; margin: 8px 0 0; padding: 4px; background: var(--panel-2); border: 1px solid var(--hair); border-radius: var(--radius-s); }
 .sc-matches button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 8px; background: none; border: 0; border-radius: 8px; color: var(--ink); font: 800 15px var(--font-body); text-align: left; cursor: pointer; }
@@ -412,9 +471,11 @@
 .sc-pcard.is-own { border-color: var(--good); }
 .sc-pcard.is-make { border-style: dashed; border-color: var(--accent); }
 .sc-pcard.is-root { border-color: var(--accent-2); background: color-mix(in srgb, var(--accent-2) 12%, var(--panel)); box-shadow: 0 0 30px -6px var(--accent-2); }
+/* The goal card's warm tint leaves the low ranks' grey at 4.05:1; they take the ink there. */
+.sc-shell .sc-pcard.is-root :is(.r-2, .r-1, .r-unk) { --rk-text: var(--ink); }
 .sc-pcard-more { font: 700 12px var(--font-mono); letter-spacing: 0.06em; color: var(--ink-soft); }
 
-.sc-loc { padding: 2px 10px; border-radius: 999px; font: 800 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; font-style: normal; color: var(--lc, var(--ink)); background: color-mix(in srgb, var(--lc, var(--ink)) 14%, transparent); border: 1px solid color-mix(in srgb, var(--lc, var(--ink)) 45%, transparent); }
+.sc-loc { padding: 2px 10px; border-radius: 999px; font: 800 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; font-style: normal; /* the place's colour pulled towards the ink: alone it was 3.8:1 on its own tint */ color: color-mix(in srgb, var(--lc, var(--ink)) 50%, var(--ink)); background: color-mix(in srgb, var(--lc, var(--ink)) 14%, transparent); border: 1px solid color-mix(in srgb, var(--lc, var(--ink)) 45%, transparent); }
 .loc-base { --lc: var(--e-ground); }
 .loc-party { --lc: var(--accent-2); }
 .loc-palbox { --lc: var(--e-water); }
@@ -507,6 +568,8 @@
   .sc-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sc-mine { grid-template-columns: minmax(0, 1fr); }
   .sc-rhead { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .sc-rhead .sc-planbar { margin: 4px 0 0; justify-content: flex-start; flex-wrap: wrap; }
+  .sc-rhead .sc-planlist { right: auto; left: 0; }
   .sc-rbig { font-size: 84px; }
   .sc-gather button { grid-template-columns: 48px 1fr; }
   .sc-gather .sc-loc { grid-column: 2; justify-self: start; }
