@@ -1,4 +1,4 @@
-import type { Combos } from './breeding.ts';
+import { canPair, type Availability, type Combos } from './breeding.ts';
 
 /**
  * The pair calculator: two parents in, their child out. combos.json is keyed the other way
@@ -43,4 +43,32 @@ export function childOf(index: PairIndex, a: string, b: string, gender: GenderRu
     .map(([ga, gb, child, sexA]) => ({ child, female: sexA === 'female' ? ga : gb, male: sexA === 'female' ? gb : ga }));
   // Two children and no rule saying which: show the first rather than invent one.
   return outcomes.length ? { kind: 'bySex', outcomes } : { kind: 'child', child: children[0] };
+}
+
+/**
+ * Whether the player can breed a pair today, from the sexes they own of each species:
+ *
+ *   ready     one male and one female between the two (the same species needs both of its own)
+ *   sexes     both species owned, but no male-and-female pairing among them
+ *   needA / needB / needBoth   a parent they don't own at all
+ */
+export type PairStatus = 'ready' | 'sexes' | 'needA' | 'needB' | 'needBoth';
+
+export function pairStatus(a: string, b: string, have: Map<string, Availability>): PairStatus {
+  const hasA = have.has(a);
+  const hasB = have.has(b);
+  if (!hasA && !hasB) return 'needBoth';
+  if (!hasA) return 'needA';
+  if (!hasB) return 'needB';
+  return canPair(a, b, have) ? 'ready' : 'sexes';
+}
+
+/** The same question for a sex-decided outcome: it needs this species' female and that one's male. */
+export function outcomeStatus(female: string, male: string, have: Map<string, Availability>): PairStatus {
+  const f = have.get(female);
+  const m = have.get(male);
+  if (!f && !m) return 'needBoth';
+  if (!f) return 'needA';
+  if (!m) return 'needB';
+  return f.female && m.male ? 'ready' : 'sexes';
 }

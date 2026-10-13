@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { DEX, META, SPECIES_TOTAL, SpeciesArt, nameOf, roman } from './shared.tsx';
 import type { Ctx } from './ctx.ts';
+import { BreedingPair } from './BreedingPair.tsx';
 import { ELEMENTS, ElementChips, ElementIcon, elementOf, stagger, tierOf, title, type Element } from './parts.tsx';
 
 const LANE = ['', 'One step away', 'Two steps away', 'Three steps away', 'Four steps away'];
@@ -59,6 +60,7 @@ export function Breeding({ ctx, onSpecies }: { ctx: Ctx; onSpecies: (id: string)
       </header>
 
       <section className="sc-section">
+        <BreedingPair ctx={ctx} onSpecies={onSpecies} />
         <div className="sc-bar">
           <label className="sc-search">
             <input value={query} aria-label="Find a species" placeholder="Find a species…" onChange={(e) => setQuery(e.target.value)} />
@@ -148,7 +150,14 @@ function GapCard({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: numb
   const pair = ctx.reach?.recipe.get(id);
   const depth = ctx.reach?.depth.get(id) ?? 1;
   return (
-    <button className={`sc-gap tier-${tierOf(id)} e-${elementOf(id)}`} style={stagger(Math.min(index, 30))} onClick={onOpen}>
+    <button
+      className={`sc-gap tier-${tierOf(id)} e-${elementOf(id)}`}
+      style={stagger(Math.min(index, 30))}
+      onClick={onOpen}
+      // One sentence for screen readers: the card's own text names each parent twice (the
+      // picture's title, then the caption) with a "×" between them.
+      aria-label={`${nameOf(id)}, ${(DEX[id]?.types ?? []).join(' and ')}${pair ? `, bred from ${nameOf(pair[0])} and ${nameOf(pair[1])}` : ''}${depth > 1 ? `, ${depth} steps away` : ''}`}
+    >
       <span className="sc-gap-art">
         <SpeciesArt id={id} />
       </span>
@@ -208,7 +217,12 @@ function Pool({
                 <SpeciesArt id={id} />
               </span>
               {nameOf(id)}
-              {o && <small>{o.male ? '♂ only' : '♀ only'}</small>}
+              {o && (
+                <small>
+                  <span aria-hidden="true">{o.male ? '♂ only' : '♀ only'}</span>
+                  <span className="sr-only">{o.male ? ', male only' : ', female only'}</span>
+                </small>
+              )}
             </button>
           );
         })}

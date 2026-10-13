@@ -4,7 +4,7 @@ import combosJson from '../data/combos.json';
 import metaJson from '../data/meta.json';
 import palsJson from '../data/pals.json';
 import type { Combos } from './breeding.ts';
-import { childOf, pairIndex, type GenderRule } from './pair.ts';
+import { childOf, outcomeStatus, pairIndex, pairStatus, type GenderRule } from './pair.ts';
 
 describe('childOf', () => {
   const combos: Combos = { C: [['A', 'B']], A: [['A', 'A']], X: [['M', 'N']], Y: [['M', 'N']] };
@@ -71,5 +71,52 @@ describe('the real matrix', () => {
       'Katress f + Wixen m = Katress Ignis',
       'Wixen f + Katress m = Wixen Noct',
     ]);
+  });
+});
+
+describe('pairStatus', () => {
+  const have = new Map([
+    ['A', { male: true, female: false }],
+    ['B', { male: false, female: true }],
+    ['C', { male: true, female: false }],
+    ['D', { male: true, female: true }],
+  ]);
+
+  it('is ready with a male of one and a female of the other', () => {
+    expect(pairStatus('A', 'B', have)).toBe('ready');
+    expect(pairStatus('B', 'A', have)).toBe('ready');
+  });
+
+  it('says the sexes are wrong when both are owned but cannot pair', () => {
+    expect(pairStatus('A', 'C', have)).toBe('sexes');
+  });
+
+  it('needs both sexes of a species bred with itself', () => {
+    expect(pairStatus('A', 'A', have)).toBe('sexes');
+    expect(pairStatus('D', 'D', have)).toBe('ready');
+  });
+
+  it('names the parent that is missing', () => {
+    expect(pairStatus('X', 'B', have)).toBe('needA');
+    expect(pairStatus('A', 'X', have)).toBe('needB');
+    expect(pairStatus('X', 'Y', have)).toBe('needBoth');
+  });
+});
+
+describe('outcomeStatus', () => {
+  const have = new Map([
+    ['A', { male: true, female: false }],
+    ['B', { male: false, female: true }],
+  ]);
+
+  it('is ready only with that female and that male', () => {
+    expect(outcomeStatus('B', 'A', have)).toBe('ready');
+    expect(outcomeStatus('A', 'B', have)).toBe('sexes');
+  });
+
+  it('names the missing parent, female first', () => {
+    expect(outcomeStatus('X', 'A', have)).toBe('needA');
+    expect(outcomeStatus('B', 'X', have)).toBe('needB');
+    expect(outcomeStatus('X', 'Y', have)).toBe('needBoth');
   });
 });
