@@ -34,7 +34,7 @@ body,
 body {
   background: var(--bg);
   color: var(--text);
-  font: 15px/1.45 'Nunito', system-ui, sans-serif;
+  font: 15px/1.45 'Nunito Variable', system-ui, sans-serif;
 }
 
 .shell {
@@ -102,7 +102,7 @@ body {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 8px;
-  font: 14px 'JetBrains Mono', ui-monospace, monospace;
+  font: 14px 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 
 .muted {
