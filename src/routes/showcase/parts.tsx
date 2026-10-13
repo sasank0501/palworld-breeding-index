@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import { PalModel } from '../../design/PalModel.tsx';
 import { ArtPlaceholder } from '../../components/ArtPlaceholder.tsx';
+import { useBrowse } from '../../lib/browse.ts';
 import { HATCH_AFTER_MS, Portrait } from '../../components/PalCards.tsx';
 import { rarityFor, rarityTier, type RarityTier } from '../../design/palExtras.ts';
 import type { RosterPal } from '../../types.ts';
@@ -120,7 +121,18 @@ const hatched = new Set<string>();
  * pal: its still, or the egg when there is no art at all. Each species hatches
  * once per visit (`hatched`). `picker` adds the animation buttons under the model.
  */
-export function Stage({ id, pal, picker = false }: { id: string; pal?: RosterPal; picker?: boolean }) {
+export function Stage(props: { id: string; pal?: RosterPal; picker?: boolean }) {
+  // Browse mode has no 3D and no player art: the species' silhouette, in the stage's place.
+  return useBrowse() ? (
+    <div className="sc-stage is-none">
+      <SpeciesArt id={props.id} />
+    </div>
+  ) : (
+    <LiveStage {...props} />
+  );
+}
+
+function LiveStage({ id, pal, picker = false }: { id: string; pal?: RosterPal; picker?: boolean }) {
   const codename = useCodename(id);
   const box = useRef<HTMLDivElement>(null);
   const [phase, setPhaseState] = useState<'waiting' | 'hatching' | 'done' | 'none'>('waiting');

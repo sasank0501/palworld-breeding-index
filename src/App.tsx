@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 
 import Import from './routes/Import.tsx';
 import Showcase from './routes/Showcase.tsx';
+import { BROWSE_ROSTER } from './lib/browse.ts';
 import { clearCurrentWorld, loadCurrentWorld, saveWorld } from './save/store.ts';
 import type { WorldMeta } from './save/importWorld.ts';
 import type { Roster } from './types.ts';
@@ -32,7 +33,7 @@ type Load =
   | { state: 'loading' }
   | { state: 'import' }
   | { state: 'error'; message: string }
-  | { state: 'ready'; roster: Roster; source: 'saved' | 'dev' | 'demo'; justImported?: boolean };
+  | { state: 'ready'; roster: Roster; source: 'saved' | 'dev' | 'demo' | 'browse'; justImported?: boolean };
 
 /**
  * public/roster.json is produced by `npm run import-save` and is gitignored, so a
@@ -80,11 +81,8 @@ export default function App() {
     };
   }, []);
 
-  const openDemo = () => {
-    getRoster('demo-roster.json')
-      .then((demo) => setLoad(demo ? { state: 'ready', roster: demo, source: 'demo' } : { state: 'error', message: 'The demo save is missing from this copy of the site.' }))
-      .catch((err: unknown) => setLoad({ state: 'error', message: err instanceof Error ? err.message : String(err) }));
-  };
+  /** Look around with no save (lib/browse.ts). Nothing is stored: a reload is the landing page again. */
+  const browse = () => setLoad({ state: 'ready', roster: BROWSE_ROSTER, source: 'browse' });
 
   const imported = (roster: Roster, meta: WorldMeta | null) => {
     // Shown at once; storing it is a convenience for the next visit and may fail
@@ -108,7 +106,7 @@ export default function App() {
 
   if (load.state === 'loading') return <div className="fullpage">Reading roster…</div>;
 
-  if (load.state === 'import') return <Import onRoster={imported} onDemo={openDemo} />;
+  if (load.state === 'import') return <Import onRoster={imported} onBrowse={browse} />;
 
   if (load.state === 'error') {
     return (
@@ -128,7 +126,11 @@ export default function App() {
   const disclaimer = (
     <>
       Unofficial fan project. Palworld and its characters, names and artwork are © Pocketpair, Inc.; not affiliated with
-      or endorsed by Pocketpair.
+      or endorsed by Pocketpair. Typefaces are served from this site under the{' '}
+      <a className="legal-link" href={`${import.meta.env.BASE_URL}font-licenses.txt`}>
+        SIL Open Font License
+      </a>
+      .
       {/* Only the portfolio build ships game art (vite.config.ts), so only it says where the art came from. */}
       {import.meta.env.MODE === 'resume' && (
         <>
@@ -145,7 +147,7 @@ export default function App() {
     <footer className="legal" id="site-footer">
       {disclaimer}{' '}
       <button type="button" className="legal-link" onClick={openAnother}>
-        {load.source === 'demo' ? 'Open your own save' : 'Open a different save'}
+        {load.source === 'demo' ? 'Open your own save' : load.source === 'browse' ? 'Upload a save' : 'Open a different save'}
       </button>
     </footer>
   );
@@ -158,7 +160,7 @@ export default function App() {
           {footer}
         </Suspense>
       ) : (
-        <Showcase roster={load.roster} onOpenSave={openAnother} justImported={load.justImported} notice={disclaimer} footer={footer} />
+        <Showcase roster={load.roster} onOpenSave={openAnother} justImported={load.justImported} notice={disclaimer} footer={footer} browse={load.source === 'browse'} />
       )}
     </div>
   );

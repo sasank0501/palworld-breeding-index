@@ -1,0 +1,125 @@
+/* The landing page (src/routes/home/): a full-screen hero, a scroll-driven tour of the app's
+   five pages, and a closing call to action. It wears the current skin's tokens from
+   showcase.css, so it looks like the app it opens into. */
+
+.home, .home * { box-sizing: border-box; }
+.home {
+  display: block;
+  background-color: var(--bg);
+  background-image: var(--bg-image);
+  background-attachment: fixed;
+}
+.home em { font-style: normal; color: var(--accent-2); }
+/* Orange on the sky blue needs its outline to read; the other skins have the contrast without. */
+.home[data-skin='pal'] em { -webkit-text-stroke: 2px var(--line); paint-order: stroke fill; }
+.home[data-skin='sakura'] em { color: var(--accent-strong); }
+
+/* Small mono labels sit straight on the skin background, where the soft ink is too faint. */
+.home-mono { margin: 0; font: 700 13px/1.4 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
+.home-lede { margin: 0; max-width: 54ch; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.5; text-wrap: pretty; color: var(--ink); }
+.home-promise { margin: 0; max-width: 62ch; font-size: 15px; line-height: 1.5; color: var(--ink); }
+.sc-btn.home-big { display: inline-flex; align-items: center; gap: 10px; min-height: 60px; padding: 0 34px; font-size: 21px; }
+.home .sc-btn:focus-visible, .imp-dialog .sc-btn:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; }
+
+/* ---- hero: the whole first screen ---- */
+.home-hero { min-height: 100vh; min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto; }
+.home-bar { padding: 22px clamp(16px, 2.4vw, 40px); }
+.home-brand { display: inline-flex; align-items: center; gap: 12px; font: var(--d-weight) 30px/1 var(--font-display); letter-spacing: var(--d-track); color: var(--ink); }
+.home-hero-body { display: grid; align-content: center; justify-items: center; gap: clamp(16px, 2.4vh, 28px); padding: 16px 20px 24px; text-align: center; }
+.home h1 {
+  margin: 0;
+  max-width: 14ch;
+  font: var(--d-weight) clamp(44px, 9.2vw, 148px) / 0.98 var(--font-display);
+  letter-spacing: var(--d-track);
+  text-wrap: balance;
+  color: var(--ink);
+}
+.home-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.home-cue { justify-self: center; padding: 0 20px 26px; text-align: center; }
+
+/* ---- the tour, wide screens: descriptions on the left, the app on the right, both held in place ---- */
+.tour {
+  display: grid;
+  grid-template-columns: minmax(300px, 30%) minmax(0, 1fr);
+  gap: clamp(20px, 2.4vw, 40px);
+  align-items: start;
+  padding: 0 clamp(16px, 2.4vw, 40px);
+  /* Five chapters of scrolling, and a screen for the last page to finish on. */
+  height: calc(var(--n) * 80vh + 100vh);
+}
+.tour-copy { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.tour-strip { will-change: transform; }
+.tour-copy .tour-chapter { height: 100vh; display: grid; align-content: center; gap: 14px; padding: 24px 0; }
+.tour h2, .tour-stacked h2 {
+  margin: 0;
+  font: var(--d-weight) clamp(30px, 3.6vw, 84px) / 1.02 var(--font-display);
+  letter-spacing: var(--d-track);
+  text-wrap: balance;
+  color: var(--ink);
+}
+.tour-what { margin: 0; font-size: clamp(17px, 1.3vw, 28px); line-height: 1.5; color: var(--ink); }
+.tour-points { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: clamp(16px, 1.05vw, 22px); color: var(--ink); }
+.tour-points li { position: relative; padding-left: 24px; }
+.tour-points li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.5em;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent-2);
+  border: 2px solid var(--line);
+}
+.tour-example {
+  margin: 0;
+  padding: 12px 16px;
+  background: var(--panel-solid);
+  border: var(--border);
+  border-radius: 14px;
+  font-size: clamp(15px, 1vw, 20px);
+  line-height: 1.45;
+  color: var(--ink);
+}
+.tour-example b { display: block; font: 700 11px/1.7 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+
+.tour-stage { position: sticky; top: 0; height: 100vh; padding: 20px 0; }
+.tour-window {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--panel-solid);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.tour-chrome { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--panel-2); border-bottom: var(--border); }
+.tour-chrome i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line); }
+.tour-chrome span { margin-left: 10px; flex: 1; max-width: 340px; padding: 2px 12px; border-radius: 999px; background: var(--panel-solid); border: 1px solid var(--hair); font: 12px/1.6 var(--font-mono); color: var(--ink-soft); }
+.tour-frame { position: relative; overflow: hidden; background: var(--bg); }
+.tour-frame img { position: absolute; left: 0; top: 0; width: 100%; max-width: none; height: auto; will-change: transform; user-select: none; -webkit-user-drag: none; }
+.tour-missing { position: absolute; inset: 0; display: grid; place-items: center; }
+
+/* ---- the tour, phones and reduced motion: no pinning, one picture per chapter ---- */
+.tour-stacked { display: grid; gap: 8px; max-width: 760px; margin: 0 auto; padding: 8px clamp(16px, 4vw, 40px) 24px; }
+.tour-stacked .tour-chapter { display: grid; align-content: start; gap: 14px; padding: 30px 0; }
+.tour-stacked h2 { font-size: clamp(30px, 6vw, 48px); }
+.tour-still { position: relative; margin: 8px 0 0; aspect-ratio: 16 / 10; overflow: hidden; display: grid; place-items: center; background: var(--panel-solid); border: var(--border); border-radius: var(--radius); }
+.tour-still img { position: absolute; left: 0; top: 0; width: 100%; height: auto; }
+
+/* ---- closing ---- */
+.home-closing { min-height: 86vh; display: grid; align-content: center; justify-items: center; gap: 20px; padding: 72px 20px; text-align: center; }
+.home-closing h2 { margin: 0; max-width: 14ch; font: var(--d-weight) clamp(34px, 6vw, 88px) / 1 var(--font-display); letter-spacing: var(--d-track); text-wrap: balance; color: var(--ink); }
+.home-foot { padding: 16px clamp(16px, 2.4vw, 40px) 56px; text-align: center; font-size: 14px; line-height: 1.5; color: var(--ink); }
+.home-foot a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.home-foot a:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; }
+
+@media (max-width: 640px) {
+  .home-actions { width: 100%; max-width: 360px; flex-direction: column; }
+  .sc-btn.home-big { width: 100%; max-width: 360px; justify-content: center; }
+  .home-hero-body, .home-closing { padding-left: 16px; padding-right: 16px; }
+}
+@media (forced-colors: active) {
+  .tour-points li::before { background: CanvasText; }
+}

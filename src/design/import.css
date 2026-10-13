@@ -83,8 +83,8 @@
 .imp h1 { margin: 0; font: var(--d-weight) clamp(30px, 6vw, 44px) / 1.05 var(--font-display); letter-spacing: var(--d-track); text-wrap: balance; }
 .imp-lede { margin: 0; font-size: 18px; line-height: 1.55; color: var(--ink); max-width: 60ch; }
 
-.imp h2 { margin: 0; font: var(--d-weight) 20px/1.2 var(--font-display); }
-.imp h2:focus { outline: none; }
+.imp h2, .imp h3, .imp-dialog h2, .imp-dialog h3 { margin: 0; font: var(--d-weight) 20px/1.2 var(--font-display); }
+.imp h2:focus, .imp-dialog h2:focus { outline: none; }
 .imp h2:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
 
 .imp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: step; }
@@ -130,6 +130,17 @@
 }
 .imp-small { padding: 9px 16px; font-size: 14px; }
 .imp-note { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-soft); }
+/* "Beta" in front of the Xbox path: a label in the text's own colour, so it holds its contrast in every theme. */
+.imp-beta {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 8px;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
 .imp-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
@@ -164,3 +175,24 @@
   .imp-bar span { animation: imp-slide 1.4s ease-in-out infinite; }
   @keyframes imp-slide { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
 }
+
+/* "Upload save" (home/UploadDialog.tsx): the steps for choosing a save folder, over the landing page. The inner
+   div carries the padding so a click on the dimmed area is a click on the dialog itself. */
+.imp-dialog, .imp-dialog * { box-sizing: border-box; }
+.imp-dialog {
+  width: min(680px, calc(100% - 24px));
+  max-height: calc(100vh - 24px);
+  padding: 0;
+  overflow: auto;
+  background: var(--panel-solid);
+  color: var(--ink);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-family: var(--font-body);
+}
+.imp-dialog::backdrop { background: rgba(6, 14, 34, 0.62); }
+.imp-dialog-body { display: grid; gap: 18px; padding: 28px 28px 30px; }
+.imp-dialog h2#upload-title { font-size: 28px; }
+.imp-dialog h2:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+@media (max-width: 600px) { .imp-dialog-body { padding: 20px 14px 22px; } }

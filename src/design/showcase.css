@@ -17,8 +17,8 @@
   --nav-h: 64px;
 
   /* ---- shape of the type, shared ---- */
-  --font-body: 'Nunito', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-body: 'Nunito Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 
   /* ---- element colours (light-ground set; dark skins override) ---- */
   --e-fire: #d4551f;
@@ -108,7 +108,7 @@
   --border: 3px solid var(--line);
   --shadow: 0 5px 0 var(--line);
   --shadow-hover: 0 9px 0 var(--line);
-  --font-display: 'Lilita One', 'Nunito', sans-serif;
+  --font-display: 'Lilita One', 'Nunito Variable', sans-serif;
   --d-weight: 400;
   --d-track: 0.01em;
   --d-case: none;
@@ -139,7 +139,7 @@
   --border: 1px solid var(--line);
   --shadow: 0 0 0 1px rgba(255, 106, 61, 0.06), 0 14px 34px -14px #000;
   --shadow-hover: 0 0 0 1px rgba(255, 106, 61, 0.5), 0 0 28px -4px rgba(255, 106, 61, 0.5);
-  --font-display: 'Oxanium', 'Nunito', sans-serif;
+  --font-display: 'Oxanium Variable', 'Nunito Variable', sans-serif;
   --d-weight: 800;
   --d-track: 0.04em;
   --d-case: uppercase;
@@ -197,7 +197,7 @@
   --border: 2px solid var(--line);
   --shadow: 0 12px 28px -14px rgba(214, 64, 122, 0.5);
   --shadow-hover: 0 18px 36px -12px rgba(214, 64, 122, 0.6);
-  --font-display: 'Zen Antique', 'Nunito', serif;
+  --font-display: 'Zen Antique', 'Nunito Variable', serif;
   --d-weight: 400;
   --d-track: 0.02em;
   --d-case: none;
@@ -235,7 +235,7 @@
   /* Josefin Sans (chosen 2026-10-06 over Unbounded, which was too wide: it broke
      long names and overflowed the ring): thin, precise, airy, for the frost and aurora.
      It fits the ring at the default size (see .sc-ring). */
-  --font-display: 'Josefin Sans', 'Nunito', sans-serif;
+  --font-display: 'Josefin Sans Variable', 'Nunito Variable', sans-serif;
   --d-weight: 700;
   --d-track: 0.01em;
   --d-case: none;
@@ -365,6 +365,34 @@
 .art-silhouette { filter: brightness(0) opacity(0.3); }
 .sc-shell[data-skin='obsidian'] .art-silhouette,
 .sc-shell[data-skin='feybreak'] .art-silhouette { filter: brightness(0) invert(1) opacity(0.3); }
+
+/* Browse mode (lib/browse.ts): a species' shipped silhouette (public/silhouettes), in the skin's ink. */
+.art-browse { filter: opacity(0.86); }
+.sc-shell[data-skin='obsidian'] .art-browse,
+.sc-shell[data-skin='feybreak'] .art-browse { filter: invert(1) opacity(0.9); }
+/* Browse mode has no tabs: this keeps the upload button and the gear on the nav's right. */
+.sc-tabs-gap { flex: 1; }
+.sc-navup { padding: 9px 20px; font-size: 15px; }
+/* Browse mode's intro: three steps for planning by hand, where the spotlight would be. */
+.sc-howto { align-self: center; display: grid; gap: 14px; padding: 24px 26px; }
+.sc-howto h2 { margin: 0; font-size: 22px; }
+.sc-howto ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: how; }
+.sc-howto li { counter-increment: how; position: relative; padding-left: 44px; line-height: 1.5; color: var(--ink); }
+.sc-howto li::before {
+  content: counter(how);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: var(--border);
+  border-radius: 50%;
+  background: var(--panel-2);
+  font: 700 15px/1 var(--font-display);
+}
+.sc-howto b { display: block; font-weight: 800; }
 
 /* "Skip to content": off screen until a keyboard user tabs to it. */
 .sc-skip {
@@ -938,7 +966,9 @@
 
 /* rarity gems in the corner of the art: 1 (common) to 5 (legendary), so the count says
    the tier in any colour vision (RarityPips in parts.tsx) */
-.sc-gems { position: absolute; left: 9px; bottom: 9px; display: flex; gap: 4px; }
+/* A gem is 8px but turned 45 degrees it is about 11px across, plus its 1.5px ink edge: the gap has to be wider
+   than the box gap alone, or neighbours touch (it was 4px, and they overlapped). */
+.sc-gems { position: absolute; left: 11px; bottom: 9px; display: flex; gap: 11px; }
 .sc-gems i {
   width: 8px;
   height: 8px;

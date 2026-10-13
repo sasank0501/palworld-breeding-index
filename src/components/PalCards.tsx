@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { silhouetteUrl, useBrowse } from '../lib/browse.ts';
 import { artJson, onArtChange, onStillsChange, useArtState, useArtUrl, useArtVersion, useStillsVersion } from '../art/resolve.ts';
 import { ArtPlaceholder } from './ArtPlaceholder.tsx';
 import palsJson from '../data/pals.json';
@@ -78,7 +79,23 @@ const TILE_HATCH_MS = 1200;
  * after the one before. Under 150 ms (art from disk on a return visit) there is
  * no egg and no show.
  */
-export function ArtImage({ still, icon, element }: { still: { path: string; v: number } | null | undefined; icon?: string | null; element?: string }) {
+export function ArtImage(props: { still: { path: string; v: number } | null | undefined; icon?: string | null; element?: string }) {
+  return useBrowse() ? <Silhouette icon={props.icon} element={props.element} /> : <LiveArt {...props} />;
+}
+
+/**
+ * Browse mode (a visit with no save, lib/browse.ts): the species' flat silhouette, shipped with
+ * the site, and never the player's art. A silhouette that isn't there (a clone that never made
+ * them, or a species with no sprite) shows the egg.
+ */
+function Silhouette({ icon, element }: { icon?: string | null; element?: string }) {
+  const url = silhouetteUrl(icon);
+  const [failed, setFailed] = useState<string | null>(null);
+  if (!url || failed === url) return <ArtPlaceholder element={element} />;
+  return <img className="art-browse" src={url} alt="" loading="lazy" decoding="async" onError={() => setFailed(url)} />;
+}
+
+function LiveArt({ still, icon, element }: { still: { path: string; v: number } | null | undefined; icon?: string | null; element?: string }) {
   const art = useArtState();
   const stillUrl = useArtUrl(still?.path ?? null, still?.v);
   const iconUrl = useArtUrl(icon ?? null);

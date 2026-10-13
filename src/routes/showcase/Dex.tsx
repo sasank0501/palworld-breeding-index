@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 
 import { displayName, ivTotal, speciesName } from '../../components/PalCards.tsx';
+import { useBrowse } from '../../lib/browse.ts';
 import { passiveScore } from '../../lib/passiveCategories.ts';
 import type { RosterPal } from '../../types.ts';
 import { hideFromSpotlight, showInSpotlight } from '../../userdata/edit.ts';
@@ -57,12 +58,17 @@ export function Dex({
   ctx,
   onSpecies,
   onPal,
+  onUpload,
 }: {
   ctx: Ctx;
   onSpecies: (id: string) => void;
   onPal: (pal: RosterPal) => void;
+  /** Browse mode only: back to the upload page. */
+  onUpload?: () => void;
 }) {
   const { roster, byPal } = ctx;
+  // Browse mode (a visit with no save): every species as a silhouette to open, nothing owned or ranked.
+  const browse = useBrowse();
   const [view, setView] = useState<View>('all');
   const [element, setElement] = useState<Element | 'all'>('all');
   // Phones fold the view switch and the element chips behind one button (docs/A11Y.md, item 10).
@@ -123,52 +129,88 @@ export function Dex({
   return (
     <>
       <header className="sc-hero">
-        <div className="sc-hero-copy sc-in" style={stagger(0)}>
-          <p className="sc-kicker">Palworld compendium · {roster.demo ? 'demo save' : 'your save'}</p>
-          <h1 className="sc-mega">
-            Pal<span>Doc</span>
-          </h1>
-          <p className="sc-lede">
-            {fmt.format(roster.pals.length)} pals in your boxes. {stats.species} of {SPECIES.length} species discovered
-            {ctx.reach ? `, and ${ready} more you can breed right now.` : '.'}
-          </p>
-
-          <div className="sc-hero-stats">
-            <Ring
-              value={stats.species}
-              max={SPECIES.length}
-              label={
-                <>
-                  <b>{Math.round((stats.species / SPECIES.length) * 100)}%</b>
-                  <small>complete</small>
-                </>
-              }
-            />
-            <dl>
-              <div>
-                <dt>Discovered</dt>
-                <dd>
-                  {stats.species}
-                  <small>/{SPECIES.length}</small>
-                </dd>
-              </div>
-              <div>
-                <dt>Alphas</dt>
-                <dd>{stats.alphas}</dd>
-              </div>
-              <div>
-                <dt>Lucky</dt>
-                <dd>{stats.lucky}</dd>
-              </div>
-              <div>
-                <dt>IV 270+</dt>
-                <dd>{stats.strong}</dd>
-              </div>
-            </dl>
+        {browse ? (
+          <>
+          <div className="sc-hero-copy sc-in" style={stagger(0)}>
+            <p className="sc-kicker">Palworld compendium · browsing</p>
+            <h1 className="sc-mega">
+              Pal<span>Doc</span>
+            </h1>
+            <p className="sc-lede">
+              All {SPECIES.length} species, each with every parent pair that breeds it. Open a pal, then open its parents to work back to
+              something you can catch. With your own save, PalDoc does this for the pals you own.
+            </p>
+            {onUpload && (
+              <button type="button" className="sc-btn" onClick={onUpload}>
+                Upload your save
+              </button>
+            )}
           </div>
-        </div>
+          <aside className="sc-card sc-howto sc-in" style={stagger(2)} aria-labelledby="howto-title">
+            <h2 id="howto-title" className="sc-h3">
+              Plan breeding by hand
+            </h2>
+            <ol>
+              <li>
+                <b>Open the pal you want.</b> Its page lists every pair of parents that breeds it.
+              </li>
+              <li>
+                <b>Pick a pair.</b> Prefer parents you already have, or can catch in the wild.
+              </li>
+              <li>
+                <b>Open a parent and repeat</b> until every parent in the chain is one you can get. Esc takes you back a step.
+              </li>
+            </ol>
+          </aside>
+          </>
+        ) : (
+          <div className="sc-hero-copy sc-in" style={stagger(0)}>
+            <p className="sc-kicker">Palworld compendium · {roster.demo ? 'demo save' : 'your save'}</p>
+            <h1 className="sc-mega">
+              Pal<span>Doc</span>
+            </h1>
+            <p className="sc-lede">
+              {fmt.format(roster.pals.length)} pals in your boxes. {stats.species} of {SPECIES.length} species discovered
+              {ctx.reach ? `, and ${ready} more you can breed right now.` : '.'}
+            </p>
 
-        {spotlight.length > 0 && (
+            <div className="sc-hero-stats">
+              <Ring
+                value={stats.species}
+                max={SPECIES.length}
+                label={
+                  <>
+                    <b>{Math.round((stats.species / SPECIES.length) * 100)}%</b>
+                    <small>complete</small>
+                  </>
+                }
+              />
+              <dl>
+                <div>
+                  <dt>Discovered</dt>
+                  <dd>
+                    {stats.species}
+                    <small>/{SPECIES.length}</small>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Alphas</dt>
+                  <dd>{stats.alphas}</dd>
+                </div>
+                <div>
+                  <dt>Lucky</dt>
+                  <dd>{stats.lucky}</dd>
+                </div>
+                <div>
+                  <dt>IV 270+</dt>
+                  <dd>{stats.strong}</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        )}
+
+        {!browse && spotlight.length > 0 && (
           <Spotlight
             pals={spotlight}
             order={order}
@@ -196,7 +238,7 @@ export function Dex({
             type="button"
             className="sc-filtoggle"
             aria-expanded={filtersOpen}
-            aria-controls={`${filtersId}-view ${filtersId}-el`}
+            aria-controls={browse ? `${filtersId}-el` : `${filtersId}-view ${filtersId}-el`}
             onClick={() => setFiltersOpen((o) => !o)}
           >
             Filters
@@ -207,13 +249,15 @@ export function Dex({
             )}
             <Chevron dir="right" />
           </button>
-          <div className="sc-seg sc-dexfilter" id={`${filtersId}-view`} role="group" aria-label="Show">
-            {VIEWS.map(([k, label]) => (
-              <button key={k} className={view === k ? 'on' : ''} aria-pressed={view === k} onClick={() => setView(k)}>
-                {label}
-              </button>
-            ))}
-          </div>
+          {!browse && (
+            <div className="sc-seg sc-dexfilter" id={`${filtersId}-view`} role="group" aria-label="Show">
+              {VIEWS.map(([k, label]) => (
+                <button key={k} className={view === k ? 'on' : ''} aria-pressed={view === k} onClick={() => setView(k)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="sc-elbar sc-dexfilter" id={`${filtersId}-el`} role="group" aria-label="Element">
@@ -245,7 +289,8 @@ export function Dex({
 }
 
 function DexTile({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: number; onOpen: () => void }) {
-  const { status, depth } = statusOf(ctx, id);
+  const browse = useBrowse();
+  const { status, depth } = browse ? { status: 'owned' as const, depth: 0 } : statusOf(ctx, id);
   const mine = ctx.byPal.get(id);
   const best = mine?.[0];
   const tier = tierOf(id);
@@ -255,7 +300,11 @@ function DexTile({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: numb
       className={`sc-dex is-${status} tier-${tier} e-${elementOf(id)}`}
       style={stagger(Math.min(index, 40))}
       onClick={onOpen}
-      aria-label={`${nameOf(id)}, ${tier}, ${status === 'owned' ? 'discovered' : status === 'ready' ? 'can be bred now' : 'not discovered'}${mine ? `, ${mine.length} owned` : ''}`}
+      aria-label={
+        browse
+          ? `${nameOf(id)}, ${tier}`
+          : `${nameOf(id)}, ${tier}, ${status === 'owned' ? 'discovered' : status === 'ready' ? 'can be bred now' : 'not discovered'}${mine ? `, ${mine.length} owned` : ''}`
+      }
     >
       <span className="sc-dex-no">{dexNo(id)}</span>
       {mine && <span className="sc-dex-count">×{mine.length}</span>}
@@ -266,6 +315,7 @@ function DexTile({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: numb
       <span className="sc-dex-name">{nameOf(id)}</span>
       <ElementChips id={id} />
       <span className="sc-dex-foot">
+        {browse && UNBREEDABLE.has(id) && <b>Wild only</b>}
         {status === 'owned' && best && <b>IV {ivTotal(best)}</b>}
         {status === 'ready' && <b className="go">Breed now</b>}
         {status === 'far' && <b>{depth} steps</b>}

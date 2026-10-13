@@ -50,6 +50,7 @@ export function Settings({
   onOpenSave,
   spotlightHidden = 0,
   onSeeHidden,
+  browse = false,
 }: {
   skin: Skin;
   onSkin: (s: Skin) => void;
@@ -57,6 +58,8 @@ export function Settings({
   /** How many pals are hidden from the PalDoc spotlight; the list is its own page. */
   spotlightHidden?: number;
   onSeeHidden?: () => void;
+  /** Browse mode (no save): themes, and the way to upload one. Art, spotlight and backups are about a save. */
+  browse?: boolean;
 }) {
   // 'closing' keeps the panel up for its exit animation.
   const [state, setState] = useState<'closed' | 'open' | 'closing'>('closed');
@@ -212,46 +215,50 @@ export function Settings({
         </fieldset>
         <p className="sc-sethint">Until you pick one, it follows your system: Palpagos when light, Mount Obsidian when dark.</p>
 
-        <ArtSettings />
+        {!browse && (
+          <>
+            <ArtSettings />
 
-        <h2>Spotlight</h2>
-        <p className="sc-sethint">
-          {spotlightHidden === 0
-            ? 'Every pal can appear in the PalDoc spotlight. “Hide” there takes a pal out of it.'
-            : `${spotlightHidden} ${spotlightHidden === 1 ? 'pal' : 'pals'} hidden from the spotlight.`}
-        </p>
-        {spotlightHidden > 0 && onSeeHidden && (
-          <button
-            type="button"
-            className="sc-setitem"
-            onClick={() => {
-              close(false);
-              onSeeHidden();
-            }}
-          >
-            See hidden pals <span>{spotlightHidden}</span>
-          </button>
-        )}
+            <h2>Spotlight</h2>
+            <p className="sc-sethint">
+              {spotlightHidden === 0
+                ? 'Every pal can appear in the PalDoc spotlight. “Hide” there takes a pal out of it.'
+                : `${spotlightHidden} ${spotlightHidden === 1 ? 'pal' : 'pals'} hidden from the spotlight.`}
+            </p>
+            {spotlightHidden > 0 && onSeeHidden && (
+              <button
+                type="button"
+                className="sc-setitem"
+                onClick={() => {
+                  close(false);
+                  onSeeHidden();
+                }}
+              >
+                See hidden pals <span>{spotlightHidden}</span>
+              </button>
+            )}
 
-        <h2>Your data</h2>
-        <p className="sc-sethint">Favourites, notes and saved plans live in this browser. Back them up to keep them safe.</p>
-        <button type="button" className="sc-setitem" onClick={backup}>
-          Download a backup <span>last: {ago(last)}</span>
-        </button>
-        <button type="button" className="sc-setitem" onClick={() => fileInput.current?.click()}>
-          Restore from a backup…
-        </button>
-        <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(e) => void pickRestore(e.target.files?.[0])} />
-        {canSyncFile() && (
-          <button type="button" className="sc-setitem" aria-pressed={sync === 'on'} onClick={() => void toggleSync()}>
-            Keep a backup file updated
-            <span>{sync === 'on' ? 'On' : sync === 'needs-permission' ? 'Reconnect' : 'Off'}</span>
-          </button>
+            <h2>Your data</h2>
+            <p className="sc-sethint">Favourites, notes and saved plans live in this browser. Back them up to keep them safe.</p>
+            <button type="button" className="sc-setitem" onClick={backup}>
+              Download a backup <span>last: {ago(last)}</span>
+            </button>
+            <button type="button" className="sc-setitem" onClick={() => fileInput.current?.click()}>
+              Restore from a backup…
+            </button>
+            <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(e) => void pickRestore(e.target.files?.[0])} />
+            {canSyncFile() && (
+              <button type="button" className="sc-setitem" aria-pressed={sync === 'on'} onClick={() => void toggleSync()}>
+                Keep a backup file updated
+                <span>{sync === 'on' ? 'On' : sync === 'needs-permission' ? 'Reconnect' : 'Off'}</span>
+              </button>
+            )}
+          </>
         )}
 
         {onOpenSave && (
           <>
-            <h2>Save</h2>
+            <h2>{browse ? 'Your save' : 'Save'}</h2>
             <button
               type="button"
               className="sc-setitem"
@@ -260,7 +267,7 @@ export function Settings({
                 onOpenSave();
               }}
             >
-              Open a different save
+              {browse ? 'Upload a save' : 'Open a different save'}
             </button>
           </>
         )}

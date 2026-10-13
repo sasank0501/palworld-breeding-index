@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { SiteNotice } from '../components/SiteNotice.tsx';
+import { BrowseContext } from '../lib/browse.ts';
 
 import type { Roster, RosterPal } from '../types.ts';
 import { nameOf, Chevron } from './showcase/shared.tsx';
@@ -54,9 +55,13 @@ export default function Showcase({
   justImported = false,
   notice,
   footer,
+  browse = false,
 }: {
   roster: Roster;
+  /** Where "Open a different save" goes (and, in browse mode, "Upload save"). */
   onOpenSave?: () => void;
+  /** Browse mode: a visit with no save. Only the Paldex and its species pages (lib/browse.ts). */
+  browse?: boolean;
   /** True right after an import, to check for marked pals that left the save. */
   justImported?: boolean;
   /** The disclaimer, shown as a card on each visit until dismissed into the footer. */
@@ -182,6 +187,7 @@ export default function Showcase({
   const sectionLabel = SECTIONS.find(([k]) => k === section)?.[1] ?? '';
 
   return (
+    <BrowseContext.Provider value={browse}>
     <div className="sc-shell" data-skin={skin} ref={shell}>
       <div className="sc-fx" aria-hidden="true">
         <i />
@@ -207,14 +213,24 @@ export default function Showcase({
             <PalEgg size={30} />
             PalDoc
           </span>
-          <div className="sc-tabs" role="tablist">
-            {SECTIONS.map(([k, label]) => (
-              <button key={k} role="tab" aria-selected={section === k && !top} className={section === k ? 'on' : ''} onClick={() => go(k)}>
-                {label}
-              </button>
-            ))}
-          </div>
+          {browse ? (
+            <span className="sc-tabs-gap" />
+          ) : (
+            <div className="sc-tabs" role="tablist">
+              {SECTIONS.map(([k, label]) => (
+                <button key={k} role="tab" aria-selected={section === k && !top} className={section === k ? 'on' : ''} onClick={() => go(k)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+          {browse && onOpenSave && (
+            <button type="button" className="sc-btn sc-navup" onClick={onOpenSave}>
+              Upload save
+            </button>
+          )}
           <Settings
+            browse={browse}
             skin={skin}
             onSkin={setSkin}
             onOpenSave={onOpenSave}
@@ -224,7 +240,7 @@ export default function Showcase({
         </nav>
 
         <main id="main" tabIndex={-1}>
-          <ArtNotice />
+          {!browse && <ArtNotice />}
           {checkMissing && <MissingNotice ctx={ctx} onDone={missingDone} />}
 
           {top && (
@@ -276,7 +292,7 @@ export default function Showcase({
 
           {/* Kept mounted (just hidden) under a dossier, so filters and scroll survive Back. */}
           <div hidden={!!top}>
-            {section === 'dex' && <Dex ctx={ctx} onSpecies={openSpecies} onPal={(p) => openPal(p, [p])} />}
+            {section === 'dex' && <Dex ctx={ctx} onSpecies={openSpecies} onPal={(p) => openPal(p, [p])} onUpload={browse ? onOpenSave : undefined} />}
             {section === 'box' && <Box ctx={ctx} onPal={openPal} />}
             {section === 'breeding' && <Breeding ctx={ctx} onSpecies={openSpecies} />}
             {section === 'planner' && (
@@ -294,5 +310,6 @@ export default function Showcase({
         {footer}
       </div>
     </div>
+    </BrowseContext.Provider>
   );
 }

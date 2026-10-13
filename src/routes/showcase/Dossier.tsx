@@ -4,6 +4,7 @@ import { WorkIcon, displayName, ivTotal } from '../../components/PalCards.tsx';
 import { WORK_LEVEL_CAP, workName, workOrder } from '../../data/work.ts';
 import { FOOD_SLOTS, foodFor, partnerSkillFor, rarityFor } from '../../design/palExtras.ts';
 import { canPair, type Pair } from '../../lib/breeding.ts';
+import { useBrowse } from '../../lib/browse.ts';
 import type { RosterPal } from '../../types.ts';
 import { DEX, PASSIVES, UNBREEDABLE, SpeciesArt, nameOf } from './shared.tsx';
 import { statusOf, type Ctx } from './ctx.ts';
@@ -30,6 +31,9 @@ export function Dossier({
   onPlan: (id: string) => void;
 }) {
   const dex = DEX[id];
+  // Browse mode: no save, so nothing is owned. The species is shown with every way to breed it, and
+  // none of the "you have" parts (banner, owned count, collection, ranks, the passive planner).
+  const browse = useBrowse();
   const { status, depth } = statusOf(ctx, id);
   const mine = ctx.byPal.get(id) ?? [];
   const partner = partnerSkillFor(id);
@@ -111,10 +115,12 @@ export function Dossier({
             <ElementChips id={id} labels />
           </div>
 
-          <div className={`sc-banner is-${banner.cls} sc-in`} style={stagger(4)}>
-            <b>{banner.head}</b>
-            <span>{banner.sub}</span>
-          </div>
+          {!browse && (
+            <div className={`sc-banner is-${banner.cls} sc-in`} style={stagger(4)}>
+              <b>{banner.head}</b>
+              <span>{banner.sub}</span>
+            </div>
+          )}
 
           <dl className="sc-facts sc-in" style={stagger(5)}>
             <div>
@@ -132,15 +138,19 @@ export function Dossier({
               <dt>Recipes</dt>
               <dd>{UNBREEDABLE.has(id) ? 0 : recipes.length}</dd>
             </div>
-            <div>
-              <dt>Owned</dt>
-              <dd>{mine.length}</dd>
-            </div>
+            {!browse && (
+              <div>
+                <dt>Owned</dt>
+                <dd>{mine.length}</dd>
+              </div>
+            )}
           </dl>
 
-          <button className="sc-btn sc-in" style={stagger(6)} disabled={UNBREEDABLE.has(id)} onClick={() => onPlan(id)}>
-            Plan passives for {dex?.name} →
-          </button>
+          {!browse && (
+            <button className="sc-btn sc-in" style={stagger(6)} disabled={UNBREEDABLE.has(id)} onClick={() => onPlan(id)}>
+              Plan passives for {dex?.name} →
+            </button>
+          )}
         </div>
       </header>
 
@@ -178,16 +188,18 @@ export function Dossier({
           )}
         </section>
 
-        <section className="sc-card wide sc-in" style={stagger(4)}>
-          <h2 className="sc-h3">
-            Your collection <span>{mine.length ? `${mine.length} owned` : ''}</span>
-          </h2>
-          {mine.length === 0 ? (
-            <p className="sc-muted">You don’t have a {dex?.name} yet.</p>
-          ) : (
-            <Collection key={id} mine={mine} onPal={onPal} />
-          )}
-        </section>
+        {!browse && (
+          <section className="sc-card wide sc-in" style={stagger(4)}>
+            <h2 className="sc-h3">
+              Your collection <span>{mine.length ? `${mine.length} owned` : ''}</span>
+            </h2>
+            {mine.length === 0 ? (
+              <p className="sc-muted">You don’t have a {dex?.name} yet.</p>
+            ) : (
+              <Collection key={id} mine={mine} onPal={onPal} />
+            )}
+          </section>
+        )}
       </div>
 
       {!UNBREEDABLE.has(id) && (
@@ -196,7 +208,7 @@ export function Dossier({
             How to breed it <span>{recipes.length} recipes</span>
           </h2>
 
-          {route && (
+          {route && !browse && (
             <div className="sc-card route sc-in" style={stagger(1)}>
               <h3 className="sc-h3">
                 Shortest route <span>{depth} step{depth === 1 ? '' : 's'} from what you own</span>
@@ -210,18 +222,18 @@ export function Dossier({
 
           <div className="sc-card sc-in" style={stagger(2)}>
             <h3 className="sc-h3">
-              Every parent pair <span>{readyCount} ready now</span>
+              Every parent pair <span>{browse ? `${recipes.length} pairs` : `${readyCount} ready now`}</span>
             </h3>
             {ctx.combos === null ? (
               <p className="sc-muted">Loading the breeding matrix…</p>
             ) : (
               <ul className="sc-recipes">
                 {shown.map(({ pair, rank }) => (
-                  <li key={pair.join('+')} className={`rk-${rank}`}>
+                  <li key={pair.join('+')} className={browse ? undefined : `rk-${rank}`}>
                     <ParentChip id={pair[0]} ctx={ctx} onOpen={onSpecies} />
                     <i className="x">×</i>
                     <ParentChip id={pair[1]} ctx={ctx} onOpen={onSpecies} />
-                    <em>{rank === 0 ? 'Ready' : rank === 1 ? 'Need one more' : rank === 2 ? 'Wrong sexes' : 'Not owned'}</em>
+                    {!browse && <em>{rank === 0 ? 'Ready' : rank === 1 ? 'Need one more' : rank === 2 ? 'Wrong sexes' : 'Not owned'}</em>}
                   </li>
                 ))}
               </ul>

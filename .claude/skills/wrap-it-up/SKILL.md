@@ -45,9 +45,15 @@ committed (`git status`) and the diff itself:
 - Personal data: `public/roster.json` (the user's real save), Steam ids (`7656119…`), world ids
   and names, the user's email, absolute machine paths (`C:/Users/…`, `AppData`).
 - `public/demo-roster.json` is the intended, anonymised demo (world "demo", ids "demo-N").
+- **Two deliberate exceptions (owner, 2026-10-12):** `src/design/tour/*.webp` (the landing page's
+  silhouette screenshots, `npm run capture-tour`) and `public/silhouettes/*.webp` (one outline per
+  species for the browse page, `npm run build-silhouettes`) may be committed. Only those: a colour
+  still, a model or an icon anywhere else is still a stop. `npx vitest run src/lib/browse.test.ts`
+  checks the species ones are pure black outlines; open one of the tour screenshots before
+  committing a fresh set.
 
 ```
-git status --short | grep -i -E "\.(png|webp|jpg|glb|gltf|psa|psk|uasset|pak|sav|ktx2)$|roster\.json|art-pack|public/(pal-models|pal-portraits|pals|work-icons|element-icons)"
+git status --short | grep -v -E "src/design/tour/|public/silhouettes/" | grep -i -E "\.(png|webp|jpg|glb|gltf|psa|psk|uasset|pak|sav|ktx2)$|roster\.json|art-pack|public/(pal-models|pal-portraits|pals|work-icons|element-icons)"
 git diff | grep -i -E "7656119[0-9]+|@gmail|C:/Users|AppData"
 ```
 

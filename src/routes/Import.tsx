@@ -3,15 +3,20 @@ import { useEffect, useRef, useState } from 'react';
 import type { Roster } from '../types.ts';
 import type { WorldMeta } from '../save/importWorld.ts';
 import type { FromWorker, ToWorker, WorldSummary } from '../save/import.worker.ts';
-import { pickSaveFolder, SAVE_PATH_HINT } from '../save/pick.ts';
+import { pickSaveFolder } from '../save/pick.ts';
 import { useSkin } from './showcase/skins.ts';
 import { ImportBackdrop } from './ImportBackdrop.tsx';
+import { Landing } from './home/Landing.tsx';
 import '../design/showcase.css';
 import '../design/import.css';
 
 /**
- * The first screen of the public site: point the browser at your Palworld save
- * folder and pick a world. Everything is read in a worker on this machine.
+ * The public site's front door. A visitor with no save in this browser first sees
+ * the landing page (home/Landing.tsx): what PalDoc is, a tour of its pages, and
+ * "Upload save", which explains where the save folder is and asks for it. From the
+ * moment a folder is chosen this screen takes over with the import itself: looking
+ * for worlds, choosing one, reading it, or what went wrong. Everything is read in a
+ * worker on this machine; nothing is uploaded.
  */
 type Stage =
   | { kind: 'intro' }
@@ -23,7 +28,7 @@ type Stage =
 const HINTS: Record<string, string> = {
   empty: 'That folder is empty. Choose the SaveGames folder, or the folder with your Steam id inside it.',
   'no-level': 'No Palworld world is in that folder. A world folder holds a file called Level.sav. Choose the SaveGames folder and the worlds are found for you.',
-  xbox: 'This looks like an Xbox or Game Pass save. Only Steam saves can be read for now.',
+  xbox: 'This is an Xbox or Game Pass save folder, but no world could be read from it. Close Palworld and the Xbox app, then choose the whole wgs folder.',
 };
 
 const ago = (ms: number): string => {
@@ -39,14 +44,14 @@ const describe = (m: WorldMeta | null): string =>
 
 export default function Import({
   onRoster,
-  onDemo,
+  onBrowse,
 }: {
   onRoster: (roster: Roster, meta: WorldMeta | null) => void;
-  onDemo: () => void;
+  /** Open the Paldex with no save (lib/browse.ts). */
+  onBrowse: () => void;
 }) {
   const [skin] = useSkin();
   const [stage, setStage] = useState<Stage>({ kind: 'intro' });
-  const [copied, setCopied] = useState(false);
   const worker = useRef<Worker | null>(null);
   const focusTarget = useRef<HTMLHeadingElement>(null);
 
@@ -94,16 +99,7 @@ export default function Import({
     send({ type: 'scan', files });
   };
 
-  const copyPath = async () => {
-    try {
-      await navigator.clipboard.writeText(SAVE_PATH_HINT);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      const el = document.getElementById('save-path');
-      if (el) window.getSelection()?.selectAllChildren(el);
-    }
-  };
+  if (stage.kind === 'intro') return <Landing skin={skin} onChoose={choose} onBrowse={onBrowse} />;
 
   return (
     <div className="sc-shell imp-shell" data-skin={skin}>
@@ -111,37 +107,7 @@ export default function Import({
         <header className="imp-head">
           <p className="imp-kicker">PalDoc</p>
           <h1 id="imp-title">Open your Palworld save</h1>
-          <p className="imp-lede">
-            See every pal you own, what you can breed next, and the parents that get you the passives you want. Your save is read
-            here in your browser. Nothing is uploaded.
-          </p>
         </header>
-
-        {stage.kind === 'intro' && (
-          <ol className="imp-steps">
-            <li>
-              <h2>Close Palworld</h2>
-              <p>The game rewrites the save while it runs.</p>
-            </li>
-            <li>
-              <h2>Choose your save folder</h2>
-              <p>
-                Steam keeps it here. Paste this into the folder picker's address bar:
-              </p>
-              <div className="imp-path">
-                <code id="save-path">{SAVE_PATH_HINT}</code>
-                <button type="button" className="sc-btn ghost imp-small" onClick={copyPath}>
-                  {copied ? 'Copied' : 'Copy'}
-                </button>
-              </div>
-              <span className="sr-only" aria-live="polite">{copied ? 'Path copied' : ''}</span>
-              <p className="imp-note">
-                Choose SaveGames itself; every world inside is found for you. Your browser will ask to confirm, and may call it an
-                upload: the files stay on this computer and are only read, never changed.
-              </p>
-            </li>
-          </ol>
-        )}
 
         {stage.kind === 'scanning' && (
           <section className="imp-status" aria-live="polite">
@@ -199,10 +165,10 @@ export default function Import({
         {stage.kind !== 'scanning' && stage.kind !== 'importing' && (
           <div className="imp-actions">
             <button type="button" className="sc-btn" onClick={choose}>
-              {stage.kind === 'intro' ? 'Choose save folder' : 'Choose a different folder'}
+              Choose a different folder
             </button>
-            <button type="button" className="sc-btn ghost" onClick={onDemo}>
-              Try the demo save
+            <button type="button" className="sc-btn ghost" onClick={() => setStage({ kind: 'intro' })}>
+              Back to the start
             </button>
           </div>
         )}

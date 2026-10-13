@@ -25,6 +25,8 @@ import react from '@vitejs/plugin-react';
  */
 const GAME_ART = ['pal-models', 'pal-models-lite', 'pal-portraits', 'work-icons', 'element-icons', 'pals'];
 const NEVER = ['roster.json'];
+/** Only the portfolio build opens a demo; the public site has no demo button, so it does not carry the file. */
+const RESUME_ONLY = ['demo-roster.json'];
 const LITE = 'pal-models-lite';
 
 const fmtSize = (bytes: number): string =>
@@ -56,6 +58,7 @@ function copyPublic(resume: boolean): Plugin {
 
       for (const name of fs.readdirSync(pub)) {
         if (NEVER.includes(name)) continue;
+        if (!resume && RESUME_ONLY.includes(name)) continue;
         let target = name;
         if (GAME_ART.includes(name)) {
           if (!resume) continue;
@@ -67,9 +70,18 @@ function copyPublic(resume: boolean): Plugin {
       }
 
       const kept = fs.readdirSync(outDir).filter((n) => GAME_ART.includes(n) || n === 'pal-models');
+      // The homepage tour's screenshots are bundled by Vite, not copied from public/: count them too.
+      const tourDir = path.join(root, 'src', 'design', 'tour');
+      const tour = fs.existsSync(tourDir) ? fs.readdirSync(tourDir).filter((n) => n.endsWith('.webp')).length : 0;
+      // public/silhouettes (the browse page's species outlines) is copied above like any other public file.
+      const silDir = path.join(root, 'public', 'silhouettes');
+      const silhouettes = fs.existsSync(silDir) ? fs.readdirSync(silDir).filter((n) => n.endsWith('.webp')).length : 0;
       console.log(
         `\n[${resume ? 'resume' : 'public'}] ${path.relative(root, outDir)} is ${fmtSize(dirSize(outDir))}` +
-          (kept.length ? `, with game art: ${kept.join(', ')}` : ', no game art'),
+          (kept.length ? `, with game art: ${kept.join(', ')}` : ', no game art') +
+          (tour || silhouettes
+            ? ` except ${[tour && `${tour} silhouette screenshots for the homepage tour`, silhouettes && `${silhouettes} species silhouettes for browsing`].filter(Boolean).join(' and ')}`
+            : ''),
       );
       if (resume && !hasLite && fs.existsSync(path.join(pub, 'pal-models'))) {
         console.warn('[resume] no public/pal-models-lite/ — shipping the FULL models. Run `npm run build-models -- --lite`.');
