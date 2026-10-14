@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { SKINS, type Skin } from '../showcase/skins.ts';
+import { ISSUES_URL } from '../../lib/links.ts';
 import { PalEgg } from '../showcase/parts.tsx';
 import { Tour } from './Tour.tsx';
 import { UploadDialog } from './UploadDialog.tsx';
@@ -105,7 +106,7 @@ export function Landing({ skin, onSkin, onChoose, onBrowse }: { skin: Skin; onSk
         Unofficial fan project. Palworld and its characters, names and artwork are © Pocketpair, Inc.; not affiliated with or endorsed
         by Pocketpair. Typefaces are served from this site under the{' '}
         <a href={`${import.meta.env.BASE_URL}font-licenses.txt`}>SIL Open Font License</a>. Found a problem?{' '}
-        <a href="https://github.com/sasank0501/palworld-breeding-index/issues">Report it on GitHub</a>.
+        <a href={ISSUES_URL}>Report it on GitHub</a>.
       </footer>
 
       <UploadDialog open={asking} onClose={() => setAsking(false)} onChoose={onChoose} />

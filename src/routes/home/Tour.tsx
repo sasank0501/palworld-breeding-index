@@ -55,10 +55,6 @@ function ChapterText({ chapter, index }: { chapter: Chapter; index: number }) {
           <li key={p}>{p}</li>
         ))}
       </ul>
-      <p className="tour-example">
-        <b>In a sample save</b>
-        {chapter.example}
-      </p>
     </>
   );
 }
@@ -158,7 +154,7 @@ function PinnedTour({ dark }: { dark: boolean }) {
             <i />
             <i />
             <i />
-            <span>paldoc · sample save</span>
+            <span>paldoc.app</span>
           </div>
           <div className="tour-frame" ref={frame}>
             {pages.map((page, i) => {
@@ -204,7 +200,7 @@ function StackedTour({ dark }: { dark: boolean }) {
               {url ? (
                 <img
                   src={url}
-                  alt={`The ${chapter.name} view of PalDoc, shown on a sample save with every pal as a silhouette`}
+                  alt={`The ${chapter.name} view of PalDoc, with every pal as a silhouette`}
                   loading="lazy"
                   decoding="async"
                   style={{ transform: `translateY(${(-middle / SHOT.h) * 100}%)` }}
