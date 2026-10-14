@@ -24,6 +24,8 @@ export interface ArtStorage {
   setCurrent(info: PackInfo | null): Promise<void>;
   read(id: string, path: string): Promise<Blob | null>;
   write(id: string, path: string, data: Blob): Promise<void>;
+  /** Every file path in one pack ("pal-models/Anubis.chibi.glb"), for saving a copy of it. */
+  list(id: string): Promise<string[]>;
   /** Every pack id present, live or left over. */
   ids(): Promise<string[]>;
   remove(id: string): Promise<void>;
@@ -140,6 +142,21 @@ async function opfs(): Promise<ArtStorage> {
       const { dirs, name } = split(path);
       await writeFile(root, [id, ...dirs], name, data);
     },
+    async list(id) {
+      const out: string[] = [];
+      const visit = async (dir: Dir, prefix: string): Promise<void> => {
+        for await (const [name, h] of (dir as unknown as { entries(): AsyncIterable<[string, FileSystemHandle]> }).entries()) {
+          if (h.kind === 'directory') await visit(h as Dir, `${prefix}${name}/`);
+          else out.push(prefix + name);
+        }
+      };
+      try {
+        await visit(await root.getDirectoryHandle(id), '');
+      } catch (e) {
+        if (!notFound(e)) throw e;
+      }
+      return out;
+    },
     async ids() {
       const out: string[] = [];
       for await (const [name, h] of (root as unknown as { entries(): AsyncIterable<[string, FileSystemHandle]> }).entries()) {
@@ -180,6 +197,9 @@ export function idbStorage(store = createStore('palworld-art', 'files')): ArtSto
         if ((e as DOMException)?.name === 'QuotaExceededError') throw e;
         throw new Error(`This browser wouldn’t store ${path} (${(e as Error)?.name ?? 'IndexedDB refused it'}).`);
       }
+    },
+    async list(id) {
+      return (await keys(store)).map(String).filter((k) => k.startsWith(`${id}/`)).map((k) => k.slice(id.length + 1));
     },
     async ids() {
       const all = (await keys(store)).map(String).filter((k) => k !== CURRENT);

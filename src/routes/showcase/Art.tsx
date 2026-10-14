@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { cancelArtLoad, formatBytes, loadArtFolder, removeArt, useLoadStage, type LoadStage } from '../../art/loader.ts';
+import { markOffered, saveArtCopy, wasOffered, type CopyResult } from '../../art/copy.ts';
+import { cancelArtLoad, formatBytes, loadArtFile, loadArtFolder, removeArt, useLoadStage, type LoadStage } from '../../art/loader.ts';
 import { useArtState } from '../../art/resolve.ts';
 import { ensureStills, stopStills, useStillsStage, type StillsStage } from '../../art/stillsRunner.ts';
 import GameFilePicker from '../../components/GameFilePicker.tsx';
@@ -327,6 +328,65 @@ function StillsNotice() {
   );
 }
 
+/**
+ * Once the art made from the game is whole (models and card pictures), offer to save a copy of it
+ * to a file, once per pack. A browser can clear a site's storage, and a new browser or computer
+ * starts empty; with the file, getting the art back is seconds and not another extraction. A
+ * browser won't write a file by itself, so this is one click and not automatic.
+ */
+function CopyOffer() {
+  const art = useArtState();
+  const stills = useStillsStage();
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<CopyResult | null>(null);
+  const [gone, setGone] = useState(false);
+  if (art?.kind !== 'local') return null;
+  const info = art.info;
+  const ready = info.complete && info.source === 'extractor' && info.stills > 0 && stills.kind !== 'making';
+  if (!result && (gone || !ready || wasOffered(info.id))) return null;
+  if (gone) return null;
+  const save = async () => {
+    setBusy(true);
+    setResult(await saveArtCopy());
+    setBusy(false);
+  };
+  const dismiss = () => {
+    markOffered(info.id);
+    setGone(true);
+  };
+  return (
+    <div className="sc-missing">
+      <section className="sc-missing-notice sc-artnotice" aria-labelledby="copy-h">
+        <div>
+          <h2 id="copy-h" tabIndex={-1}>
+            {result?.ok ? 'Copy saved' : 'Save a copy of the art'}
+          </h2>
+          <p className="sc-sethint" role="status">
+            {result?.ok
+              ? `“${result.name}” (${formatBytes(result.bytes)}) is in your downloads. Keep it somewhere safe. If this browser ever forgets the art, or you move to another one, choose “Load a saved copy” and it is back in seconds.`
+              : `Your pals’ art is ready: ${info.models} models and ${info.stills} pictures, ${formatBytes(info.bytes)}. Save it to a file, so a cleared browser or a new computer doesn’t mean reading the game again.`}
+          </p>
+        </div>
+        <div className="sc-artprog-line">
+          {!result?.ok && (
+            <button type="button" className="sc-btn" onClick={() => void save()} disabled={busy}>
+              {busy ? 'Preparing the file…' : 'Save a copy'}
+            </button>
+          )}
+          <button type="button" className="sc-btn ghost" onClick={dismiss}>
+            {result?.ok ? 'Done' : 'Not now'}
+          </button>
+        </div>
+        {result && !result.ok && (
+          <p className="sc-arterr" role="alert">
+            {result.problem}
+          </p>
+        )}
+      </section>
+    </div>
+  );
+}
+
 /** Shown above the page while this browser has no game art, is adding it, or has a half-made pack. */
 export function ArtNotice() {
   const art = useArtState();
@@ -355,7 +415,14 @@ export function ArtNotice() {
 
   const folderBusy = stage.kind === 'loading' || stage.kind === 'error';
   const runNote = run.kind === 'stopped' || run.kind === 'error' || (run.kind === 'done' && run.failed.length > 0);
-  if (!folderBusy && !running && !partial && !runNote && art?.kind !== 'none') return <StillsNotice />;
+  if (!folderBusy && !running && !partial && !runNote && art?.kind !== 'none') {
+    return (
+      <>
+        <StillsNotice />
+        <CopyOffer />
+      </>
+    );
+  }
 
   const heading = stage.kind === 'loading' || running ? 'Adding the game art…' : partial ? 'Finish adding the game art' : 'Add the game art';
   return (
@@ -416,6 +483,14 @@ export function ArtNotice() {
             )}
             <GameFilePicker intro={false} onPak={(pak) => void startExtraction(pak)} />
             <ExtractorChoice />
+            <div className="sc-artcopy">
+              <p className="sc-sethint">
+                <b>Saved a copy of the art before?</b> Load that file and skip reading the game: it takes seconds.
+              </p>
+              <button type="button" className="sc-btn ghost" onClick={() => void loadArtFile()} disabled={stage.kind === 'picking'}>
+                Load a saved copy…
+              </button>
+            </div>
             {PACK_FOLDER && (
               <details className="sc-artalt">
                 <summary>Developers: load an art pack folder</summary>
@@ -443,6 +518,8 @@ export function ArtSettings() {
   const stage = useLoadStage();
   const run = useExtractStage();
   const [pakProblem, setPakProblem] = useState<string | null>(null);
+  const [copying, setCopying] = useState(false);
+  const [copy, setCopy] = useState<CopyResult | null>(null);
   const fromGame = async () => {
     setPakProblem(null);
     const pak = await pickPak();
@@ -489,6 +566,23 @@ export function ArtSettings() {
           <button type="button" className="sc-setitem" onClick={() => void fromGame()}>
             {art?.kind === 'local' ? 'Make the art again from your game…' : 'Add the art from your game…'}
           </button>
+          {art?.kind === 'local' && art.info.complete && (
+            <button
+              type="button"
+              className="sc-setitem"
+              disabled={copying}
+              onClick={async () => {
+                setCopying(true);
+                setCopy(await saveArtCopy());
+                setCopying(false);
+              }}
+            >
+              {copying ? 'Preparing the file…' : 'Save a copy of the art…'} <span>{formatBytes(art.info.bytes)}</span>
+            </button>
+          )}
+          <button type="button" className="sc-setitem" onClick={() => void loadArtFile()} disabled={stage.kind === 'picking'}>
+            Load a saved copy…
+          </button>
           {PACK_FOLDER && (
             <button type="button" className="sc-setitem" onClick={() => void loadArtFolder()} disabled={stage.kind === 'picking'}>
               {art?.kind === 'local' ? 'Replace it with an art pack folder…' : 'Add an art pack folder…'}
@@ -499,6 +593,11 @@ export function ArtSettings() {
       {pakProblem && (
         <p className="sc-arterr" role="alert">
           {pakProblem}
+        </p>
+      )}
+      {copy && (
+        <p className={copy.ok ? 'sc-sethint' : 'sc-arterr'} role={copy.ok ? 'status' : 'alert'}>
+          {copy.ok ? `Saved “${copy.name}” (${formatBytes(copy.bytes)}) to your downloads.` : copy.problem}
         </p>
       )}
       {art?.kind === 'local' && stage.kind !== 'loading' && !isExtracting(run) && (

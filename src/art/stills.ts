@@ -148,7 +148,7 @@ async function makeViewer(): Promise<Viewer> {
   const { ModelViewerElement } = await import('@google/model-viewer');
   // The lite models are meshopt-compressed (see enableMeshopt in PalModel.tsx).
   const mvClass = ModelViewerElement as unknown as { meshoptDecoderLocation: string };
-  if (!mvClass.meshoptDecoderLocation) mvClass.meshoptDecoderLocation = 'data:text/javascript,';
+  if (!mvClass.meshoptDecoderLocation) mvClass.meshoptDecoderLocation = `${import.meta.env.BASE_URL}noop.js`;
   const mv = document.createElement('model-viewer') as unknown as Viewer;
   mv.setAttribute('interaction-prompt', 'none');
   mv.setAttribute('shadow-intensity', '0');

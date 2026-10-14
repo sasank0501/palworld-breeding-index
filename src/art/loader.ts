@@ -9,7 +9,8 @@
 import { useSyncExternalStore } from 'react';
 
 import type { FromArtWorker } from './art.worker.ts';
-import { describePack, selectPackFiles, type PackInfo } from './pack.ts';
+import { ARCHIVE_EXT, readArchive } from './archive.ts';
+import { describePack, selectPackFiles, type PackFile, type PackInfo } from './pack.ts';
 import { artChanged } from './resolve.ts';
 import { openStorage } from './storage.ts';
 import { removePack } from './store-pack.ts';
@@ -64,17 +65,9 @@ async function persist(): Promise<boolean> {
   }
 }
 
-export async function loadArtFolder(): Promise<void> {
-  if (stage.kind === 'loading' || stage.kind === 'picking') return;
-  setStage({ kind: 'picking' });
-  const picked = await pickFolder();
-  if (!picked) return setStage({ kind: 'idle' });
-
-  const files = selectPackFiles(picked.map((file) => ({ path: file.webkitRelativePath || file.name, file, size: file.size })));
-  const summary = describePack(files);
-  if (summary.problem) return setStage({ kind: 'error', message: summary.problem });
-
-  setStage({ kind: 'loading', done: 0, total: files.length, bytes: 0, totalBytes: summary.bytes });
+/** Hand a checked set of pack files to the worker that writes them, and follow its progress. */
+function startLoad(files: Array<PackFile<Blob>>, totalBytes: number): void {
+  setStage({ kind: 'loading', done: 0, total: files.length, bytes: 0, totalBytes });
   worker ??= new Worker(new URL('./art.worker.ts', import.meta.url), { type: 'module' });
   worker.onmessage = async (e: MessageEvent<FromArtWorker>) => {
     const m = e.data;
@@ -89,6 +82,44 @@ export async function loadArtFolder(): Promise<void> {
   };
   worker.onerror = () => setStage({ kind: 'error', message: 'The art loader stopped unexpectedly. Reload the page and try again.' });
   worker.postMessage({ type: 'load', files });
+}
+
+export async function loadArtFolder(): Promise<void> {
+  if (stage.kind === 'loading' || stage.kind === 'picking') return;
+  setStage({ kind: 'picking' });
+  const picked = await pickFolder();
+  if (!picked) return setStage({ kind: 'idle' });
+
+  const files = selectPackFiles(picked.map((file) => ({ path: file.webkitRelativePath || file.name, file, size: file.size })));
+  const summary = describePack(files);
+  if (summary.problem) return setStage({ kind: 'error', message: summary.problem });
+  startLoad(files, summary.bytes);
+}
+
+function pickFile(accept: string): Promise<File | null> {
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = accept;
+    input.addEventListener('change', () => resolve(input.files?.[0] ?? null));
+    input.addEventListener('cancel', () => resolve(null));
+    input.click();
+  });
+}
+
+/**
+ * Load a saved copy of the art (src/art/archive.ts): the file the player saved after an
+ * earlier extraction. Seconds, where reading the game again is minutes. The copy is checked
+ * before anything is written, and the pack in this browser is replaced only once it is whole.
+ */
+export async function loadArtFile(): Promise<void> {
+  if (stage.kind === 'loading' || stage.kind === 'picking') return;
+  setStage({ kind: 'picking' });
+  const file = await pickFile(ARCHIVE_EXT);
+  if (!file) return setStage({ kind: 'idle' });
+  const read = await readArchive(file);
+  if (!read.ok) return setStage({ kind: 'error', message: read.problem });
+  startLoad(read.files, read.bytes);
 }
 
 export function cancelArtLoad(): void {

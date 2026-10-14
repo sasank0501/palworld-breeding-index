@@ -13,7 +13,7 @@ import type { PackFile, PackInfo } from './pack.ts';
 import { storePack, type Progress } from './store-pack.ts';
 import { openStorage } from './storage.ts';
 
-export type ToArtWorker = { type: 'load'; files: Array<PackFile<File>> } | { type: 'cancel' };
+export type ToArtWorker = { type: 'load'; files: Array<PackFile<Blob>> } | { type: 'cancel' };
 export type FromArtWorker =
   | ({ type: 'progress' } & Progress)
   | { type: 'done'; info: PackInfo; backend: 'opfs' | 'idb' }
