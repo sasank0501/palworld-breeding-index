@@ -34,8 +34,8 @@ const ago = (iso: string | null): string => {
 };
 
 /**
- * The gear in the top bar: themes, the player's data (backup, restore, a backup
- * file kept up to date) and switching saves. A disclosure, not an ARIA menu: a
+ * The gear in the top bar: themes, then Files: the game save, the game art, and a backup
+ * of the player's own data (download, restore, a file kept up to date). A disclosure, not an ARIA menu: a
  * button that shows a panel of ordinary controls, so radios, buttons and the file
  * picker behave as they always do for keyboard and screen-reader users. Esc or a
  * click outside closes it; closing returns focus to the gear.
@@ -76,6 +76,8 @@ export function Settings({
   const dialog = useRef<HTMLDialogElement>(null);
   const panelId = useId();
   const themesId = useId();
+  const saveId = useId();
+  const backupId = useId();
 
   useEffect(() => {
     if (open && canSyncFile()) void fileSyncState().then(setSync);
@@ -214,16 +216,51 @@ export function Settings({
           ))}
         </fieldset>
 
+        {/* Files: the game save, the art made from the game, and a backup of what you add here.
+            Each row is a short status and its actions as small buttons, with no paragraph to read. */}
+        {(onOpenSave || !browse) && <h2>Files</h2>}
+        {onOpenSave && (
+          <div className="sc-frow" role="group" aria-labelledby={saveId}>
+            <header>
+              <b id={saveId}>Game save</b>
+            </header>
+            <div className="sc-acts">
+              <button
+                type="button"
+                className="sc-mini"
+                onClick={() => {
+                  close(false);
+                  onOpenSave();
+                }}
+              >
+                {browse ? 'Upload a save' : 'Open a different save'}
+              </button>
+            </div>
+          </div>
+        )}
         {!browse && (
           <>
             <ArtSettings />
-
-            <h2>Spotlight</h2>
-            <p className="sc-sethint">
-              {spotlightHidden === 0
-                ? 'Every pal can appear in the Paldex spotlight. “Hide” there takes a pal out of Potential and Passives.'
-                : `${spotlightHidden} ${spotlightHidden === 1 ? 'pal' : 'pals'} hidden from the spotlight.`}
-            </p>
+            <div className="sc-frow" role="group" aria-labelledby={backupId}>
+              <header>
+                <b id={backupId}>Backup</b>
+                <small>last: {ago(last)}</small>
+              </header>
+              <div className="sc-acts">
+                <button type="button" className="sc-mini" onClick={backup}>
+                  Download a backup
+                </button>
+                <button type="button" className="sc-mini" onClick={() => fileInput.current?.click()}>
+                  Restore a backup
+                </button>
+                {canSyncFile() && (
+                  <button type="button" className="sc-mini" aria-pressed={sync === 'on'} onClick={() => void toggleSync()}>
+                    Keep a file updated: {sync === 'on' ? 'on' : sync === 'needs-permission' ? 'reconnect' : 'off'}
+                  </button>
+                )}
+              </div>
+              <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(e) => void pickRestore(e.target.files?.[0])} />
+            </div>
             {spotlightHidden > 0 && onSeeHidden && (
               <button
                 type="button"
@@ -233,41 +270,9 @@ export function Settings({
                   onSeeHidden();
                 }}
               >
-                See hidden pals <span>{spotlightHidden}</span>
+                See pals hidden from the spotlight <span>{spotlightHidden}</span>
               </button>
             )}
-
-            <h2>Your data</h2>
-            <p className="sc-sethint">Favourites, notes and saved plans live in this browser. Back them up to keep them safe.</p>
-            <button type="button" className="sc-setitem" onClick={backup}>
-              Download a backup <span>last: {ago(last)}</span>
-            </button>
-            <button type="button" className="sc-setitem" onClick={() => fileInput.current?.click()}>
-              Restore from a backup
-            </button>
-            <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(e) => void pickRestore(e.target.files?.[0])} />
-            {canSyncFile() && (
-              <button type="button" className="sc-setitem" aria-pressed={sync === 'on'} onClick={() => void toggleSync()}>
-                Keep a backup file updated
-                <span>{sync === 'on' ? 'On' : sync === 'needs-permission' ? 'Reconnect' : 'Off'}</span>
-              </button>
-            )}
-          </>
-        )}
-
-        {onOpenSave && (
-          <>
-            <h2>{browse ? 'Your save' : 'Save'}</h2>
-            <button
-              type="button"
-              className="sc-setitem"
-              onClick={() => {
-                close(false);
-                onOpenSave();
-              }}
-            >
-              {browse ? 'Upload a save' : 'Open a different save'}
-            </button>
           </>
         )}
         <p className="sc-setmsg" aria-live="polite">

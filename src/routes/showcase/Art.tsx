@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 import { markOffered, saveArtCopy, wasOffered, type CopyResult } from '../../art/copy.ts';
 import { cancelArtLoad, formatBytes, loadArtFile, loadArtFolder, removeArt, useLoadStage, type LoadStage } from '../../art/loader.ts';
@@ -512,7 +512,7 @@ export function ArtNotice() {
   );
 }
 
-/** The "Game art" part of the settings panel. */
+/** The "Game art" row of the settings panel's Files block: a short status, then its actions as small buttons. */
 export function ArtSettings() {
   const art = useArtState();
   const stage = useLoadStage();
@@ -520,6 +520,7 @@ export function ArtSettings() {
   const [pakProblem, setPakProblem] = useState<string | null>(null);
   const [copying, setCopying] = useState(false);
   const [copy, setCopy] = useState<CopyResult | null>(null);
+  const titleId = useId();
   const fromGame = async () => {
     setPakProblem(null);
     const pak = await pickPak();
@@ -536,40 +537,46 @@ export function ArtSettings() {
       .catch(() => setPersisted(null));
   }, [art]);
 
+  // The row's short status, and a warning only when there is something to warn about.
   let status = 'Checking…';
-  if (art?.kind === 'server') status = 'This copy of the site hosts the art.';
-  else if (art?.kind === 'none') status = 'No game art in this browser yet.';
+  let warning: string | null = null;
+  if (art?.kind === 'server') status = 'Hosted by this site';
+  else if (art?.kind === 'none') status = 'None yet';
   else if (art?.kind === 'local') {
     const i = art.info;
-    status = `${i.models} 3D models and ${i.stills} pictures, ${formatBytes(i.bytes)}, kept in this browser.`;
-    if (!i.complete) status += ' Not finished: add the art from your game again to carry on.';
-    if (art.storage.kind === 'idb') status += ' This window may forget them when it closes.';
-    else if (persisted === false) status += ' The browser may clear them if the disk runs low.';
+    status = `${i.models} models · ${formatBytes(i.bytes)}`;
+    if (!i.complete) warning = 'Not finished: add the art from your game again to carry on.';
+    else if (art.storage.kind === 'idb') warning = 'This window may forget the art when it closes.';
+    else if (persisted === false) warning = 'The browser may clear the art if the disk runs low.';
   }
+  const busy = stage.kind === 'loading' || isExtracting(run);
 
   return (
-    <>
-      <h2>Game art</h2>
-      <p className="sc-sethint" role="status">
-        {stage.kind === 'done'
-          ? `Added: ${stage.info.models} 3D models.`
-          : run.kind === 'done'
-            ? `Made from your game: ${run.models} 3D models in ${formatDuration(run.seconds)}.`
-            : status}
-      </p>
+    <div className="sc-frow" role="group" aria-labelledby={titleId}>
+      <header>
+        <b id={titleId}>Game art</b>
+        <small role="status">
+          {stage.kind === 'done'
+            ? `Added: ${stage.info.models} models`
+            : run.kind === 'done'
+              ? `Made: ${run.models} models in ${formatDuration(run.seconds)}`
+              : status}
+        </small>
+      </header>
+      {warning && !busy && <p className="sc-sethint">{warning}</p>}
       {stage.kind === 'loading' ? (
         <Progress stage={stage} />
       ) : isExtracting(run) ? (
         <ExtractProgress stage={run} />
       ) : (
-        <>
-          <button type="button" className="sc-setitem" onClick={() => void fromGame()}>
-            {art?.kind === 'local' ? 'Make the art again from your game' : 'Add the art from your game'}
+        <div className="sc-acts">
+          <button type="button" className="sc-mini main" onClick={() => void fromGame()}>
+            {art?.kind === 'local' ? 'Make the art again' : 'Add the art from your game'}
           </button>
           {art?.kind === 'local' && art.info.complete && (
             <button
               type="button"
-              className="sc-setitem"
+              className="sc-mini"
               disabled={copying}
               onClick={async () => {
                 setCopying(true);
@@ -577,18 +584,29 @@ export function ArtSettings() {
                 setCopying(false);
               }}
             >
-              {copying ? 'Preparing the file…' : 'Save a copy of the art'} <span>{formatBytes(art.info.bytes)}</span>
+              {copying ? 'Preparing the file…' : 'Save art to a file'}
             </button>
           )}
-          <button type="button" className="sc-setitem" onClick={() => void loadArtFile()} disabled={stage.kind === 'picking'}>
-            Load a saved copy
+          <button type="button" className="sc-mini" onClick={() => void loadArtFile()} disabled={stage.kind === 'picking'}>
+            Load art from a file
           </button>
           {PACK_FOLDER && (
-            <button type="button" className="sc-setitem" onClick={() => void loadArtFolder()} disabled={stage.kind === 'picking'}>
-              {art?.kind === 'local' ? 'Replace it with an art pack folder' : 'Add an art pack folder'}
+            <button type="button" className="sc-mini" onClick={() => void loadArtFolder()} disabled={stage.kind === 'picking'}>
+              {art?.kind === 'local' ? 'Replace with a folder' : 'Add a folder'}
             </button>
           )}
-        </>
+          {art?.kind === 'local' && (
+            <button
+              type="button"
+              className="sc-mini danger"
+              onClick={() => {
+                if (confirm('Remove the game art from this browser? Your pals go back to placeholders until you add it again.')) void removeArt();
+              }}
+            >
+              Remove the art
+            </button>
+          )}
+        </div>
       )}
       {pakProblem && (
         <p className="sc-arterr" role="alert">
@@ -600,22 +618,11 @@ export function ArtSettings() {
           {copy.ok ? `Saved “${copy.name}” (${formatBytes(copy.bytes)}) to your downloads.` : copy.problem}
         </p>
       )}
-      {art?.kind === 'local' && stage.kind !== 'loading' && !isExtracting(run) && (
-        <button
-          type="button"
-          className="sc-setitem"
-          onClick={() => {
-            if (confirm('Remove the game art from this browser? Your pals go back to placeholders until you add it again.')) void removeArt();
-          }}
-        >
-          Remove the art from this browser
-        </button>
-      )}
       {stage.kind === 'error' && (
         <p className="sc-arterr" role="alert">
           {stage.message}
         </p>
       )}
-    </>
+    </div>
   );
 }
