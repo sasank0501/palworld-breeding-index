@@ -21,13 +21,14 @@ Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
 ## Pick up here
 
 **Waiting on the user**
-1. **Cloudflare Web Analytics is switched on for paldoc.app, and our CSP blocks it.** On the live domain
-   Cloudflare injects `static.cloudflareinsights.com/beacon.min.js` and an inline snippet; `public/_headers`
-   allows neither, so it collects nothing and every visitor's console shows two CSP errors (not on
-   `*.pages.dev`). Either turn it off in the dashboard (Web Analytics, or the Pages project's setting), or
-   allow it: `script-src https://static.cloudflareinsights.com` plus the snippet's hash, and
-   `connect-src https://cloudflareinsights.com`. Turning it on also changes what can be said about "no
-   analytics" (resume wording, 2026-10-14).
+1. **Cloudflare bot detection's inline script is still blocked** on paldoc.app (one console error per visit).
+   It is Cloudflare's "JavaScript detections" (`/cdn-cgi/challenge-platform/…/jsd/main.js`), inline and
+   different on every request, so the CSP can't allow it safely. The owner can turn it off in the dashboard
+   (Security → Bots). **Web Analytics works** since 2026-10-14 (the owner chose it): Cloudflare's automatic
+   setup adds the beacon, `public/_headers` allows `static.cloudflareinsights.com` and `cloudflareinsights.com`,
+   and a visit is reported (`POST /cdn-cgi/rum`, checked live). So the site has analytics now: say
+   "privacy-focused analytics, no ad trackers", not "no analytics" (resume wording). Privacy evidence is mixed:
+   Cloudflare says no cookies or fingerprinting; a review (ctrl.blog) found a cookie with a unique id.
 2. **O2, 3D expressions per animation:** go or no-go. Report given: the eye atlas is 2×4 cells and the
    chibi build pins one (happy closed); the mouth is the jaw bone only; switching cells per animation needs a
    one-pal proof that the 3D viewer can change a texture offset at run time.
