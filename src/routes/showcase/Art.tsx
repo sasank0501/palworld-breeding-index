@@ -238,7 +238,7 @@ function NeedMappings({ stage }: { stage: Extract<ExtractStage, { kind: 'needMap
       </p>
       <div className="sc-artcmd">
         <label className="sc-btn" aria-disabled={stage.checking}>
-          {stage.checking ? 'Checking the file…' : 'Choose the .usmap file…'}
+          {stage.checking ? 'Checking the file…' : 'Choose the .usmap file'}
           <input
             type="file"
             accept=".usmap"
@@ -488,7 +488,7 @@ export function ArtNotice() {
                 <b>Saved a copy of the art before?</b> Load that file and skip reading the game: it takes seconds.
               </p>
               <button type="button" className="sc-btn ghost" onClick={() => void loadArtFile()} disabled={stage.kind === 'picking'}>
-                Load a saved copy…
+                Load a saved copy
               </button>
             </div>
             {PACK_FOLDER && (
@@ -564,7 +564,7 @@ export function ArtSettings() {
       ) : (
         <>
           <button type="button" className="sc-setitem" onClick={() => void fromGame()}>
-            {art?.kind === 'local' ? 'Make the art again from your game…' : 'Add the art from your game…'}
+            {art?.kind === 'local' ? 'Make the art again from your game' : 'Add the art from your game'}
           </button>
           {art?.kind === 'local' && art.info.complete && (
             <button
@@ -577,15 +577,15 @@ export function ArtSettings() {
                 setCopying(false);
               }}
             >
-              {copying ? 'Preparing the file…' : 'Save a copy of the art…'} <span>{formatBytes(art.info.bytes)}</span>
+              {copying ? 'Preparing the file…' : 'Save a copy of the art'} <span>{formatBytes(art.info.bytes)}</span>
             </button>
           )}
           <button type="button" className="sc-setitem" onClick={() => void loadArtFile()} disabled={stage.kind === 'picking'}>
-            Load a saved copy…
+            Load a saved copy
           </button>
           {PACK_FOLDER && (
             <button type="button" className="sc-setitem" onClick={() => void loadArtFolder()} disabled={stage.kind === 'picking'}>
-              {art?.kind === 'local' ? 'Replace it with an art pack folder…' : 'Add an art pack folder…'}
+              {art?.kind === 'local' ? 'Replace it with an art pack folder' : 'Add an art pack folder'}
             </button>
           )}
         </>

@@ -577,7 +577,7 @@ site?" question. A stopped or interrupted run leaves "Finish adding the game art
 already", and choosing the file again carries on. If no mappings work, the notice asks for a
 `.usmap` file with a link to UsefulFiles and a "What was tried" list; when nothing could be
 downloaded at all it says offline/blocked instead of "wrong version". Card stills wait until the
-pack is complete. Settings: "Add the art from your game…" / "Make the art again from your game…"
+pack is complete. Settings: "Add the art from your game" / "Make the art again from your game"
 beside the folder route. The extractor (about 500 MB of WebAssembly memory) is ended when a run ends.
 
 **Phase 6 "done when", met (2026-10-09)** on the public build (`npm run build`, `vite preview`),
