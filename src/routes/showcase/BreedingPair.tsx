@@ -14,8 +14,11 @@ const ALL = Object.values(DEX);
  * player can breed it today from the pals they own. The lists below answer "what can I make?";
  * this answers "what do these two make?". Three of the page's own list cards in a row: the two
  * parents each hold a search box, the result opens the species' page.
+ *
+ * `browse` is the same calculator for a visit with no save (the browse page): the same cards, with
+ * nothing said about what the player owns, since there is no player.
  */
-export function BreedingPair({ ctx, onSpecies }: { ctx: Ctx; onSpecies: (id: string) => void }) {
+export function BreedingPair({ ctx, onSpecies, browse = false }: { ctx: Ctx; onSpecies: (id: string) => void; browse?: boolean }) {
   const [a, setA] = useState('');
   const [b, setB] = useState('');
   const index = useMemo(() => (ctx.combos ? pairIndex(ctx.combos) : null), [ctx.combos]);
@@ -26,12 +29,12 @@ export function BreedingPair({ ctx, onSpecies }: { ctx: Ctx; onSpecies: (id: str
     <section className="sc-bpair" aria-labelledby={titleId}>
       <div className="sc-bpair-head">
         <h2 id={titleId}>Pair calculator</h2>
-        <p>Pick two parents, see what they breed and whether you can do it today.</p>
+        <p>{browse ? 'Pick two parents, see what they breed.' : 'Pick two parents, see what they breed and whether you can do it today.'}</p>
       </div>
       <div className="sc-bpair-row">
-        <ParentCard label="First parent" id={a} onPick={setA} ctx={ctx} />
+        <ParentCard label="First parent" id={a} onPick={setA} ctx={ctx} browse={browse} />
         <i aria-hidden="true">×</i>
-        <ParentCard label="Second parent" id={b} onPick={setB} ctx={ctx} />
+        <ParentCard label="Second parent" id={b} onPick={setB} ctx={ctx} browse={browse} />
         <i aria-hidden="true">=</i>
         <div className="sc-bpair-out" role="status">
           {!a || !b ? (
@@ -43,18 +46,20 @@ export function BreedingPair({ ctx, onSpecies }: { ctx: Ctx; onSpecies: (id: str
               PalDoc has no breeding data for {nameOf(a)} with {nameOf(b)}.
             </p>
           ) : result.kind === 'child' ? (
-            <ChildCard id={result.child} status={pairStatus(a, b, ctx.have)} note={statusNote(pairStatus(a, b, ctx.have), a, b)} ctx={ctx} onOpen={onSpecies} />
+            <ChildCard id={result.child} status={browse ? null : pairStatus(a, b, ctx.have)} note={browse ? null : statusNote(pairStatus(a, b, ctx.have), a, b)} ctx={ctx} onOpen={onSpecies} browse={browse} />
           ) : (
             result.outcomes.map((o) => {
-              const st = outcomeStatus(o.female, o.male, ctx.have);
+              const st = browse ? null : outcomeStatus(o.female, o.male, ctx.have);
               const how = `Female ${nameOf(o.female)} with male ${nameOf(o.male)}`;
               const note =
-                st === 'ready'
+                st === null
+                  ? how
+                  : st === 'ready'
                   ? `${how}: ready now`
                   : st === 'sexes'
                     ? `${how}: you own both species, but not that female and that male`
                     : `${how}: ${statusNote(st, o.female, o.male).replace(/^./, (c) => c.toLowerCase())}`;
-              return <ChildCard key={o.child} id={o.child} status={st} note={note} ctx={ctx} onOpen={onSpecies} />;
+              return <ChildCard key={o.child} id={o.child} status={st} note={note} ctx={ctx} onOpen={onSpecies} browse={browse} />;
             })
           )}
         </div>
@@ -72,9 +77,9 @@ function statusNote(status: PairStatus, a: string, b: string): string {
 }
 
 /** A parent: the list card, with a search box that changes which species it is. */
-function ParentCard({ label, id, onPick, ctx }: { label: string; id: string; onPick: (id: string) => void; ctx: Ctx }) {
+function ParentCard({ label, id, onPick, ctx, browse }: { label: string; id: string; onPick: (id: string) => void; ctx: Ctx; browse: boolean }) {
   const [query, setQuery] = useState('');
-  const own = id ? ctx.byPal.get(id)?.length ?? 0 : 0;
+  const own = !browse && id ? ctx.byPal.get(id)?.length ?? 0 : 0;
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
@@ -95,7 +100,7 @@ function ParentCard({ label, id, onPick, ctx }: { label: string; id: string; onP
         <b className="sc-gap-name">{id ? nameOf(id) : 'Not chosen yet'}</b>
         {id && (
           <span>
-            <ElementChips id={id} /> <small className="sc-bpair-note">{own ? `you own ×${own}` : 'not owned'}</small>
+            <ElementChips id={id} /> {!browse && <small className="sc-bpair-note">{own ? `you own ×${own}` : 'not owned'}</small>}
           </span>
         )}
         <span className="sc-bpair-find sc-search block">
@@ -124,7 +129,7 @@ function ParentCard({ label, id, onPick, ctx }: { label: string; id: string; onP
                       <SpeciesArt id={d.id} />
                     </span>
                     {d.name}
-                    {ctx.byPal.has(d.id) && <em>×{ctx.byPal.get(d.id)?.length}</em>}
+                    {!browse && ctx.byPal.has(d.id) && <em>×{ctx.byPal.get(d.id)?.length}</em>}
                   </button>
                 </li>
               ))}
@@ -137,18 +142,18 @@ function ParentCard({ label, id, onPick, ctx }: { label: string; id: string; onP
 }
 
 /** The result: a list card that opens the species' page, with what it takes to breed it. */
-function ChildCard({ id, status, note, ctx, onOpen }: { id: string; status: PairStatus; note: string; ctx: Ctx; onOpen: (id: string) => void }) {
-  const own = ctx.byPal.get(id)?.length ?? 0;
+function ChildCard({ id, status, note, ctx, onOpen, browse }: { id: string; status: PairStatus | null; note: string | null; ctx: Ctx; onOpen: (id: string) => void; browse: boolean }) {
+  const own = browse ? 0 : ctx.byPal.get(id)?.length ?? 0;
   return (
     <button type="button" className={`sc-gap tier-${tierOf(id)} e-${elementOf(id)}${status === 'ready' ? ' is-ready' : ''}`} onClick={() => onOpen(id)}>
       <span className="sc-gap-art">
         <SpeciesArt id={id} />
       </span>
       <span className="sc-gap-body">
-        <span className="sc-bpair-label">They breed{own ? ` · you own ×${own}` : ' · new to you'}</span>
+        <span className="sc-bpair-label">They breed{browse ? '' : own ? ` · you own ×${own}` : ' · new to you'}</span>
         <b className="sc-gap-name">{nameOf(id)}</b>
         <ElementChips id={id} />
-        <span className={`sc-bpair-note${status === 'ready' ? ' ready' : ''}`}>{note}</span>
+        {note && <span className={`sc-bpair-note${status === 'ready' ? ' ready' : ''}`}>{note}</span>}
       </span>
     </button>
   );

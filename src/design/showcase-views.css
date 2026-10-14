@@ -281,23 +281,9 @@
 .sc-recipes em { margin-left: auto; font: 700 12px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; font-style: normal; color: var(--ink-soft); white-space: nowrap; }
 .sc-recipes .rk-0 em { color: var(--good-text); }
 
-/* The pair calculator (browse page): two parents in, their child out. Spans the hero's two columns. */
-.sc-paircalc { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.2fr); align-items: center; gap: 14px 28px; padding: 20px 24px; }
-.sc-paircalc h2 { margin: 0 0 4px; font-size: 22px; }
-.sc-paircalc p { margin: 0; }
-.sc-paircalc-pick { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 12px; }
-.sc-paircalc-pick label { display: grid; gap: 4px; font-weight: 800; font-size: 14px; }
-.sc-paircalc-pick select { min-height: 44px; width: 13em; max-width: 100%; padding: 6px 10px; border: var(--border); border-radius: var(--radius-s); background: var(--panel-solid); color: var(--ink); font: 600 14px var(--font-body); }
-.sc-paircalc-pick i { align-self: end; padding-bottom: 10px; font: var(--d-weight) 18px var(--font-display); font-style: normal; color: var(--accent-strong); }
-.sc-paircalc-out { display: grid; gap: 8px; min-height: 44px; align-content: center; }
-.sc-paircalc-out p { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-weight: 700; }
-.sc-paircalc-out .sc-pchip { min-height: 44px; }
-@media (max-width: 1100px) { .sc-paircalc { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 640px) {
-  .sc-paircalc-pick label { flex: 1 1 100%; }
-  .sc-paircalc-pick select { width: 100%; }
-  .sc-paircalc-pick i { display: none; }
-}
+/* The pair calculator on the browse page is the Breeding page's (BreedingPair.tsx); here it spans the hero's two columns. */
+.sc-pair-slot { grid-column: 1 / -1; }
+.sc-pair-slot .sc-bpair { margin-bottom: 0; }
 
 .sc-pchip { display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding: 3px 10px 3px 4px; background: var(--panel); border: 1px solid var(--hair); border-radius: 999px; color: var(--ink); cursor: pointer; transition: border-color 0.15s; }
 @media (hover: hover) { .sc-pchip:hover { border-color: var(--elem); } }
