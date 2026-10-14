@@ -775,16 +775,73 @@ Run against the Phase 0 checklist:
   and memory (`EXTRACTOR_FACTS` in `src/extract/pool.ts`), "Let PalDoc decide" the default, kept per browser.
   The art-pack folder route shows on the dev server only: a player never has such a folder.
 - **Landing page theme switcher**; the first tab is called **Paldex** (the site stays PalDoc); the Planner's
-  Saved plans and Save this plan sit on the result's header line.
+  Saved plans and Save this plan sat on the result's header line (moved to the page header 2026-10-14).
 - **Cawgnito's hat:** skinned to `neck_03`, not the head, so the chibi's doubled head swallowed it;
   `chibi-overrides.json` now scales that bone with the head. A pack extracted before this keeps the old
   model until the art is made again: **there is no pack version that tells the app a stored pack is stale.**
 - **The served data names no source:** a build plugin drops `source` from `passives.json`.
 
+**Deployed 2026-10-14** to the Pages project `paldoc-app`, at **https://paldoc.app** (domain bought and
+attached by the owner on 2026-10-13; first deploy that night, today's build on 2026-10-14).
+
+**Also built 2026-10-14:**
+- **Spotlight:** Party / Potential / Passives (a rule after Party), toggle above the pager, both right-aligned.
+  Party is the first-visit default and the last pick is remembered per device; it has no Hide, and Hide
+  still applies to the other two. Multi-player worlds would mix every player's party: see Phase 9.
+- **Planner, the "hybrid" layout** (chosen from three Figma mock-ups and a clickable demo): choosing
+  beside the result with every passive in view and Find the lineage kept in reach (pinned at the bottom
+  of the screen; a bottom bar under 980 px); the first plan folds the setup into a summary row and gives the
+  plan the full width; Edit opens the setup inside that row; after that a changed choice clears the plan in
+  place. Real boxes move and grow (CSS transitions; at once with reduced motion). Why: Baymard's filtering
+  research (options laid out beat options behind clicks) and NN/g on overlays (dismissed by accident).
+- **Settings:** themes, then one Files block (Game save, Game art, Backup), each a short status and small
+  buttons; about 97 words on screen down to about 37. No "…" on buttons.
+- **The browse page's pair calculator** is the Breeding page's cards (`BreedingPair` with `browse`).
+- **The main nav's highlight glides** between tabs (`TabSlider.tsx`).
+- **Fonts:** Oxanium, Josefin Sans and Zen Antique re-declared with adjusted ascent and descent so capitals
+  sit in the middle of buttons (`scripts/build-font-metrics.mjs`); Feybreak's labels were 2–2.5 px high.
+- **Contrast:** element-chip text on the light skins is mixed toward the ink (six of nine were under 4.5:1).
+- **Security before the deploy:** `public/_headers` (CSP, no framing, no device permissions), the unused
+  `react-router-dom` removed (npm audit 0), the model decoder stub served as a file.
+- **Save a copy of the art** to one `.paldocart` file and load it back (`src/art/archive.ts`, `copy.ts`).
+
 **Owner's decisions (2026-10-13).** Panthalus stays as the game's rarity puts it (epic). "Upload save" keeps
 its wording. Pocketpair's permission is not sought before shipping: content is removed on notice. The site
 itself names no data-source websites (no paldb or palworld.gg credit in the app or its footer); the
 credits stay in the README.
+
+### Phase 9 — Multi-player worlds (planned 2026-10-14, not started)
+
+**Why.** A co-op or dedicated-server world keeps every player's pals in one `Level.sav`; the importer reads
+all of them and merges them into one roster, so a shared world shows everyone's pals as "yours" (and the
+spotlight's Party view shows every player's party together).
+
+**What the save holds** (researched 2026-10-14; the owner's saves are solo only, so none of it is tested):
+- Co-op lives only on the host's PC; a server's world only on the server (`SaveGames/0/<world>/`). A player
+  on a server has no copy, so only whoever can download the server's files can upload it.
+- `Level.sav`: every pal, with `OwnerPlayerUId` (and `OldOwnerPlayerUIds` after a trade); players are in the
+  same map marked `IsPlayer`, with a nickname; guilds (`GroupSaveDataMap`) list their players by id and name
+  (palworld-save-tools, `rawdata/group.py`).
+- `Players/<id>.sav`: that player's Pal Box and party container ids. `Players/<id>_dps.sav`: their own storage.
+  `GlobalPalStorage.sav` sits above the world, per Steam account: only the uploader's copy can exist.
+- The co-op host's file is always `00000000000000000000000000000001.sav`; on a server every id comes from
+  the Steam id. `LevelMeta.sav` carries a host name.
+
+**Plan.**
+1. **World type on the world picker** (Sonnet): solo / co-op ("host + 2") / server ("5 players"), from the
+   `…0001` file, the player count, `LevelMeta`'s host name and a `0` folder; unit tests on made-up layouts.
+2. **Owners in the roster** (Opus): a `players` list (id, name, level, host) and, per pal, `owner`
+   (`OwnerPlayerUId`) and `holder` (whose Pal Box, party or `_dps`); "World" for none. A test world made from
+   the owner's own save: a second player file and some pals' owner ids swapped (same length, stays valid).
+3. **"Which player are you?"** (Opus): none for solo, the host for co-op, asked once for a server, kept per
+   world and changeable in Settings → Files → Game save. The roster is filtered once, before `useCtx`, so
+   the Paldex, My Pals, Breeding, the Planner and the spotlight all follow; "Everyone" for an admin. A chip
+   under the top bar on multi-player worlds only: "Viewing Sasank's pals · Change".
+4. **Party per player, docs, learning chapter** (Sonnet).
+
+**Open:** owner (who caught it) or holder (whose storage) as "your pals" (owner proposed; the party and Pal
+Box by holder); traded pals; import time and memory for a large server's `Level.sav`. **Done when** a real
+co-op or server save from a player has been checked; until then it is labelled untested.
 
 ---
 
