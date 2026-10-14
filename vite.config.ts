@@ -140,16 +140,21 @@ function chibiReviewStore(root: string): Plugin {
 /**
  * src/data/passives.json records where each entry was checked ("source": a site's name). That is
  * a note for whoever maintains the data, credited in the README; the site itself names no data
- * source (owner's decision, 2026-10-13), so the field is dropped from what is served.
+ * source (owner's decision, 2026-10-13), so the field is dropped from what is served. The same
+ * goes for the sprite addresses in pals.json.
  */
 function stripDataSources(): Plugin {
   return {
     name: 'strip-data-sources',
     enforce: 'pre',
     transform(code, id) {
-      if (!id.replace(/\\/g, '/').split('?')[0].endsWith('/src/data/passives.json')) return null;
-      const data = JSON.parse(code) as Record<string, { source?: string }>;
-      for (const entry of Object.values(data)) delete entry.source;
+      const file = id.replace(/\\/g, '/').split('?')[0];
+      // pals.json's remoteImg is the address a data script once fetched each sprite from: 289
+      // links to someone else's site that the app never follows.
+      const drop = file.endsWith('/src/data/passives.json') ? 'source' : file.endsWith('/src/data/pals.json') ? 'remoteImg' : null;
+      if (!drop) return null;
+      const data = JSON.parse(code) as Record<string, Record<string, unknown>>;
+      for (const entry of Object.values(data)) delete entry[drop];
       return { code: JSON.stringify(data), map: null };
     },
   };
@@ -159,7 +164,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [stripDataSources(), react(), copyPublic(mode === 'resume'), chibiReviewStore(process.cwd())],
   // The save-import worker loads the Oodle decoder (ooz-wasm) with a dynamic
   // import, which the default classic-script worker bundle cannot do.
-  worker: { format: 'es' },
+  // Workers are bundled apart from the page, with their own plugins: they import the same data files.
+  worker: { format: 'es', plugins: () => [stripDataSources()] },
   server: {
     watch: {
       // scripts/ holds build-time tooling, none of which the app imports. The

@@ -77,11 +77,14 @@ const CROSSFADE_MS = 350;
  * The lite set the portfolio build hosts is meshopt-compressed. model-viewer
  * bundles a meshopt decoder but only switches it on once a decoder location is
  * set, and it only waits for that script to load — the bundled decoder is what
- * decodes. So any loadable script will do, and no CDN is needed. Without this a
- * compressed model fails with "setMeshoptDecoder must be called".
+ * decodes. So any loadable script will do, and no CDN is needed: an empty file of our own
+ * (public/noop.js; a data: URL worked too, but the site's Content-Security-Policy refuses scripts
+ * that are not files on this site). Without this a compressed model fails with
+ * "setMeshoptDecoder must be called".
  */
+export const MESHOPT_STUB = `${import.meta.env.BASE_URL}noop.js`;
 function enableMeshopt(viewer: { meshoptDecoderLocation: string }): void {
-  if (!viewer.meshoptDecoderLocation) viewer.meshoptDecoderLocation = 'data:text/javascript,';
+  if (!viewer.meshoptDecoderLocation) viewer.meshoptDecoderLocation = MESHOPT_STUB;
 }
 
 /** Boss and normal variants share one mesh; the file is keyed by the base codename. */

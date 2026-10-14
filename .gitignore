@@ -71,3 +71,6 @@ spikes/*/obj/
 extractor/bin/
 extractor/obj/
 public/extractor/
+
+# Cloudflare Wrangler local state
+.wrangler/

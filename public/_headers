@@ -1,0 +1,25 @@
+# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/).
+#
+# The policy lets the page run only this site's own scripts (plus WebAssembly, for the extractor's
+# .NET runtime) and talk only to the three hosts the type mappings come from (src/art/mappings.ts).
+# blob: is how the art in the player's own browser storage reaches the page (src/art/resolve.ts);
+# data: is the favicon and the smallest fonts, which the build inlines. Inline styles are allowed
+# because React writes style attributes.
+# 'unsafe-eval' is a real cost, taken knowingly: the model builder's texture code (ndarray-ops, by
+# way of gltf-transform) and the .NET runtime both build functions from strings, and without it an
+# extraction stops at once (tried 2026-10-13). Scripts still load only from this site, never inline
+# and never from elsewhere, so a string would have to get into our own code first. Dropping it means
+# replacing ndarray-ops in src/extract/model.
+# Nobody else may put the site in a frame, and it asks for no device permissions.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' blob: data: https://raw.githubusercontent.com https://cdn.jsdelivr.net https://api.github.com; worker-src 'self' blob:; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+# Vite names these files by their content, so a changed file has a new name.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
