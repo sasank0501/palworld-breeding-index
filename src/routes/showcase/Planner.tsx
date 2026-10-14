@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { Portrait, displayName, ivTotal } from '../../components/PalCards.tsx';
 import { PRESETS, RANK_ORDER, rankSort } from '../../lib/passiveCategories.ts';
@@ -36,6 +36,16 @@ const rankKey = (id: string): string => {
  * The passive planner as a workshop: choose a species and up to four passives on
  * the left, get a lineage on the right: a tree of who breeds with whom, the pals
  * to gather (and where they are kept), and the alternatives for each passive.
+ *
+ * Choosing and reading a plan want different layouts, so the page changes once, at the first plan.
+ * While choosing, the setup sits beside the result with every passive and its count in view (a long
+ * list of options reads best laid out, not behind clicks: Baymard's filtering research), and Find
+ * the lineage stays in reach: at the bottom of the screen on a desktop, in a bar at the bottom on a
+ * phone. Once there is a plan, the setup folds into a summary row above it and the plan takes the
+ * full width; Edit opens the setup in place, inside that row (not in an overlay, which NN/g found
+ * people dismiss by accident and lose their choices). From then on the layout stays put: changing a
+ * choice clears the old plan where it stands, and only Find the lineage folds the setup again.
+ * The boxes move and grow as they change (CSS transitions on real sizes); with reduced motion, at once.
  */
 export function Planner({
   ctx,
@@ -58,6 +68,17 @@ export function Planner({
   const [result, setResult] = useState<SolveResult | null>(null);
   const [solving, setSolving] = useState(false);
   const [query, setQuery] = useState('');
+  // planned: a plan has been found on this visit, so the layout is the plan's. editing: the setup is
+  // open in the summary row while the current plan is still shown.
+  const [planned, setPlanned] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const setupBox = useRef<HTMLDivElement>(null);
+  const resultBox = useRef<HTMLDivElement>(null);
+  const summaryBox = useRef<HTMLElement>(null);
+  const editBtn = useRef<HTMLButtonElement>(null);
+  const glideFrom = useRef<DOMRect | null>(null);
+  const toPlan = useRef(false);
+  const drawerId = useId();
 
   useEffect(() => {
     if (initialTarget) {
@@ -171,15 +192,49 @@ export function Planner({
     setSolving(true);
     setResult(null);
     setTimeout(() => {
-      setResult(solvePassivePlan({ target, want: picked, owned: planner, combos: ctx.combos!, unbreedable: META.unbreedable }));
-      setSolving(false);
+      const r = solvePassivePlan({ target, want: picked, owned: planner, combos: ctx.combos!, unbreedable: META.unbreedable });
+      const first = r.ok && !planned;
+      const commit = (): void => {
+        if (first) {
+          glideFrom.current = resultBox.current?.getBoundingClientRect() ?? null;
+          setPlanned(true);
+        }
+        if (r.ok) {
+          setEditing(false);
+          toPlan.current = true;
+        }
+        setResult(r);
+        setSolving(false);
+      };
+      if (first && setupBox.current && !still()) {
+        setupBox.current.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: 'ease-in' }).finished.then(commit, commit);
+      } else commit();
     }, 16);
   };
 
-  const tdex = target ? DEX[target] : undefined;
+  // On a phone the result rises into the space the setup leaves (CSS can't tween that jump).
+  useLayoutEffect(() => {
+    const from = glideFrom.current;
+    glideFrom.current = null;
+    const el = resultBox.current;
+    if (!from || !el || still() || !window.matchMedia('(max-width: 980px)').matches) return;
+    const dy = from.top - el.getBoundingClientRect().top;
+    if (Math.abs(dy) > 1) el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 500, easing: 'cubic-bezier(0.3, 0.7, 0.2, 1)' });
+  }, [planned]);
+  // After a plan, the button that was pressed is gone or folded away: focus moves to Edit, and the
+  // page brings the summary into view.
+  useEffect(() => {
+    if (!toPlan.current || !result?.ok) return;
+    toPlan.current = false;
+    editBtn.current?.focus({ preventScroll: true });
+    summaryBox.current?.scrollIntoView({ block: 'start', behavior: still() ? 'auto' : 'smooth' });
+  }, [result]);
 
-  // Saved plans and Save this plan: on the result's own header line ("N generations to …"), at its
-  // right end; with no result yet, at the top right of the same column.
+  const tdex = target ? DEX[target] : undefined;
+  const drawerOpen = planned && (editing || !result?.ok);
+
+  // Saved plans and Save this plan: in the page header, on the right, so the setup and the result
+  // both start at the same height below it.
   const planBar = (
     <div className="sc-planbar sc-in" style={stagger(3)}>
       <div
@@ -243,6 +298,165 @@ export function Planner({
     </div>
   );
 
+  const setup = (
+    <div className="sc-plan-setup" ref={setupBox}>
+      <section className="sc-card sc-in" style={stagger(3)}>
+        <h2 className="sc-h3">
+          <span className="sc-roman" aria-hidden="true">1</span> Target species
+        </h2>
+        <div className={`sc-target${tdex ? ` tier-${tierOf(target)} e-${elementOf(target)}` : ''}`}>
+          <span className="sc-target-art">{tdex ? <SpeciesArt id={target} /> : <i>?</i>}</span>
+          <div>
+            <b>{tdex?.name ?? 'Not chosen yet'}</b>
+            {tdex ? <ElementChips id={target} labels /> : <small>Search below.</small>}
+            {target && UNBREEDABLE.has(target) && <em className="warn">Can’t be bred, so it can’t get passives.</em>}
+          </div>
+        </div>
+        <label className="sc-search block">
+          <input
+            value={query}
+            aria-label="Search species"
+            placeholder={tdex ? `${tdex.name}, or another…` : 'Search 289 species…'}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && matches[0]) {
+                setTarget(matches[0].id);
+                setResult(null);
+                setQuery('');
+              }
+            }}
+          />
+        </label>
+        <span className="sr-only" role="status">
+          {query ? `${matches.length} ${matches.length === 1 ? 'match' : 'matches'}` : ''}
+        </span>
+        {matches.length > 0 && (
+          <ul className="sc-matches">
+            {matches.map((d) => (
+              <li key={d.id}>
+                <button
+                  onClick={() => {
+                    setTarget(d.id);
+                    setResult(null);
+                    setQuery('');
+                  }}
+                >
+                  <span>
+                    <SpeciesArt id={d.id} />
+                  </span>
+                  {d.name}
+                  {UNBREEDABLE.has(d.id) && <em>can’t be bred</em>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="sc-card sc-in" style={stagger(4)}>
+        <h2 className="sc-h3">
+          <span className="sc-roman" aria-hidden="true">2</span> Passives{' '}
+          <span>
+            {picked.length}/{MAX_PASSIVES}
+          </span>
+        </h2>
+        <div className="sc-presets">
+          {PRESETS.map((p) => (
+            <button
+              key={p.id}
+              title={p.blurb}
+              onClick={() => {
+                setResult(null);
+                setPicked(p.passives.filter((id) => carriers.has(id)).slice(0, MAX_PASSIVES));
+              }}
+            >
+              {p.label}
+            </button>
+          ))}
+          {picked.length > 0 && (
+            <button
+              className="clear"
+              onClick={() => {
+                setPicked([]);
+                setResult(null);
+              }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* A scrolling box: Firefox would make it a Tab stop, and with no name NVDA then reads all
+            130 passives in it as one announcement (heard in the 2026-10-13 pass). Named, and out
+            of the Tab order: its buttons are the stops. */}
+        <div className="sc-picker" role="group" aria-label="Passives to choose from" tabIndex={-1}>
+          {groups.map((g) => (
+            <div key={g.key}>
+              <h3>{RANK_NAMES[g.key]}</h3>
+              <div>
+                {g.ids.map((id) => {
+                  const on = picked.includes(id);
+                  return (
+                    <button
+                      key={id}
+                      className={`sc-pick ${traitClass(id)}${on ? ' on' : ''}`}
+                      aria-pressed={on}
+                      disabled={!on && picked.length >= MAX_PASSIVES}
+                      title={PASSIVES[id]?.effects?.join(', ') || id}
+                      onClick={() => toggle(id)}
+                    >
+                      <TraitGlyph id={id} label={false} />
+                      <TraitName id={id} />
+                      <small>
+                        {carriers.get(id)?.length}
+                        <span className="sr-only"> owned</span>
+                      </small>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+          {unowned.length > 0 && (
+            <details className="sc-unowned">
+              <summary>Not in your boxes · {unowned.length}</summary>
+              <p>
+                {unowned.map((id, i) => (
+                  <span key={id} className={traitClass(id)}>
+                    {i > 0 && ', '}
+                    <TraitName id={id} />
+                  </span>
+                ))}
+              </p>
+            </details>
+          )}
+        </div>
+      </section>
+
+      {/* aria-disabled while working, not disabled: a disabled button drops keyboard focus
+          onto <body>, and the next Tab would start from the top of the page. */}
+      <button
+        className="sc-btn sc-solve sc-in"
+        style={stagger(5)}
+        disabled={!canSolve}
+        aria-disabled={solving || undefined}
+        onClick={() => !solving && solve()}
+      >
+        {solving ? 'Working it out…' : 'Find the lineage'}
+      </button>
+      <span className="sr-only" role="status">
+        {solving
+          ? 'Working it out.'
+          : result
+            ? result.ok
+              ? `Lineage found for ${nameOf(target)}. The tree follows this button.`
+              : result.reason
+            : ''}
+      </span>
+      {!canSolve && !solving && <p className="sc-muted center">Choose a species and at least one passive.</p>}
+    </div>
+  );
+
   return (
     <>
       <header className="sc-phero">
@@ -256,168 +470,39 @@ export function Planner({
           Pick a species and up to four passives. The planner finds a chain of pairings from the pals you already own.
           Inheritance is still random at every step, so expect to re-roll some eggs.
         </p>
+        {planBar}
       </header>
 
-      <div className="sc-plan">
-        <div className="sc-plan-setup">
-          <section className="sc-card sc-in" style={stagger(3)}>
-            <h2 className="sc-h3">
-              <span className="sc-roman" aria-hidden="true">1</span> Target species
-            </h2>
-            <div className={`sc-target${tdex ? ` tier-${tierOf(target)} e-${elementOf(target)}` : ''}`}>
-              <span className="sc-target-art">{tdex ? <SpeciesArt id={target} /> : <i>?</i>}</span>
-              <div>
-                <b>{tdex?.name ?? 'Not chosen yet'}</b>
-                {tdex ? <ElementChips id={target} labels /> : <small>Search below.</small>}
-                {target && UNBREEDABLE.has(target) && <em className="warn">Can’t be bred, so it can’t get passives.</em>}
+      {/* The plan's summary row: what is being planned, and Edit. Opens from nothing at the first plan;
+          Edit opens the setup inside it. */}
+      <section ref={summaryBox} className={`sc-grow sc-psum${planned ? ' open' : ''}`} aria-label="Your plan">
+        <div className="sc-grow-clip">
+          <div className="sc-card sc-psum-card">
+            <div className="sc-psum-row">
+              <span className="sc-target-art sc-psum-art">{tdex ? <SpeciesArt id={target} /> : <i>?</i>}</span>
+              <p className="sc-psum-who">
+                <small>{result?.ok ? 'Planning' : 'Changed, not planned yet'}</small>
+                {tdex?.name ?? 'No species'}
+              </p>
+              <TraitChips ids={picked} />
+              {result?.ok && (
+                <button ref={editBtn} type="button" className="sc-btn ghost sc-psum-edit" aria-expanded={drawerOpen} aria-controls={drawerId} onClick={() => setEditing(!editing)}>
+                  {editing ? 'Done' : 'Edit'}
+                </button>
+              )}
+            </div>
+            <div id={drawerId} className={`sc-grow sc-pdrawer${drawerOpen ? ' open' : ''}`}>
+              <div className="sc-grow-clip">
+                <div className="sc-pdrawer-in">{planned && setup}</div>
               </div>
             </div>
-            <label className="sc-search block">
-              <input
-                value={query}
-                aria-label="Search species"
-                placeholder={tdex ? `${tdex.name}, or another…` : 'Search 289 species…'}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && matches[0]) {
-                    setTarget(matches[0].id);
-                    setResult(null);
-                    setQuery('');
-                  }
-                }}
-              />
-            </label>
-            <span className="sr-only" role="status">
-              {query ? `${matches.length} ${matches.length === 1 ? 'match' : 'matches'}` : ''}
-            </span>
-            {matches.length > 0 && (
-              <ul className="sc-matches">
-                {matches.map((d) => (
-                  <li key={d.id}>
-                    <button
-                      onClick={() => {
-                        setTarget(d.id);
-                        setResult(null);
-                        setQuery('');
-                      }}
-                    >
-                      <span>
-                        <SpeciesArt id={d.id} />
-                      </span>
-                      {d.name}
-                      {UNBREEDABLE.has(d.id) && <em>can’t be bred</em>}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <section className="sc-card sc-in" style={stagger(4)}>
-            <h2 className="sc-h3">
-              <span className="sc-roman" aria-hidden="true">2</span> Passives{' '}
-              <span>
-                {picked.length}/{MAX_PASSIVES}
-              </span>
-            </h2>
-            <div className="sc-presets">
-              {PRESETS.map((p) => (
-                <button
-                  key={p.id}
-                  title={p.blurb}
-                  onClick={() => {
-                    setResult(null);
-                    setPicked(p.passives.filter((id) => carriers.has(id)).slice(0, MAX_PASSIVES));
-                  }}
-                >
-                  {p.label}
-                </button>
-              ))}
-              {picked.length > 0 && (
-                <button
-                  className="clear"
-                  onClick={() => {
-                    setPicked([]);
-                    setResult(null);
-                  }}
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-
-            {/* A scrolling box: Firefox would make it a Tab stop, and with no name NVDA then reads all
-                130 passives in it as one announcement (heard in the 2026-10-13 pass). Named, and out
-                of the Tab order: its buttons are the stops. */}
-            <div className="sc-picker" role="group" aria-label="Passives to choose from" tabIndex={-1}>
-              {groups.map((g) => (
-                <div key={g.key}>
-                  <h3>{RANK_NAMES[g.key]}</h3>
-                  <div>
-                    {g.ids.map((id) => {
-                      const on = picked.includes(id);
-                      return (
-                        <button
-                          key={id}
-                          className={`sc-pick ${traitClass(id)}${on ? ' on' : ''}`}
-                          aria-pressed={on}
-                          disabled={!on && picked.length >= MAX_PASSIVES}
-                          title={PASSIVES[id]?.effects?.join(', ') || id}
-                          onClick={() => toggle(id)}
-                        >
-                          <TraitGlyph id={id} label={false} />
-                          <TraitName id={id} />
-                          <small>
-                            {carriers.get(id)?.length}
-                            <span className="sr-only"> owned</span>
-                          </small>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-              {unowned.length > 0 && (
-                <details className="sc-unowned">
-                  <summary>Not in your boxes · {unowned.length}</summary>
-                  <p>
-                    {unowned.map((id, i) => (
-                      <span key={id} className={traitClass(id)}>
-                        {i > 0 && ', '}
-                        <TraitName id={id} />
-                      </span>
-                    ))}
-                  </p>
-                </details>
-              )}
-            </div>
-          </section>
-
-          {/* aria-disabled while working, not disabled: a disabled button drops keyboard focus
-              onto <body>, and the next Tab would start from the top of the page. */}
-          <button
-            className="sc-btn sc-solve sc-in"
-            style={stagger(5)}
-            disabled={!canSolve}
-            aria-disabled={solving || undefined}
-            onClick={() => !solving && solve()}
-          >
-            {solving ? 'Working it out…' : 'Find the lineage'}
-          </button>
-          <span className="sr-only" role="status">
-            {solving
-              ? 'Working it out.'
-              : result
-                ? result.ok
-                  ? `Lineage found for ${nameOf(target)}. The tree follows this button.`
-                  : result.reason
-                : ''}
-          </span>
-          {!canSolve && !solving && <p className="sc-muted center">Choose a species and at least one passive.</p>}
+          </div>
         </div>
+      </section>
 
-        <div className="sc-plan-result">
-          {!result?.ok && planBar}
+      <div className={`sc-plan${planned ? ' planned' : ''}`}>
+        <div className="sc-plan-col1">{!planned && setup}</div>
+        <div className="sc-plan-result" ref={resultBox}>
           {!result && !solving && (
             <div className="sc-blank sc-in" style={stagger(4)}>
               <PalEgg size={84} />
@@ -426,7 +511,9 @@ export function Planner({
                   ? 'Pick a species to start.'
                   : !picked.length
                     ? `Now choose what ${nameOf(target)} should inherit.`
-                    : `Ready. Find the lineage for ${nameOf(target)}.`}
+                    : planned
+                      ? `Changed. Find the lineage again for ${nameOf(target)}.`
+                      : `Ready. Find the lineage for ${nameOf(target)}.`}
               </p>
             </div>
           )}
@@ -460,14 +547,29 @@ export function Planner({
               byInstance={byInstance}
               onSpecies={onSpecies}
               onPal={onPal}
-              actions={planBar}
             />
           )}
         </div>
       </div>
+
+      {/* Phones and narrow windows: Find the lineage in a bar at the bottom of the screen, in thumb reach,
+          whenever the setup is open. Wide screens keep it at the foot of the setup instead. */}
+      {(!planned || drawerOpen) && (
+        <div className="sc-pdock">
+          <p>
+            {tdex?.name ?? 'Pick a species'}
+            <small>{tdex ? `${picked.length} passive${picked.length === 1 ? '' : 's'} chosen` : 'then up to four passives'}</small>
+          </p>
+          <button type="button" className="sc-btn" disabled={!canSolve} aria-disabled={solving || undefined} onClick={() => !solving && solve()}>
+            {solving ? 'Working it out…' : 'Find the lineage'}
+          </button>
+        </div>
+      )}
     </>
   );
 }
+
+const still = (): boolean => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function Lineage({
   plan,
@@ -477,10 +579,7 @@ function Lineage({
   byInstance,
   onSpecies,
   onPal,
-  actions,
 }: {
-  /** The save buttons, shown at the right end of the header line. */
-  actions: ReactNode;
   plan: { root: PlanNode; steps: number; contamination: number };
   target: string;
   picked: string[];
@@ -537,14 +636,11 @@ function Lineage({
   if (steps.length === 0 && plan.root.kind === 'seed') {
     const s = plan.root;
     return (
-      <>
-        {actions}
-        <div className="sc-blank good">
+      <div className="sc-blank good">
         <p>
           No breeding needed. A {nameOf(s.species)} in your {LOCATION[s.pal.location ?? 'unknown']} already has them.
         </p>
-        </div>
-      </>
+      </div>
     );
   }
 
@@ -562,7 +658,6 @@ function Lineage({
               : `${plan.contamination} unwanted passive${plan.contamination === 1 ? '' : 's'} in the pools`}
           </span>
         </div>
-        {actions}
       </header>
 
       {scarce.length > 0 && (

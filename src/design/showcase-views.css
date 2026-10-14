@@ -351,14 +351,43 @@
 
 /* ================================== planner ================================== */
 
-.sc-phero { padding: clamp(24px, 4vw, 52px) clamp(16px, 4vw, 56px) 6px; }
+.sc-phero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 24px; padding: clamp(24px, 4vw, 52px) clamp(16px, 4vw, 56px) 6px; }
+.sc-phero > * { grid-column: 1; }
+.sc-phero > .sc-planbar { grid-column: 2; grid-row: 1 / span 3; align-self: end; margin: 0 0 6px; }
 .sc-pbig { margin: 0; font: var(--d-weight) clamp(40px, 6.4vw, 100px) / 1 var(--font-display); letter-spacing: var(--d-track); text-transform: var(--d-case); }
 .sc-pbig span { background: var(--mega-fill); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .sc-shell[data-skin='pal'] .sc-pbig span { background: none; -webkit-text-fill-color: var(--accent-2); -webkit-text-stroke: 3px var(--line); paint-order: stroke fill; }
 .sc-phero .sc-lede { max-width: 56ch; }
 
-.sc-plan { display: grid; grid-template-columns: minmax(330px, 420px) minmax(0, 1fr); gap: clamp(20px, 3vw, 44px); align-items: start; padding: 22px clamp(16px, 4vw, 56px) 90px; }
+/* The hybrid layout (Planner.tsx): the setup column collapses to nothing at the first plan (its width
+   and gap are lengths, so they tween) while the result widens; .sc-grow boxes open from 0 height. */
+.sc-plan { --move: 0.5s cubic-bezier(0.3, 0.7, 0.2, 1); display: grid; grid-template-columns: clamp(330px, 30vw, 420px) minmax(0, 1fr); column-gap: clamp(20px, 3vw, 44px); row-gap: 20px; align-items: start; padding: 22px clamp(16px, 4vw, 56px) 90px; transition: grid-template-columns var(--move), column-gap var(--move); }
+.sc-plan.planned { grid-template-columns: 0px minmax(0, 1fr); column-gap: 0px; }
+.sc-plan-col1 { min-width: 0; align-self: stretch; }
 .sc-plan-setup { position: sticky; top: calc(var(--nav-h) + 14px); display: grid; gap: 18px; }
+.sc-plan-col1 .sc-solve { position: sticky; bottom: 16px; z-index: 5; }
+
+.sc-grow { --move: 0.5s cubic-bezier(0.3, 0.7, 0.2, 1); display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows var(--move), opacity var(--move), margin var(--move), visibility 0s linear 0.5s; }
+.sc-grow.open { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition-delay: 0s; }
+.sc-grow-clip { min-height: 0; overflow: hidden; }
+.sc-psum { margin: 0 clamp(16px, 4vw, 56px); scroll-margin-top: calc(var(--nav-h) + 12px); }
+.sc-psum.open { margin-top: 22px; }
+.sc-psum-card { margin-bottom: 8px; padding: 0; }
+.sc-psum-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 14px 18px; }
+.sc-psum-art { width: 56px; flex: none; }
+.sc-psum-who { margin: 0; font: var(--d-weight) 23px/1.1 var(--font-display); letter-spacing: var(--d-track); }
+.sc-psum-who small { display: block; font: 700 12px/1.5 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+.sc-psum-row .sc-traits { flex: 1 1 300px; margin: 0; }
+.sc-psum-edit { margin-left: auto; }
+.sc-pdrawer { opacity: 1; }
+.sc-pdrawer-in { padding: 0 18px 18px; }
+.sc-pdrawer .sc-plan-setup { position: static; grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.6fr); align-items: start; padding-top: 16px; border-top: 2px dashed var(--hair); }
+.sc-pdrawer .sc-card { box-shadow: none; }
+.sc-pdrawer .sc-in { animation: none; }
+.sc-pdrawer .sc-plan-setup > .sc-solve, .sc-pdrawer .sc-plan-setup > .sc-muted { grid-column: 1 / -1; }
+.sc-pdrawer .sc-solve { justify-self: end; max-width: 420px; }
+.sc-pdock { display: none; }
+@media (prefers-reduced-motion: reduce) { .sc-plan, .sc-grow { transition: none; } }
 
 .sc-target { --tier: var(--hair); display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: center; margin-bottom: 14px; }
 .sc-target-art { display: grid; place-items: center; aspect-ratio: 1; border-radius: var(--radius-s); background: radial-gradient(circle at 50% 70%, color-mix(in srgb, var(--elem, var(--accent)) 32%, transparent), transparent 70%), var(--panel-2); border: 2px solid var(--tier, var(--hair)); }
@@ -542,8 +571,15 @@
 @media (max-width: 980px) {
   .sc-doss-hero { grid-template-columns: minmax(0, 1fr); }
   .sc-doss-stage { max-width: 460px; width: 100%; margin: 0 auto; }
-  .sc-plan { grid-template-columns: minmax(0, 1fr); }
+  .sc-plan, .sc-plan.planned { grid-template-columns: minmax(0, 1fr); column-gap: 0px; padding-bottom: 120px; }
   .sc-plan-setup { position: static; }
+  .sc-pdrawer .sc-plan-setup { grid-template-columns: minmax(0, 1fr); }
+  /* the button moves to a bar fixed to the bottom of the screen */
+  .sc-plan-setup .sc-solve { display: none; }
+  .sc-pdock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; align-items: center; gap: 12px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--panel-solid); border-top: var(--border); box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.14); }
+  .sc-pdock p { margin: 0; flex: 1; min-width: 0; font-weight: 800; color: var(--ink); }
+  .sc-pdock p small { display: block; font-weight: 600; color: var(--ink-soft); }
+  .sc-pdock .sc-btn { flex: none; }
   .sc-resgrid, .sc-doss-grid { grid-template-columns: minmax(0, 1fr); }
   .sc-mine { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -554,8 +590,11 @@
   .sc-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sc-mine { grid-template-columns: minmax(0, 1fr); }
   .sc-rhead { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .sc-rhead .sc-planbar { margin: 4px 0 0; justify-content: flex-start; flex-wrap: wrap; }
-  .sc-rhead .sc-planlist { right: auto; left: 0; }
+  .sc-phero { grid-template-columns: minmax(0, 1fr); }
+  .sc-phero > .sc-planbar { grid-column: 1; grid-row: auto; justify-self: start; justify-content: flex-start; margin: 14px 0 0; }
+  .sc-phero .sc-planlist { right: auto; left: 0; }
+  .sc-psum-edit { margin-left: 0; }
+  .sc-pdrawer-in { padding: 0 12px 12px; }
   .sc-rbig { font-size: 84px; }
   .sc-gather button { grid-template-columns: 48px 1fr; }
   .sc-gather .sc-loc { grid-column: 2; justify-self: start; }

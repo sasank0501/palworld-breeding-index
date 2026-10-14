@@ -98,11 +98,9 @@
 .sc-note-edit { padding: 7px 14px; font-size: 14px; }
 
 /* Saved plans: the Planner's bar and menu, and the full page (src/routes/showcase/SavedPlans.tsx). */
-/* Saved plans and Save this plan. They sit in the planner's result column: on the result's header
-   line, at its right end, or alone at the column's top right while there is no result. */
+/* Saved plans and Save this plan. They sit in the planner's page header, on the right (on a phone, under it). */
 .sc-planbar { position: relative; z-index: 20; /* above the cards below, so the menu opens over them */ display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 0 18px; }
-.sc-rhead .sc-planbar { flex: none; flex-wrap: nowrap; margin: 0 0 0 auto; }
-.sc-rhead > div:not(.sc-planbar) { min-width: 0; }
+.sc-rhead > div { min-width: 0; }
 .sc-planmenu { position: relative; }
 .sc-planlist {
   position: absolute;
