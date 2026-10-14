@@ -783,8 +783,8 @@ Run against the Phase 0 checklist:
 
 **Owner's decisions (2026-10-13).** Panthalus stays as the game's rarity puts it (epic). "Upload save" keeps
 its wording. Pocketpair's permission is not sought before shipping: content is removed on notice. The site
-itself names no data-source websites (no PalSphere, paldb or palworld.gg credit in the app or its footer);
-the credits stay in the README, which PalSphere's data terms need.
+itself names no data-source websites (no paldb or palworld.gg credit in the app or its footer); the
+credits stay in the README.
 
 ---
 

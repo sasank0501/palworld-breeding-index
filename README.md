@@ -195,12 +195,12 @@ Cargo tables and the pal exp curve from [The Pal Professor](https://thepalprofes
 the curve is tested against every pal in an imported save. Portraits are
 mirrored from a third-party host by `npm run fetch-images` and are not redistributed here.
 
-`npm run compare-sources` cross-checks all of this against [PalSphere](https://palsphere.app),
-paldb.cc and [palworld.gg](https://palworld.gg), and changes a value only when two independent
-sources agree it is wrong. **Data from [PalSphere](https://palsphere.app)** (its open data export,
-game 1.0.5, for non-commercial use with attribution to PalSphere) is used to confirm and add passive
-skills: nine were added on 2026-10-12 (Babysitter, Savior, Blood Is Fuel, Mentally unstable, Sharing
-is Caring and the four World Tree implants). Palworld's game data belongs to Pocketpair, Inc.
+`npm run compare-sources` cross-checks all of this against the game's own data tables (read from a
+copy of Palworld on this machine), paldb.cc and [palworld.gg](https://palworld.gg). A value changes
+only when the game's files say so, or when two independent websites agree it is wrong. Ten passives
+were added that way in October 2026 (Babysitter, Savior, Blood Is Fuel, Mentally unstable, Sharing is
+Caring, Sky Strider and the four World Tree implants), each with the id, name and rank the game's
+table gives. Palworld's game data belongs to Pocketpair, Inc.
 
 Typefaces (Nunito, JetBrains Mono, Oxanium, Josefin Sans, Lilita One, Zen Antique; SIL Open Font License) are
 bundled from the [Fontsource](https://fontsource.org) packages by `src/design/fonts.ts`, so no visitor's address is
