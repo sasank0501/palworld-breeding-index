@@ -47,8 +47,8 @@ export interface Prefs {
   kind: 'prefs';
   schema: number;
   skin?: string;
-  /** How the Paldex spotlight ranks pals: by IV total, or by their passives. */
-  spotlight?: 'potential' | 'passives';
+  /** Which view the Paldex spotlight opens on: the party, or your best pals ranked by IV total or by passives. */
+  spotlight?: 'party' | 'potential' | 'passives';
   at: string;
 }
 
@@ -137,7 +137,7 @@ export function checkWorld(d: unknown, where = 'world'): WorldData {
 export function checkPrefs(d: unknown): Prefs {
   if (!isObj(d) || d.app !== APP || d.kind !== 'prefs' || !isTime(d.at)) throw new Error('the preferences are damaged');
   if (d.skin !== undefined && typeof d.skin !== 'string') throw new Error('the saved skin is damaged');
-  if (d.spotlight !== undefined && d.spotlight !== 'potential' && d.spotlight !== 'passives') throw new Error('the spotlight setting is damaged');
+  if (d.spotlight !== undefined && d.spotlight !== 'party' && d.spotlight !== 'potential' && d.spotlight !== 'passives') throw new Error('the spotlight setting is damaged');
   return d as unknown as Prefs;
 }
 

@@ -337,7 +337,7 @@
 @keyframes art-grow { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* Spotlight: its order switch beside the kicker, and the Undo line after "Hide". */
-.sc-spot-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 8px; }
+.sc-spot-top { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-bottom: 8px; }
 .sc-spot-top .sc-kicker { margin: 0; }
 /* Previous / next around the counter (Spotlight in Dex.tsx): 40px round buttons, the
    chevron centred by layout. */
@@ -357,7 +357,10 @@
 }
 .sc-spot-step:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 @media (hover: hover) { .sc-spot-step:hover { background: var(--accent-strong); color: var(--accent-ink); } }
+.sc-spot-order { align-items: center; }
 .sc-spot-order button { min-height: 32px; padding: 4px 12px; font-size: 13px; }
+/* The thin rule after Party: the party is your team, the other two rank your best pals. */
+.sc-seg-rule { align-self: center; width: 2px; height: 18px; margin-inline: 4px; border-radius: 2px; background: var(--ink-soft); opacity: 0.45; }
 .sc-spot-undo { min-height: 1.5em; margin: 10px 0 0; font-size: 14px; color: var(--ink-soft); }
 .sc-spot-undo .sc-link { font-weight: 800; }
 
@@ -592,20 +595,32 @@
   letter-spacing: var(--d-track);
   text-transform: var(--d-case);
   cursor: pointer;
-  transition: color 0.2s, background 0.2s, border-color 0.2s, transform 0.2s;
+  transition: color 0.3s, background 0.2s, border-color 0.2s, transform 0.2s;
 }
 
 @media (hover: hover) { .sc-tabs button:hover { color: var(--ink); transform: translateY(-1px); } }
 
-.sc-tabs button.on {
+/* The tab that is on is drawn by one highlight that glides between tabs (useTabSlider in
+   showcase/TabSlider.tsx); the button itself only changes its text colour. */
+.sc-tabs { position: relative; }
+.sc-tabs button { position: relative; z-index: 1; }
+.sc-tabs button.on { color: var(--accent-ink); }
+.sc-tab-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  box-sizing: border-box;
+  border: 2px solid var(--line);
+  border-radius: 999px;
   background: var(--accent-strong);
-  border-color: var(--line);
-  color: var(--accent-ink);
+  pointer-events: none;
 }
-
-.sc-shell[data-skin='pal'] .sc-tabs button.on { box-shadow: 0 3px 0 var(--line); }
-.sc-shell[data-skin='obsidian'] .sc-tabs button.on { box-shadow: 0 0 18px -2px rgba(255, 106, 61, 0.7); }
-.sc-shell[data-skin='feybreak'] .sc-tabs button.on { box-shadow: 0 0 22px -4px rgba(79, 240, 210, 0.7); }
+.sc-tab-slider.go { transition: transform 0.36s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.36s cubic-bezier(0.3, 0.7, 0.2, 1), height 0.36s cubic-bezier(0.3, 0.7, 0.2, 1); }
+@media (prefers-reduced-motion: reduce) { .sc-tab-slider.go { transition: none; } }
+.sc-shell[data-skin='pal'] .sc-tab-slider { box-shadow: 0 3px 0 var(--line); }
+.sc-shell[data-skin='obsidian'] .sc-tab-slider { box-shadow: 0 0 18px -2px rgba(255, 106, 61, 0.7); }
+.sc-shell[data-skin='feybreak'] .sc-tab-slider { box-shadow: 0 0 22px -4px rgba(79, 240, 210, 0.7); }
 
 /* ============================ shared bits ============================ */
 
@@ -670,6 +685,11 @@
   border: 1px solid color-mix(in srgb, var(--elem) 40%, transparent);
 }
 .sc-elem:not(:has(+ *)):not(:has(:not(svg))) { padding: 2px 5px; }
+/* The element colours are tuned for the icon beside the word. As text on its own pale tint, six of the nine
+   (fire, electric, grass, ice, water, neutral) fall under 4.5:1 on the light skins, so the word is mixed
+   toward the skin's ink there: 4.9:1 at the weakest (electric). The dark skins' colours already pass. */
+.sc-shell[data-skin='pal'] .sc-elem,
+.sc-shell[data-skin='sakura'] .sc-elem { color: color-mix(in srgb, var(--elem) 58%, var(--ink)); }
 
 .sc-eico { color: var(--elem); flex: none; }
 /* Work icons keep the game's hue per job (set inline as --w); the light skins darken it so it

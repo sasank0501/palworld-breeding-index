@@ -221,7 +221,7 @@ export function Settings({
             <h2>Spotlight</h2>
             <p className="sc-sethint">
               {spotlightHidden === 0
-                ? 'Every pal can appear in the Paldex spotlight. “Hide” there takes a pal out of it.'
+                ? 'Every pal can appear in the Paldex spotlight. “Hide” there takes a pal out of Potential and Passives.'
                 : `${spotlightHidden} ${spotlightHidden === 1 ? 'pal' : 'pals'} hidden from the spotlight.`}
             </p>
             {spotlightHidden > 0 && onSeeHidden && (
@@ -243,7 +243,7 @@ export function Settings({
               Download a backup <span>last: {ago(last)}</span>
             </button>
             <button type="button" className="sc-setitem" onClick={() => fileInput.current?.click()}>
-              Restore from a backup…
+              Restore from a backup
             </button>
             <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={(e) => void pickRestore(e.target.files?.[0])} />
             {canSyncFile() && (

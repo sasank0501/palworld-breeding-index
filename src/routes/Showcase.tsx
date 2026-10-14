@@ -15,6 +15,7 @@ import { ArtNotice } from './showcase/Art.tsx';
 import { MissingNotice } from './showcase/Missing.tsx';
 import { Planner } from './showcase/Planner.tsx';
 import { SavedPlans } from './showcase/SavedPlans.tsx';
+import { useTabSlider } from './showcase/TabSlider.tsx';
 import { useCtx } from './showcase/ctx.ts';
 import { DEX_ORDER, PalEgg } from './showcase/parts.tsx';
 import { Settings } from './showcase/Settings.tsx';
@@ -82,6 +83,8 @@ export default function Showcase({
   const page = useRef<HTMLDivElement>(null);
   const shell = useRef<HTMLDivElement>(null);
   const nav = useRef<HTMLElement>(null);
+  const tabs = useRef<HTMLDivElement>(null);
+  const slider = useTabSlider(tabs, section, skin);
 
   // The sub bar and sticky panels sit under the nav at --nav-h. The nav's height
   // depends on the width, the theme's border and the font, so it is measured, not
@@ -219,7 +222,14 @@ export default function Showcase({
           {browse ? (
             <span className="sc-tabs-gap" />
           ) : (
-            <div className="sc-tabs" role="tablist">
+            <div className="sc-tabs" role="tablist" ref={tabs}>
+              {slider.pos && (
+                <span
+                  className={`sc-tab-slider${slider.animate ? ' go' : ''}`}
+                  aria-hidden="true"
+                  style={{ transform: `translate(${slider.pos.x}px, ${slider.pos.y}px)`, width: slider.pos.w, height: slider.pos.h }}
+                />
+              )}
               {SECTIONS.map(([k, label]) => (
                 <button key={k} role="tab" aria-selected={section === k && !top} className={section === k ? 'on' : ''} onClick={() => go(k)}>
                   {label}

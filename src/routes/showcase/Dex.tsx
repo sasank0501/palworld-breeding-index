@@ -8,7 +8,7 @@ import { hideFromSpotlight, showInSpotlight } from '../../userdata/edit.ts';
 import { readPrefs, writePrefs } from '../../userdata/store.ts';
 import { Chevron, DEX, UNBREEDABLE, SpeciesArt, fmt, nameOf, rankFor } from './shared.tsx';
 import { statusOf, type Ctx } from './ctx.ts';
-import { PairCalc } from './PairCalc.tsx';
+import { BreedingPair } from './BreedingPair.tsx';
 import {
   ELEMENTS,
   ElementChips,
@@ -43,6 +43,10 @@ const VIEWS: Array<[View, string]> = [
 const SPOTLIGHT = 8;
 
 type SpotOrder = 'potential' | 'passives';
+/** What the spotlight shows: your party, or your best pals ranked one of two ways. */
+type SpotView = 'party' | SpotOrder;
+/** The party in slot order. Hide does not apply: it is the team in use, never a "best of" list. */
+const bySlot = (a: RosterPal, b: RosterPal): number => (a.location.slot ?? 99) - (b.location.slot ?? 99);
 const passivesOf = (p: RosterPal): number => passiveScore(p.passives.map(rankFor));
 /** Best first. Potential: IV total. Passives: the passive score, IVs breaking ties. */
 const ORDERS: Record<SpotOrder, (a: RosterPal, b: RosterPal) => number> = {
@@ -87,25 +91,36 @@ export function Dex({
     [roster, byPal],
   );
 
-  // The spotlight's order is a device preference; hidden pals belong to the world.
-  const [order, setOrder] = useState<SpotOrder>('potential');
+  // The spotlight's view is a device preference (the last one picked); hidden pals belong to the world.
+  // Until one is picked it opens on the party. The spotlight waits for the stored choice, so a
+  // returning player never sees the party flash up first.
+  const [picked, setPicked] = useState<SpotView | null>(null);
+  const [prefsRead, setPrefsRead] = useState(false);
   useEffect(() => {
-    void readPrefs().then((p) => p.spotlight && setOrder(p.spotlight));
+    void readPrefs()
+      .then((p) => p.spotlight && setPicked(p.spotlight))
+      .catch(() => undefined)
+      .finally(() => setPrefsRead(true));
   }, []);
-  const chooseOrder = (o: SpotOrder): void => {
-    setOrder(o);
-    void writePrefs({ spotlight: o });
-  };
   const hidden = ctx.user.data?.hidden;
 
+  const party = useMemo(() => roster.pals.filter((p) => p.location.kind === 'party').sort(bySlot), [roster]);
+  // A stored "party" for a save with no party pals shows Potential and keeps the stored choice.
+  const spotView: SpotView = picked === 'party' && !party.length ? 'potential' : picked ?? (party.length ? 'party' : 'potential');
+  const chooseSpotView = (v: SpotView): void => {
+    setPicked(v);
+    void writePrefs({ spotlight: v });
+  };
+
   const spotlight = useMemo(() => {
+    if (spotView === 'party') return party;
     // Your best pal of each species (leaving out any you hid), best of those first.
-    const better = ORDERS[order];
+    const better = ORDERS[spotView];
     const best = [...byPal.values()]
       .map((list) => list.filter((p) => !hidden?.[p.instanceId]).sort(better)[0])
       .filter((p): p is RosterPal => !!p);
     return best.sort(better).slice(0, SPOTLIGHT);
-  }, [byPal, hidden, order]);
+  }, [byPal, hidden, spotView, party]);
 
   const elementCounts = useMemo(() => {
     const m = new Map<Element, number>();
@@ -163,7 +178,9 @@ export function Dex({
               </li>
             </ol>
           </aside>
-          <PairCalc combos={ctx.combos} onSpecies={onSpecies} />
+          <div className="sc-pair-slot">
+            <BreedingPair ctx={ctx} onSpecies={onSpecies} browse />
+          </div>
           </>
         ) : (
           <div className="sc-hero-copy sc-in" style={stagger(0)}>
@@ -212,11 +229,12 @@ export function Dex({
           </div>
         )}
 
-        {!browse && spotlight.length > 0 && (
+        {!browse && prefsRead && spotlight.length > 0 && (
           <Spotlight
             pals={spotlight}
-            order={order}
-            onOrder={chooseOrder}
+            view={spotView}
+            hasParty={party.length > 0}
+            onView={chooseSpotView}
             onOpen={onPal}
             onHide={(p) => ctx.user.edit((d) => hideFromSpotlight(d, p.instanceId, undefined, displayName(p)))}
             onUnhide={(p) => ctx.user.edit((d) => showInSpotlight(d, p.instanceId))}
@@ -329,22 +347,25 @@ function DexTile({ id, ctx, index, onOpen }: { id: string; ctx: Ctx; index: numb
 }
 
 /**
- * The spotlight: your best pals, one per species, cycling. "Hide" takes the pal
- * out of the spotlight, never out of the save (saved with the world, listed in the settings to bring back) and the
- * next best moves up into its place; Undo is offered for a few seconds. The order
- * switch ranks by IV total or by passives.
+ * The spotlight: your party, or your best pals one per species. "Hide" takes a pal
+ * out of the two best-pal views, never out of the save (saved with the world, listed in the settings to bring back) and the
+ * next best moves up into its place; Undo is offered for a few seconds. The party view has no
+ * Hide: it is the team in use. The switch picks the view: party, or best pals ranked by IV total
+ * or by passives (a thin rule after Party says it is a different kind of view).
  */
 function Spotlight({
   pals,
-  order,
-  onOrder,
+  view,
+  hasParty,
+  onView,
   onOpen,
   onHide,
   onUnhide,
 }: {
   pals: RosterPal[];
-  order: SpotOrder;
-  onOrder: (o: SpotOrder) => void;
+  view: SpotView;
+  hasParty: boolean;
+  onView: (v: SpotView) => void;
   onOpen: (p: RosterPal) => void;
   onHide: (p: RosterPal) => void;
   onUnhide: (p: RosterPal) => void;
@@ -405,7 +426,7 @@ function Spotlight({
   const iv = ivTotal(pal);
 
   return (
-    <aside ref={aside} className={`sc-spot tier-${tierOf(id)} e-${elementOf(id)}`} aria-label="Your strongest pals">
+    <aside ref={aside} className={`sc-spot tier-${tierOf(id)} e-${elementOf(id)}`} aria-label={view === 'party' ? 'Your party' : 'Your strongest pals'}>
       {/* Says which pal is showing after a change; the visible counter is inside the rebuilt column. */}
       <p className="sr-only" role="status">
         Showing {displayName(pal)}, {cur + 1} of {n}.
@@ -416,6 +437,45 @@ function Spotlight({
 
       <div className="sc-spot-info" key={`i-${pal.instanceId}`}>
         <div className="sc-spot-top">
+          {/* Which view, then the pager under it, both on the right. Party first with a rule after it:
+              it is a different kind of view (your team), where the other two rank your best pals. */}
+          <span className="sc-seg sc-spot-order" role="group" aria-label="Show in the spotlight">
+            {hasParty && (
+              <>
+                <button
+                  type="button"
+                  className={view === 'party' ? 'on' : ''}
+                  aria-pressed={view === 'party'}
+                  onClick={() => {
+                    onView('party');
+                    setI(0);
+                  }}
+                >
+                  Party
+                </button>
+                <i className="sc-seg-rule" aria-hidden="true" />
+              </>
+            )}
+            {(
+              [
+                ['potential', 'Potential'],
+                ['passives', 'Passives'],
+              ] as const
+            ).map(([o, label]) => (
+              <button
+                key={o}
+                type="button"
+                className={view === o ? 'on' : ''}
+                aria-pressed={view === o}
+                onClick={() => {
+                  onView(o);
+                  setI(0);
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </span>
           {/* Previous and next grouped with the counter, outside the 3D frame: arrows
               on a slide invite accidental taps on it (Friedman, Smashing Magazine), and
               here dragging the frame turns the model. WCAG 2.5.7 asks for exactly these
@@ -426,8 +486,7 @@ function Spotlight({
                 <Chevron dir="left" />
               </button>
             )}
-            {/* Just the position: the Potential / Passives switch beside it already says how
-                they are ranked, and the longer "Top potential · 2 of 8" wrapped between the arrows. */}
+            {/* Just the position: the switch above already says which pals these are. */}
             <p className="sc-kicker sc-spot-count">
               {cur + 1} of {n}
             </p>
@@ -436,27 +495,6 @@ function Spotlight({
                 <Chevron dir="right" />
               </button>
             )}
-          </span>
-          <span className="sc-seg sc-spot-order" role="group" aria-label="Rank the spotlight by">
-            {(
-              [
-                ['potential', 'Potential'],
-                ['passives', 'Passives'],
-              ] as const
-            ).map(([o, label]) => (
-              <button
-                key={o}
-                type="button"
-                className={order === o ? 'on' : ''}
-                aria-pressed={order === o}
-                onClick={() => {
-                  onOrder(o);
-                  setI(0);
-                }}
-              >
-                {label}
-              </button>
-            ))}
           </span>
         </div>
         <h2 className="sc-spot-name">{displayName(pal)}</h2>
@@ -493,14 +531,16 @@ function Spotlight({
           <button className="sc-btn" onClick={() => onOpen(pal)}>
             Open pal
           </button>
-          <button
-            className="sc-btn ghost"
-            onClick={hide}
-            aria-label={`Hide ${displayName(pal)} from the spotlight`}
-            title="Hide from the spotlight. Your save isn't changed."
-          >
-            Hide
-          </button>
+          {view !== 'party' && (
+            <button
+              className="sc-btn ghost"
+              onClick={hide}
+              aria-label={`Hide ${displayName(pal)} from the spotlight`}
+              title="Hide from the spotlight. Your save isn't changed."
+            >
+              Hide
+            </button>
+          )}
           {/* One Tab stop; arrow keys move between pals (a roving tabindex). */}
           <span className="sc-dots" role="group" aria-label="Choose spotlight" onKeyDown={dotKeys}>
             {pals.map((p, k) => {
