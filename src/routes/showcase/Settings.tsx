@@ -213,7 +213,6 @@ export function Settings({
             </label>
           ))}
         </fieldset>
-        <p className="sc-sethint">Until you pick one, it follows your system: Palpagos when light, Mount Obsidian when dark.</p>
 
         {!browse && (
           <>

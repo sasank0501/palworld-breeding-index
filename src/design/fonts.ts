@@ -26,3 +26,6 @@ import '@fontsource/lilita-one/latin-400.css';
 import '@fontsource/lilita-one/latin-ext-400.css';
 import '@fontsource/zen-antique/latin-400.css';
 import '@fontsource/zen-antique/latin-ext-400.css';
+// After the packages above: re-declares three display faces with their ascent and descent adjusted
+// so capitals sit in the middle of a button (why, and how it is made: scripts/build-font-metrics.mjs).
+import './font-metrics.css';
