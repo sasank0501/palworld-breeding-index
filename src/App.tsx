@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import Import from './routes/Import.tsx';
 import Showcase from './routes/Showcase.tsx';
 import { BROWSE_ROSTER } from './lib/browse.ts';
+import { ISSUES_URL } from './lib/links.ts';
 import { clearCurrentWorld, loadCurrentWorld, saveWorld } from './save/store.ts';
 import type { WorldMeta } from './save/importWorld.ts';
 import type { Roster } from './types.ts';
@@ -134,7 +135,7 @@ export default function App() {
       {import.meta.env.MODE !== 'resume' && (
         <>
           {' Found a problem? '}
-          <a className="legal-link" href="https://github.com/sasank0501/palworld-breeding-index/issues">
+          <a className="legal-link" href={ISSUES_URL}>
             Report it on GitHub
           </a>
           .

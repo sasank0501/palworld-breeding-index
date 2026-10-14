@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { SiteNotice } from '../components/SiteNotice.tsx';
 import { BrowseContext } from '../lib/browse.ts';
+import { SHOW_SUPPORT, SUPPORT_URL } from '../lib/links.ts';
 
 import type { Roster, RosterPal } from '../types.ts';
 import { nameOf, Chevron } from './showcase/shared.tsx';
@@ -230,6 +231,17 @@ export default function Showcase({
             <button type="button" className="sc-btn sc-navup" onClick={onOpenSave}>
               Upload save
             </button>
+          )}
+          {SHOW_SUPPORT && (
+            <a className="sc-coffee" href={SUPPORT_URL} target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+                <path d="M5 10h11v5.5a4.5 4.5 0 0 1-4.5 4.5h-2A4.5 4.5 0 0 1 5 15.5z" />
+                <path d="M16 11.5h1.5a2.500 2.500 0 0 1 0 5H16" />
+                <path d="M8.5 3.5c-1 1.200 1 2 0 3.200M12.500 3.500c-1 1.200 1 2 0 3.200" />
+              </svg>
+              <span className="sc-coffee-label">Buy me a coffee</span>
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
           )}
           <Settings
             browse={browse}
