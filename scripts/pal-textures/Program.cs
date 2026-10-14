@@ -23,6 +23,7 @@ using SkiaSharp;
 //   dotnet run -- --mesh <Name>        export SK_<Name> as glTF with its textures
 //   dotnet run -- --anim <AS_Name>     export one animation sequence as .psa
 //   dotnet run -- --batch [A,B,…]      every monster mesh + its animations, resumable
+//   dotnet run -- --table <substring>  a data table as JSON, for `npm run compare-sources`
 
 // `npm run build-portraits` finds the install (Steam library folders) and sets
 // this; running the tool by hand needs it set to the Pal/Content/Paks directory.
@@ -76,6 +77,8 @@ switch (mode)
         return Top(arg);
     case "--files":
         return Files(arg);
+    case "--table":
+        return Table(arg);
     case "--mesh":
         return Mesh(arg);
     case "--anim":
@@ -216,6 +219,30 @@ int Top(string? needle)
 }
 
 // Every matching entry with its packed size, for sizing a delivery budget.
+// Write a data table (or any package) from the game's own files as JSON, to check the app's data
+// against the game itself instead of against a website: DT_PassiveSkill_Main for the passives' ids
+// and effects, DT_SkillNameText for their names. Output goes to out/_tables/ (gitignored).
+int Table(string? needle)
+{
+    if (needle is null) { Console.Error.WriteLine("--table needs a substring of the asset's path"); return 1; }
+    var paths = provider.Files.Keys
+        .Where(k => k.EndsWith(".uasset", StringComparison.OrdinalIgnoreCase) && k.Contains(needle, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(k => k.Length).Take(12).ToList();
+    if (paths.Count == 0) { Console.Error.WriteLine($"No .uasset matching \"{needle}\""); return 1; }
+    var dir = Path.Combine("out", "_tables");
+    Directory.CreateDirectory(dir);
+    foreach (var path in paths)
+    {
+        var exports = provider.LoadPackage(path[..path.LastIndexOf('.')]).GetExports();
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(exports, Newtonsoft.Json.Formatting.Indented);
+        var lang = path.Contains("/L10N/", StringComparison.OrdinalIgnoreCase) ? path.Split("/L10N/")[1].Split('/')[0] + "-" : "";
+        var file = Path.Combine(dir, lang + Path.GetFileNameWithoutExtension(path) + ".json");
+        File.WriteAllText(file, json);
+        Console.WriteLine($"{path} -> {file} ({json.Length / 1024:N0} KB)");
+    }
+    return 0;
+}
+
 int Files(string? needle)
 {
     var rows = provider.Files

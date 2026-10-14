@@ -6,10 +6,8 @@
  *
  * What is fetched, and why it is allowed:
  *
- *   PalSphere   palsphere.app/data/v1/*.json. Its published open-data export, which its
- *               robots.txt allows (/data/) and its terms invite for non-commercial use with
- *               attribution to PalSphere. Its /skills/ and /api/ pages are Disallowed and its
- *               terms forbid bulk scraping, so none of that is touched.
+ *   the game    nothing is fetched: `loadGame` reads the JSON that scripts/pal-textures writes from
+ *               a copy of Palworld on this machine (gitignored; absent on a machine without one).
  *   paldb.cc    three list pages (Active_Skills, Passive_Skills, Pals_Table), robots-allowed.
  *               The per-pal pages are NOT fetched here: they are read from scripts/.cache/paldb/,
  *               which `npm run build-pal-extras` filled earlier.
@@ -59,22 +57,31 @@ export const JOBS = {
 export const ELEMENT = { normal: 'neutral', electricity: 'electric', earth: 'ground', leaf: 'grass' };
 export const element = (e) => ELEMENT[e.toLowerCase()] ?? e.toLowerCase();
 
-// ---- PalSphere ----
-export async function loadPalSphere(opts) {
-  const get = async (f) => JSON.parse(await fetchCached(`https://palsphere.app/data/v1/${f}`, `palsphere-${f}`, opts));
-  // One at a time: fetchCached spaces its requests out, and they are not made in parallel.
-  const manifest = await get('manifest.json');
-  const skills = await get('skills.json');
-  const species = await get('species.json');
-  const breeding = await get('breeding-unique.json');
-  return {
-    manifest,
-    active: skills.activeSkills,
-    partner: skills.partnerSkills,
-    passive: skills.passiveSkills,
-    species: species.species,
-    breeding: Array.isArray(breeding) ? breeding : Object.values(breeding).find(Array.isArray) ?? [],
-  };
+// ---- the game's own data tables ----
+/**
+ * The passive table and the English skill names, from the game itself. Made on a machine with
+ * Palworld installed, in scripts/pal-textures (PALWORLD_PAKS set to the game's Pal/Content/Paks):
+ *
+ *   dotnet run -- --table DT_PassiveSkill_Main
+ *   dotnet run -- --table L10N/en/Pal/DataTable/Text/DT_SkillNameText
+ *
+ * Returns null where the dump is missing. Nothing here is a website: this is what the game does.
+ */
+export function loadGame() {
+  const dir = path.join(ROOT, 'scripts', 'pal-textures', 'out', '_tables');
+  const table = path.join(dir, 'DT_PassiveSkill_Main.json');
+  const text = path.join(dir, 'en-DT_SkillNameText_Common.json');
+  if (!fs.existsSync(table) || !fs.existsSync(text)) return null;
+  const rows = JSON.parse(fs.readFileSync(table, 'utf8'))[0].Rows;
+  const passives = new Map(Object.entries(rows).map(([id, r]) => [id, { rank: r.Rank }]));
+  const names = new Map();
+  for (const [key, v] of Object.entries(JSON.parse(fs.readFileSync(text, 'utf8'))[0].Rows)) {
+    if (key.startsWith('PASSIVE_')) names.set(key.slice('PASSIVE_'.length), v.TextData?.LocalizedString ?? v.TextData?.SourceString);
+  }
+  // The text table's keys differ from the row names in letter case for a few ids.
+  const lower = new Map([...names].map(([k, v]) => [k.toLowerCase(), v]));
+  for (const id of passives.keys()) if (!names.has(id) && lower.has(id.toLowerCase())) names.set(id, lower.get(id.toLowerCase()));
+  return { passives, names };
 }
 
 // ---- paldb.cc ----

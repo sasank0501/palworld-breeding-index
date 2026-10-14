@@ -235,30 +235,37 @@ DataTable extraction on Palworld is still unproven in this repo.
 
 ---
 
-## Cross-check against PalSphere, paldb and palworld.gg (2026-10-12, game 1.0.5)
+## Cross-check against the game's own tables, paldb and palworld.gg (2026-10-13, game 1.0.5)
 
-`npm run compare-sources` fetches each source once (cached in `scripts/.cache/sources/`) and prints
-what disagrees. **The rule: a value of ours changes only when two independent sources agree on a
-different one.** Run on 2026-10-12 it found:
+`npm run compare-sources` reads the game's own passive table and English skill names (dumped from a
+copy of Palworld on this machine: `dotnet run -- --table …` in `scripts/pal-textures`, see `loadGame`
+in `scripts/lib/sources.mjs`), fetches paldb and palworld.gg once each (cached in
+`scripts/.cache/sources/`) and prints what disagrees. **The rule: the game's files are the
+authority where they are read; otherwise a value of ours changes only when two independent websites
+agree on a different one.** Run on 2026-10-13 it found:
 
-- **Pals (288 in every source): no change.** Names, elements, breeding rank, rarity and partner skill
-  names agree everywhere. Work levels agree with palworld.gg on all 288. PalSphere differs on Medicine
-  for 36 pals and paldb on 9 pals' work levels; each is one source against ours and palworld.gg.
-  Appetite differs for 68 (PalSphere, which has it for only 147 pals) and 85 (paldb) with no two
-  sources agreeing against ours, so it is unchanged. Gumoss (Special) is ours alone.
-- **Active skills: no change.** Ours equals paldb on all 317 skills both list. PalSphere's power and
-  cooldown are the Early Access ones (3 of 294 equal ours) and it still names six skills the game has
-  renamed, so it is not used for skills. paldb lists 63 more, nearly all boss, gym and internal actions.
-  palworld.gg's table is filled in by the browser and was spot-checked (12 of 12 once its boss-version
-  figure for Purifying Light, 1250 against the 250 Hartalis uses, is accounted for).
-- **Passives: 10 added** (PalSphere and paldb both list them): Mentally unstable, Sharing is Caring,
-  Babysitter, Blood Is Fuel, Savior, Hermit Sage, Sanctified Meat Shield, Twin-Edged Holy Blade, World
-  Tree's Bounty, plus Sky Strider (`RideJumpCount_Increase2`, on two boss pals in the demo save; named and described by paldb, its "+2" matching the id). Not added: seven PalSphere-only ranch-drop passives (Berry Picker, Egg Layer…), Tempest
-  Fury (both sources call it unreleased) and . Open: Eternal Flame is tier 3 in
-  ours and rank 4 on paldb; "Demon's Hand" is spelled with a typographic apostrophe by both sites, left
-  straight so a plain apostrophe still finds it in search.
-- **Breeding: no change.** All 184 of PalSphere's 257 special rules that name Paldex pals are in our
-  matrix; the other 73 involve pals that are not in the Paldex.
+- **Passives, against the game's table (1,905 rows, 118 of them ours): every id of ours exists in it.**
+  Ten added in October, each with the id, English name and rank the game gives: Mentally unstable,
+  Sharing is Caring, Babysitter, Blood Is Fuel, Savior, Hermit Sage, Sanctified Meat Shield, Twin-Edged
+  Holy Blade, World Tree's Bounty and Sky Strider (`RideJumpCount_Increase2`, which two boss pals in
+  the demo save carry). The effect figures match the table too (Babysitter 30 and 30, Savior 30 and 30,
+  the World Tree four -50/-20, 50/-30, 50/-30, -50/-20). Blood Is Fuel's life steal is 1 in the table
+  and "0%" on paldb, so ours says "a portion".
+- **Two corrections, where the game and paldb both differ from ours:** `ElementBoost_Normal_1_PAL` is
+  **Spirit of Zen** in the game's text (ours said Zen Mind), and **Eternal Flame** is rank 4 (ours had
+  tier 3). Both fixed. "Demon's Hand" is spelled with a typographic apostrophe in the game; ours keeps
+  the straight one so a plain apostrophe still finds it in search.
+- **Not added:** Tempest Fury (paldb calls it unreleased) and the faction-leader and yield passives
+  paldb lists that a save's pals do not carry.
+- **Pals (288 on each site): no change.** Elements and rarity agree with palworld.gg on all of them, and
+  so do work levels. paldb differs on 15 pals' work levels and on appetite for 85: one site against
+  ours and palworld.gg, so unchanged. Gumoss (Special) is ours alone.
+- **Active skills: no change.** Ours equals paldb on all 317 skills both list. paldb lists 64 more,
+  nearly all boss, gym and internal actions. palworld.gg's table is filled in by the browser and was
+  spot-checked (12 of 12 once its boss-version figure for Purifying Light, 1250 against the 250
+  Hartalis uses, is accounted for).
 - PalCalc's skills table was last regenerated for 1.0 (2026-07-10), before 1.0.1 to 1.0.5, but paldb at
   1.0.5 agrees with it exactly, so it is current.
-- **Using PalSphere's data requires crediting PalSphere** (non-commercial). README Credits does.
+- Not read from the game yet: the pal table (work levels, appetite, rarity) and the active skills.
+  `--table` can dump them (`DT_PalMonsterParameter`, `DT_WazaDataTable`); wiring them into the check
+  would settle the paldb differences above.
