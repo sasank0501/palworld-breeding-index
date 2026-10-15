@@ -15,7 +15,7 @@ Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
 | Phase | Status |
 |---|---|
 | 0–7 | done (Safari optional, unverified; not measured: a laptop without a GPU, 8 GB of memory or less) |
-| 8 Ship | **deployed 2026-10-14.** Left: redeploy the portfolio build; pal URLs nice to have |
+| 8 Ship | **deployed 2026-10-14.** Portfolio build redeployed the same day. Left: pre-rendered pages per species (SEO); Search Console |
 | 9 Multi-player worlds | **planned 2026-10-14, not started.** Four steps in WEBSITE-PLAN; needs a real co-op or server save to verify |
 
 ## Pick up here
