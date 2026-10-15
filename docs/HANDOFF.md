@@ -5,7 +5,7 @@ Branch `paldb-ranks-and-theme`, pushed to origin at the end of this wrap. `npx t
 silhouettes for browsing") pass; `npm run audit-a11y` on the dev server: no violations, no text under 12px.
 **The public site is live at https://paldoc.app** (Cloudflare Pages project `paldoc-app`, Direct Upload),
 today's build deployed after a check on the preview address. The portfolio build (`paldoc.pages.dev`,
-project `paldoc`) is still the 2026-10-07 one. `docs/WEBSITE-PLAN.md` has every phase's detail
+project `paldoc`) was redeployed 2026-10-14 (same code, demo save, lite models). `docs/WEBSITE-PLAN.md` has every phase's detail
 (today's work under Phase 8, "Also built 2026-10-14"; the new Phase 9); `docs/A11Y.md` the checklist.
 Learning page: claude.ai artifact `9hUfnrC8NXRkssEC4Tjcz6` (read it with the Artifact tool before editing);
 Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
@@ -42,8 +42,7 @@ Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
    a real Game Pass save for the Xbox reader.
 
 **Next, in order** (the model for each, as the working agreement asks)
-1. **Redeploy the portfolio build** (Sonnet): delete `public/extractor/` first, `npm run build:resume`, check
-   `dist-resume/` (no `roster.json`, Steam id, world names or source maps), deploy to `paldoc`.
+1. ~~Redeploy the portfolio build~~ done 2026-10-14. `npm run build:resume` copies `public/extractor/` (43 MB) and `sitemap.xml`; delete both from `dist-resume/` before deploying (moving the folder out of `public/` was refused: something locks it). `scripts/.cache/planner-redesign/resume-check.mjs <url>` checks it.
 2. **A version on the art pack** (Opus: touches the pack format). A player who extracted before a model fix
    (Cawgnito) keeps the old model and nothing tells them. Store the builder's version in `pack.json`; when it
    is behind, say "some pals have better models: make the art again". A saved `.paldocart` copy has the same
