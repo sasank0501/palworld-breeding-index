@@ -413,6 +413,11 @@
 .sc-bpair .sc-gap-body { flex: 1 1 auto; align-items: stretch; }
 .sc-bpair-label { font: 700 12px var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
 .sc-bpair .sc-gap-art i { font: var(--d-weight) 34px var(--font-display); font-style: normal; color: var(--ink-soft); }
+/* No parent yet: an outlined box the size of a picture, so the "?" sits where the pal will. */
+.sc-bpair .sc-gap-art:has(> i) { box-sizing: border-box; border: 2px dashed var(--hair); background: var(--panel-2); }
+/* One line each for the label and the name, so the cards keep one height whatever is chosen. */
+.sc-bpair .sc-gap-name, .sc-bpair-label { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.sc-bpair-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-height: 24px; }
 .sc-bpair-find { position: relative; margin-top: auto; }
 /* On phones .sc-search takes a 160px flex basis for its row in a toolbar; in this column that would be height. */
 .sc-bpair .sc-bpair-find { flex: none; }
@@ -422,7 +427,8 @@
 .sc-bpair-out .sc-gap.is-ready { border-color: var(--good); }
 .sc-bpair-note { font-weight: 800; font-size: 14px; line-height: 1.35; color: var(--ink-soft); }
 .sc-bpair-note.ready { color: var(--good-text); }
-.sc-bpair-blank { display: grid; place-items: center; min-height: 132px; box-sizing: border-box; padding: 14px; border: 2px dashed var(--hair); border-radius: var(--radius); text-align: center; font-weight: 700; color: var(--ink-soft); }
+/* Fills the row exactly, top and bottom level with the cards beside it (a <p>: its own margins inset it). */
+.sc-bpair-blank { display: grid; place-items: center; height: 100%; min-height: 132px; margin: 0; box-sizing: border-box; padding: 14px; border: 2px dashed var(--hair); border-radius: var(--radius); text-align: center; font-weight: 700; color: var(--ink-soft); }
 @media (max-width: 1000px) {
   .sc-bpair-row { grid-template-columns: minmax(0, 1fr); }
   .sc-bpair-row > i { justify-self: center; }

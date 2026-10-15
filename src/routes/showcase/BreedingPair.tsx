@@ -97,12 +97,18 @@ function ParentCard({ label, id, onPick, ctx, browse }: { label: string; id: str
       <span className="sc-gap-art">{id ? <SpeciesArt id={id} /> : <i aria-hidden="true">?</i>}</span>
       <span className="sc-gap-body">
         <span className="sc-bpair-label">{label}</span>
-        <b className="sc-gap-name">{id ? nameOf(id) : 'Not chosen yet'}</b>
-        {id && (
-          <span>
-            <ElementChips id={id} /> {!browse && <small className="sc-bpair-note">{own ? `you own ×${own}` : 'not owned'}</small>}
-          </span>
-        )}
+        <b className="sc-gap-name">{id ? nameOf(id) : 'Not chosen'}</b>
+        {/* Always one line here, chosen or not, so the search box below never moves. */}
+        <span className="sc-bpair-meta">
+          {id ? (
+            <>
+              <ElementChips id={id} />
+              {!browse && <small className="sc-bpair-note">{own ? `you own ×${own}` : 'not owned'}</small>}
+            </>
+          ) : (
+            <small className="sc-bpair-note">Search below</small>
+          )}
+        </span>
         <span className="sc-bpair-find sc-search block">
           <input
             value={query}
@@ -150,9 +156,12 @@ function ChildCard({ id, status, note, ctx, onOpen, browse }: { id: string; stat
         <SpeciesArt id={id} />
       </span>
       <span className="sc-gap-body">
-        <span className="sc-bpair-label">They breed{browse ? '' : own ? ` · you own ×${own}` : ' · new to you'}</span>
+        <span className="sc-bpair-label">They breed</span>
         <b className="sc-gap-name">{nameOf(id)}</b>
-        <ElementChips id={id} />
+        <span className="sc-bpair-meta">
+          <ElementChips id={id} />
+          {!browse && <small className="sc-bpair-note">{own ? `you own ×${own}` : 'new to you'}</small>}
+        </span>
         {note && <span className={`sc-bpair-note${status === 'ready' ? ' ready' : ''}`}>{note}</span>}
       </span>
     </button>
