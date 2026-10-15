@@ -1,6 +1,7 @@
-# Handoff — 2026-10-14 (end of day)
+# Handoff — 2026-10-15 (end of day)
 
-Branch `paldb-ranks-and-theme`, pushed to origin at the end of this wrap. `npx tsc -b`, 283 tests and
+Branch `paldb-ranks-and-theme`, pushed to origin at the end of this wrap. No app code changed on 2026-10-15 (a
+launch-video and Reddit day, see below); `npx tsc -b`, 283 tests and
 `npm run build` ("no game art except 16 silhouette screenshots for the homepage tour and 289 species
 silhouettes for browsing") pass; `npm run audit-a11y` on the dev server: no violations, no text under 12px.
 **The public site is live at https://paldoc.app** (Cloudflare Pages project `paldoc-app`, Direct Upload),
@@ -65,6 +66,19 @@ Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
   build-portraits` still fetches the game's icon files nothing shows; scripts that click "Try the demo save"
   fail; the lineage frame's pinch on a real touch screen and Full screen were not tried by hand;
   `scripts/build-passives.mjs` is stale; `@tanstack/react-virtual` is imported nowhere.
+
+## Built on 2026-10-15 (nothing here is committed: it lives in gitignored or excluded folders)
+
+- **Launch video** with the `/brag-slim` skill, in `brag-output/` (excluded through `.git/info/exclude`; it holds the
+  owner's save and the game's art, so it never goes in the public repo). `brag.mp4` is the current cut: yc-parody, 24.8 s,
+  1080p30, all four pages plus the stat card ("41,617 parent pairs", from `combos.json`), Knocklem as the demo pal
+  (owner's choice over Anubis), synthesised felt-piano music in F. `brag-v1-default.mp4` is the first cut (default tone,
+  Planner only, 3D Knocklem). `brag-plan.md`, `share-copy.txt` and the build scripts (`work/`: capture, 3D turntable,
+  HTML compositor, audio) are there. To redo it: `npm run dev -- --port 5174 --strictPort`, then
+  `COMP=comp2.html node brag-output/work/render.mjs full <dir>` (frames), `python -I brag-output/work/audio2.py <wav>`, and
+  encode with the ffmpeg that `imageio_ffmpeg` ships (none on PATH). VS Code's preview can't play AAC: open it in a real player.
+- **`reddit/post-3.md`**: "PalDoc is live" post that goes with the video. It says the site shows silhouettes and the video
+  is a local build. `reddit/` is gitignored.
 
 ## Built on 2026-10-14 (details in WEBSITE-PLAN, Phase 8 "Also built 2026-10-14")
 
