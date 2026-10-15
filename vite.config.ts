@@ -72,7 +72,8 @@ function copyPublic(resume: boolean): Plugin {
       const kept = fs.readdirSync(outDir).filter((n) => GAME_ART.includes(n) || n === 'pal-models');
       // The homepage tour's screenshots are bundled by Vite, not copied from public/: count them too.
       const tourDir = path.join(root, 'src', 'design', 'tour');
-      const tour = fs.existsSync(tourDir) ? fs.readdirSync(tourDir).filter((n) => n.endsWith('.webp')).length : 0;
+      // Each is there twice, as AVIF and as WebP (src/routes/home/shots.ts): count the screenshots, not the files.
+      const tour = fs.existsSync(tourDir) ? new Set(fs.readdirSync(tourDir).filter((n) => /\.(avif|webp)$/.test(n)).map((n) => n.replace(/\.\w+$/, ''))).size : 0;
       // public/silhouettes (the browse page's species outlines) is copied above like any other public file.
       const silDir = path.join(root, 'public', 'silhouettes');
       const silhouettes = fs.existsSync(silDir) ? fs.readdirSync(silDir).filter((n) => n.endsWith('.webp')).length : 0;

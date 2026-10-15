@@ -16,8 +16,11 @@
  * The pages show the app in use, not empty: the Breeding page with a pair worked out in its
  * calculator, the Planner with a finished plan.
  *
- * The window is 1360 x 1700 CSS pixels, captured at 1.5x (2040 x 2550), which is what
- * SHOT in src/routes/home/shots.ts says. If you change one, change the other.
+ * The window is 1360 x 1700 CSS pixels, captured at 2x (2720 x 3400), which is what SHOT in
+ * src/routes/home/shots.ts says. If you change one, change the other. 2x because the tour draws a
+ * screenshot up to about 2600 device pixels wide (a 4K screen at 100%, 1080p at 200%); at 1.5x it was
+ * stretched there and looked pixelated (owner, 2026-10-14). Each is written twice: AVIF (4:4:4 colour,
+ * so small text keeps clean edges; about 200 KB) and WebP for browsers without AVIF.
  */
 import { chromium } from 'playwright-core';
 import fs from 'node:fs';
@@ -31,7 +34,7 @@ const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Applicat
 const OUT = path.join(ROOT, 'src', 'design', 'tour');
 const WIDTH = 1360;
 const HEIGHT = 1700;
-const SCALE = 1.5;
+const SCALE = 2;
 /** Each skin, and whether it is one of the two dark ones (their silhouettes are light ink). */
 const SKINS = [
   ['pal', false],
@@ -66,9 +69,12 @@ for (const [skin, dark] of SKINS) {
   const snap = async (name) => {
     await page.waitForLoadState('networkidle').catch(() => {});
     await page.waitForTimeout(2500);
-    const file = path.join(OUT, `${name}-${skin}.webp`);
-    await sharp(await page.screenshot()).webp({ quality: 78 }).toFile(file);
-    console.log(`${name}-${skin}.webp`.padEnd(26), `${Math.round(fs.statSync(file).size / 1024)} KB`);
+    const png = await page.screenshot();
+    const base = path.join(OUT, `${name}-${skin}`);
+    await sharp(png).avif({ quality: 60, chromaSubsampling: '4:4:4', effort: 6 }).toFile(`${base}.avif`);
+    await sharp(png).webp({ quality: 85, smartSubsample: true, effort: 6 }).toFile(`${base}.webp`);
+    const kb = (ext) => `${Math.round(fs.statSync(`${base}.${ext}`).size / 1024)} KB`;
+    console.log(`${name}-${skin}`.padEnd(22), 'avif', kb('avif').padEnd(8), 'webp', kb('webp'));
   };
   const pickSpecies = async (field, name) => {
     await field.fill(name);

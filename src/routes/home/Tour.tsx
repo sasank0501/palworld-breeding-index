@@ -4,7 +4,7 @@ import { PalEgg } from '../showcase/parts.tsx';
 import { CHAPTERS, type Chapter } from './chapters.ts';
 import { buildReel, clamp, pageOffset, positionAt, textAt, type Reel } from './reel.ts';
 import type { Skin } from '../showcase/skins.ts';
-import { SHOT, shotUrl } from './shots.ts';
+import { SHOT, shotAvif, shotUrl } from './shots.ts';
 
 /**
  * The homepage tour: the app's five pages shown one after another while the
@@ -160,17 +160,20 @@ function PinnedTour({ skin }: { skin: Skin }) {
           <div className="tour-frame" ref={frame}>
             {pages.map((page, i) => {
               const url = shotUrl(page, skin);
+              const avif = shotAvif(page, skin);
               return url ? (
-                <img
-                  key={page}
-                  ref={(el) => {
-                    layers.current[i] = el;
-                  }}
-                  src={url}
-                  alt=""
-                  draggable={false}
-                  decoding="async"
-                />
+                <picture key={page}>
+                  {avif && <source type="image/avif" srcSet={avif} />}
+                  <img
+                    ref={(el) => {
+                      layers.current[i] = el;
+                    }}
+                    src={url}
+                    alt=""
+                    draggable={false}
+                    decoding="async"
+                  />
+                </picture>
               ) : null;
             })}
             {!shotUrl(pages[0], skin) && (
@@ -192,6 +195,7 @@ function StackedTour({ skin }: { skin: Skin }) {
     <section className="tour-stacked" aria-label="A tour of PalDoc">
       {CHAPTERS.map((chapter, i) => {
         const url = shotUrl(chapter.page, skin);
+        const avif = shotAvif(chapter.page, skin);
         // Show the middle of the stretch of the page this chapter is about.
         const middle = (chapter.from + chapter.to) / 2;
         return (
@@ -199,13 +203,16 @@ function StackedTour({ skin }: { skin: Skin }) {
             <ChapterText chapter={chapter} index={i} />
             <figure className="tour-still">
               {url ? (
-                <img
-                  src={url}
-                  alt={`The ${chapter.name} view of PalDoc, with every pal as a silhouette`}
-                  loading="lazy"
-                  decoding="async"
-                  style={{ transform: `translateY(${(-middle / SHOT.h) * 100}%)` }}
-                />
+                <picture>
+                  {avif && <source type="image/avif" srcSet={avif} />}
+                  <img
+                    src={url}
+                    alt={`The ${chapter.name} view of PalDoc, with every pal as a silhouette`}
+                    loading="lazy"
+                    decoding="async"
+                    style={{ transform: `translateY(${(-middle / SHOT.h) * 100}%)` }}
+                  />
+                </picture>
               ) : (
                 <PalEgg size={64} />
               )}
