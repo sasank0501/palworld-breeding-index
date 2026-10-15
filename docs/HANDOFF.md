@@ -1,7 +1,7 @@
 # Handoff — 2026-10-14 (end of day)
 
 Branch `paldb-ranks-and-theme`, pushed to origin at the end of this wrap. `npx tsc -b`, 267 tests and
-`npm run build` ("no game art except 8 silhouette screenshots for the homepage tour and 289 species
+`npm run build` ("no game art except 16 silhouette screenshots for the homepage tour and 289 species
 silhouettes for browsing") pass; `npm run audit-a11y` on the dev server: no violations, no text under 12px.
 **The public site is live at https://paldoc.app** (Cloudflare Pages project `paldoc-app`, Direct Upload),
 today's build deployed after a check on the preview address. The portfolio build (`paldoc.pages.dev`,
@@ -65,6 +65,13 @@ Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
 ## Built on 2026-10-14 (details in WEBSITE-PLAN, Phase 8 "Also built 2026-10-14")
 
 - **Deployed**: `paldoc.app` (domain the owner bought), security headers, npm audit 0.
+- **Addresses and history** (`src/lib/route.ts`, `useOverlayBack.ts`; after the deploy, **not deployed yet**): every
+  tab and opened page has an address (`/paldex/anubis`, `/my-pals/<id>`, `/planner/saved`…); Back, Forward, a
+  mouse's back button, Esc and the Back link agree; refresh keeps the page; Back closes overlays first; the
+  import's `/upload` entry is cancelled by Back and gone once done. Checked: `scripts/.cache/planner-redesign/`
+  `history.mjs` (saved / public), `esc-guard.mjs`, `import-history.mjs` (imports the owner's small world).
+- **Landing tour per theme** (not deployed yet): 16 screenshots, `<page>-<skin>.webp`, Breeding with its pair
+  calculator worked out and the Planner with a finished plan; `npm run capture-tour [skin…]`.
 - **Spotlight Party view** (`Dex.tsx`): Party / Potential / Passives, remembered per device, no Hide in Party.
 - **Hybrid planner** (`Planner.tsx`, `showcase-views.css`): set up beside the result, then a summary row
   with Edit once there is a plan; containers move and grow.
@@ -115,7 +122,7 @@ portfolio doesn't use it, so delete it before `build:resume`. Deploying needs th
   zoom frame, a ladder on phones; Panthalus stays epic; "Upload save" keeps its wording; Pocketpair's
   permission is not sought first (content comes down on notice); **the site names no data-source websites**.
 - **Not a source:** PalSphere (dropped 2026-10-14; data checked against the game's own tables).
-- **Game art in the repo**: none, except the 8 tour screenshots and 289 species outlines (2026-10-12).
+- **Game art in the repo**: none, except the 16 tour screenshots (4 pages × 4 themes, 2026-10-14; 8 before) and 289 species outlines (2026-10-12).
 - **Extractors**: 4 / 3 / 2 / 1 by cores and memory, 2 where the browser won't report memory; the player
   may override, within half the processor's threads.
 - **Data changes**: only when two independent sources agree against ours.
