@@ -34,7 +34,6 @@ function usePhone(): boolean {
 export function Landing({ skin, onSkin, onChoose, onBrowse }: { skin: Skin; onSkin: (s: Skin) => void; onChoose: () => void; onBrowse: () => void }) {
   const [asking, setAsking] = useState(false);
   const open = () => setAsking(true);
-  const dark = skin === 'obsidian' || skin === 'feybreak';
   const phone = usePhone();
 
   const actions = phone ? (
@@ -84,7 +83,7 @@ export function Landing({ skin, onSkin, onChoose, onBrowse }: { skin: Skin; onSk
           </p>
         </section>
 
-        <Tour dark={dark} />
+        <Tour skin={skin} />
 
         <section className="home-closing" aria-labelledby="home-closing-title">
           <h2 id="home-closing-title">

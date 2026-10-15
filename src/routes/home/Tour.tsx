@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { PalEgg } from '../showcase/parts.tsx';
 import { CHAPTERS, type Chapter } from './chapters.ts';
 import { buildReel, clamp, pageOffset, positionAt, textAt, type Reel } from './reel.ts';
+import type { Skin } from '../showcase/skins.ts';
 import { SHOT, shotUrl } from './shots.ts';
 
 /**
@@ -33,8 +34,8 @@ function useStacked(): boolean {
   return stacked;
 }
 
-export function Tour({ dark }: { dark: boolean }) {
-  return useStacked() ? <StackedTour dark={dark} /> : <PinnedTour dark={dark} />;
+export function Tour({ skin }: { skin: Skin }) {
+  return useStacked() ? <StackedTour skin={skin} /> : <PinnedTour skin={skin} />;
 }
 
 function ChapterText({ chapter, index }: { chapter: Chapter; index: number }) {
@@ -61,7 +62,7 @@ function ChapterText({ chapter, index }: { chapter: Chapter; index: number }) {
 
 // ---------------------------------------------------------------------------------
 
-function PinnedTour({ dark }: { dark: boolean }) {
+function PinnedTour({ skin }: { skin: Skin }) {
   const story = useRef<HTMLElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const copy = useRef<HTMLDivElement>(null);
@@ -158,7 +159,7 @@ function PinnedTour({ dark }: { dark: boolean }) {
           </div>
           <div className="tour-frame" ref={frame}>
             {pages.map((page, i) => {
-              const url = shotUrl(page, dark);
+              const url = shotUrl(page, skin);
               return url ? (
                 <img
                   key={page}
@@ -172,7 +173,7 @@ function PinnedTour({ dark }: { dark: boolean }) {
                 />
               ) : null;
             })}
-            {!shotUrl(pages[0], dark) && (
+            {!shotUrl(pages[0], skin) && (
               <div className="tour-missing">
                 <PalEgg size={72} />
               </div>
@@ -186,11 +187,11 @@ function PinnedTour({ dark }: { dark: boolean }) {
 
 // ---------------------------------------------------------------------------------
 
-function StackedTour({ dark }: { dark: boolean }) {
+function StackedTour({ skin }: { skin: Skin }) {
   return (
     <section className="tour-stacked" aria-label="A tour of PalDoc">
       {CHAPTERS.map((chapter, i) => {
-        const url = shotUrl(chapter.page, dark);
+        const url = shotUrl(chapter.page, skin);
         // Show the middle of the stretch of the page this chapter is about.
         const middle = (chapter.from + chapter.to) / 2;
         return (
