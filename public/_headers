@@ -25,6 +25,7 @@
   Cross-Origin-Opener-Policy: same-origin
   Strict-Transport-Security: max-age=31536000; includeSubDomains
 
-# Vite names these files by their content, so a changed file has a new name.
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
+# No long cache rule for /assets/* (Vite's content-named files), though they never change: on 2026-10-14
+# a request made while a deploy was switching over reached the old deployment, which didn't have the new
+# file, and got the page's HTML instead; marked immutable, Cloudflare's edge kept that HTML as the script
+# and the site came up blank there. Pages' own default (revalidate each time, a cheap 304) can't stick.
