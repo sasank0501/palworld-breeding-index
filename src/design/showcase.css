@@ -911,6 +911,13 @@
 .sc-seg { display: inline-flex; padding: 4px; background: var(--panel); border: var(--border); border-radius: 999px; backdrop-filter: var(--blur); }
 .sc-seg button { padding: 7px 14px; background: none; border: 0; border-radius: 999px; color: var(--ink-soft); font: 800 13px var(--font-body); cursor: pointer; transition: all 0.2s; }
 .sc-seg button.on { background: var(--accent-strong); color: var(--accent-ink); }
+/* Seg in showcase/TabSlider.tsx: one fill glides to the button that is on, as in the nav. */
+.sc-seg.glide { position: relative; }
+.sc-seg.glide button { position: relative; z-index: 1; }
+.sc-seg.glide button.on { background: none; }
+.sc-seg-slider { position: absolute; top: 0; left: 0; z-index: 0; border-radius: 999px; background: var(--accent-strong); pointer-events: none; }
+.sc-seg-slider.go { transition: transform 0.32s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.32s cubic-bezier(0.3, 0.7, 0.2, 1), height 0.32s cubic-bezier(0.3, 0.7, 0.2, 1); }
+@media (prefers-reduced-motion: reduce) { .sc-seg-slider.go { transition: none; } }
 
 .sc-elbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
 /* Phones fold the view switch and element chips behind this button (see the 640px query). */

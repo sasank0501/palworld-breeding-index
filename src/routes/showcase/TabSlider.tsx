@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 
 /**
  * Where the main nav's highlight sits: the box of the tab that is on, measured in its container.
@@ -38,4 +38,26 @@ export function useTabSlider(box: RefObject<HTMLElement | null>, active: string,
   }, []);
 
   return { pos, animate };
+}
+
+/**
+ * A row of toggle buttons (.sc-seg: the Paldex's view, the spotlight's, My Pals' Where and Sort) whose
+ * "on" fill glides between them like the nav's (owner, 2026-10-14). `active` is the key that is on;
+ * the buttons inside still carry class "on" and aria-pressed, which is what is measured and read out.
+ */
+export function Seg({ label, active, className, id, children }: { label: string; active: string; className?: string; id?: string; children: ReactNode }) {
+  const box = useRef<HTMLDivElement>(null);
+  const { pos, animate } = useTabSlider(box, active, '');
+  return (
+    <div className={`sc-seg glide${className ? ` ${className}` : ''}`} id={id} role="group" aria-label={label} ref={box}>
+      {pos && (
+        <span
+          className={`sc-seg-slider${animate ? ' go' : ''}`}
+          aria-hidden="true"
+          style={{ transform: `translate(${pos.x}px, ${pos.y}px)`, width: pos.w, height: pos.h }}
+        />
+      )}
+      {children}
+    </div>
+  );
 }

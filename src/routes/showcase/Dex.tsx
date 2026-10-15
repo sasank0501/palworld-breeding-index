@@ -7,6 +7,7 @@ import type { RosterPal } from '../../types.ts';
 import { hideFromSpotlight, showInSpotlight } from '../../userdata/edit.ts';
 import { readPrefs, writePrefs } from '../../userdata/store.ts';
 import { Chevron, DEX, UNBREEDABLE, SpeciesArt, fmt, nameOf, rankFor } from './shared.tsx';
+import { Seg } from './TabSlider.tsx';
 import { statusOf, type Ctx } from './ctx.ts';
 import { BreedingPair } from './BreedingPair.tsx';
 import {
@@ -270,13 +271,13 @@ export function Dex({
             <Chevron dir="right" />
           </button>
           {!browse && (
-            <div className="sc-seg sc-dexfilter" id={`${filtersId}-view`} role="group" aria-label="Show">
+            <Seg className="sc-dexfilter" id={`${filtersId}-view`} label="Show" active={view}>
               {VIEWS.map(([k, label]) => (
                 <button key={k} className={view === k ? 'on' : ''} aria-pressed={view === k} onClick={() => setView(k)}>
                   {label}
                 </button>
               ))}
-            </div>
+            </Seg>
           )}
         </div>
 
@@ -439,7 +440,7 @@ function Spotlight({
         <div className="sc-spot-top">
           {/* Which view, then the pager under it, both on the right. Party first with a rule after it:
               it is a different kind of view (your team), where the other two rank your best pals. */}
-          <span className="sc-seg sc-spot-order" role="group" aria-label="Show in the spotlight">
+          <Seg className="sc-spot-order" label="Show in the spotlight" active={view}>
             {hasParty && (
               <>
                 <button
@@ -475,7 +476,7 @@ function Spotlight({
                 {label}
               </button>
             ))}
-          </span>
+          </Seg>
           {/* Previous and next grouped with the counter, outside the 3D frame: arrows
               on a slide invite accidental taps on it (Friedman, Smashing Magazine), and
               here dragging the frame turns the model. WCAG 2.5.7 asks for exactly these

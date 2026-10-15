@@ -5,6 +5,7 @@ import type { RosterPal } from '../../types.ts';
 import { isFavourite, toggleFavourite } from '../../userdata/edit.ts';
 import { FavStar } from './Fav.tsx';
 import { rankFor } from './shared.tsx';
+import { Seg } from './TabSlider.tsx';
 import type { Ctx } from './ctx.ts';
 import { RarityPips, TraitChips, elementOf, stagger, tierOf } from './parts.tsx';
 
@@ -156,7 +157,7 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
               }}
             />
           </label>
-          <div className="sc-seg" role="group" aria-label="Where">
+          <Seg label="Where" active={drawer}>
             {DRAWERS.map(([k, label]) => (
               <button
                 key={k}
@@ -170,8 +171,8 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
                 {label}
               </button>
             ))}
-          </div>
-          <div className="sc-seg" role="group" aria-label="Sort">
+          </Seg>
+          <Seg label="Sort" active={sort}>
             {SORTS.map(([k, label]) => (
               <button
                 key={k}
@@ -185,7 +186,7 @@ export function Box({ ctx, onPal }: { ctx: Ctx; onPal: (p: RosterPal, list: Rost
                 {label}
               </button>
             ))}
-          </div>
+          </Seg>
           <button className={`sc-flag${alpha ? ' on' : ''}`} aria-pressed={alpha} onClick={() => { setAlpha(!alpha); reset(); }}>
             Alpha
           </button>
