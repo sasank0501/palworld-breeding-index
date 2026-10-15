@@ -84,6 +84,17 @@ function copyPublic(resume: boolean): Plugin {
             ? ` except ${[tour && `${tour} silhouette screenshots for the homepage tour`, silhouettes && `${silhouettes} species silhouettes for browsing`].filter(Boolean).join(' and ')}`
             : ''),
       );
+      // The pages a visitor without a save can open, for search engines (src/lib/seo.ts): the landing
+      // page, the Paldex and each species page. Made here so a new species is listed with no edit.
+      const species = JSON.parse(fs.readFileSync(path.join(root, 'src', 'data', 'pals.json'), 'utf8')) as Record<string, { slug: string }>;
+      const today = new Date().toISOString().slice(0, 10);
+      const urls = ['/', '/paldex', ...Object.values(species).map((s) => `/paldex/${s.slug}`)];
+      fs.writeFileSync(
+        path.join(outDir, 'sitemap.xml'),
+        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+          urls.map((u) => `  <url><loc>https://paldoc.app${u}</loc><lastmod>${today}</lastmod></url>`).join('\n') +
+          '\n</urlset>\n',
+      );
       if (resume && !hasLite && fs.existsSync(path.join(pub, 'pal-models'))) {
         console.warn('[resume] no public/pal-models-lite/ — shipping the FULL models. Run `npm run build-models -- --lite`.');
       }

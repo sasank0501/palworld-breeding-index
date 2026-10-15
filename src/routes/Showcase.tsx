@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { SiteNotice } from '../components/SiteNotice.tsx';
 import { BrowseContext } from '../lib/browse.ts';
 import { back as historyBack, current, formatRoute, navigate, onNavigate, parseRoute, sectionOf, titleFor, type Page, type Route } from '../lib/route.ts';
+import { DEX_DESCRIPTION, HOME_DESCRIPTION, describePage, speciesDescription } from '../lib/seo.ts';
 import { SHOW_SUPPORT, SUPPORT_URL } from '../lib/links.ts';
 
 import type { Roster, RosterPal } from '../types.ts';
@@ -285,9 +286,13 @@ export default function Showcase({
   const sectionLabel = SECTIONS.find(([k]) => k === section)?.[1] ?? '';
 
   // The title names the screen, so a screen reader, the tab and the history list all say where you are.
+  // The Paldex and its species pages are also what a search can find (src/lib/seo.ts).
   useEffect(() => {
-    document.title = top ? titleFor([entryName(top), top.kind === 'species' ? 'Paldex' : sectionLabel]) : titleFor([sectionLabel]);
-  }, [top, sectionLabel]);
+    const title = top ? titleFor([entryName(top), top.kind === 'species' ? 'Paldex' : sectionLabel]) : titleFor([sectionLabel]);
+    const page = top ? pageOf(top) : null;
+    const path = section === 'dex' && (!page || page.kind === 'species') ? formatRoute({ screen: 'app', section, page }) : null;
+    describePage(title, top?.kind === 'species' ? speciesDescription(entryName(top)) : section === 'dex' ? DEX_DESCRIPTION : HOME_DESCRIPTION, path);
+  }, [top, section, sectionLabel]);
 
   return (
     <BrowseContext.Provider value={browse}>

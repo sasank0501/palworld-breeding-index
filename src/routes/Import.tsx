@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { back as historyBack, current, navigate, onNavigate, parseRoute, titleFor } from '../lib/route.ts';
+import { HOME_DESCRIPTION, HOME_TITLE, describePage } from '../lib/seo.ts';
 import type { Roster } from '../types.ts';
 import type { WorldMeta } from '../save/importWorld.ts';
 import type { FromWorker, ToWorker, WorldSummary } from '../save/import.worker.ts';
@@ -73,7 +74,8 @@ export default function Import({
     [],
   );
   useEffect(() => {
-    document.title = stage.kind === 'intro' ? 'PalDoc' : titleFor(['Open your save']);
+    if (stage.kind === 'intro') describePage(HOME_TITLE, HOME_DESCRIPTION, '/');
+    else describePage(titleFor(['Open your save']), HOME_DESCRIPTION, null);
   }, [stage.kind]);
 
   // Each new stage moves keyboard and screen-reader focus to its heading.

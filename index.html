@@ -3,8 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Palworld v1.0 breeding index — reverse parent lookup, breeding calculator, roster tracking, breeding routes and passive inheritance chains." />
-    <title>PalDoc</title>
+    <!-- The home page's, for search engines and link previews; each screen sets its own once the app runs (src/lib/seo.ts). -->
+    <title>PalDoc: Palworld breeding calculator and save viewer</title>
+    <meta name="description" content="Free Palworld breeding calculator, Paldex and save viewer. Find every parent pair for a pal, plan passive skill lineages, and see the pals in your own save, all in your browser." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PalDoc" />
+    <meta property="og:title" content="PalDoc: Palworld breeding calculator and save viewer" />
+    <meta property="og:description" content="Free Palworld breeding calculator, Paldex and save viewer. Find every parent pair for a pal, plan passive skill lineages, and see the pals in your own save, all in your browser." />
+    <meta property="og:url" content="https://paldoc.app/" />
+    <meta property="og:image" content="https://paldoc.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="PalDoc: Palworld breeding calculator and save viewer" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PalDoc",
+        "url": "https://paldoc.app/",
+        "description": "Free Palworld breeding calculator, Paldex and save viewer that runs in your browser.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any (web browser)",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
     <!-- Our own drawing (an egg), inline so it needs no file and holds no game art. -->
     <link
       rel="icon"
@@ -15,6 +39,13 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>PalDoc: Palworld breeding calculator and save viewer</h1>
+      <p>
+        Look up every parent pair that breeds a pal, browse the <a href="/paldex">Paldex</a>, plan passive skill
+        lineages, and see the pals in your own save. PalDoc runs in your browser and needs JavaScript turned on.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
