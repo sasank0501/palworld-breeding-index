@@ -1,5 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
+import { useOverlayBack } from '../../lib/useOverlayBack.ts';
+
 import { Portrait, displayName, ivTotal } from '../../components/PalCards.tsx';
 import { PRESETS, RANK_ORDER, rankSort } from '../../lib/passiveCategories.ts';
 import {
@@ -115,6 +117,8 @@ export function Planner({
     setPlansOpen(false);
     plansBtn.current?.focus();
   };
+  // Back closes the saved-plans menu instead of leaving the page.
+  useOverlayBack(plansOpen, closePlans);
   const loadPlan = (s: SavedPlan) => {
     setTarget(s.species);
     setPicked(s.passives.slice(0, MAX_PASSIVES));

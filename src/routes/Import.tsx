@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { back as historyBack, current, navigate, onNavigate, parseRoute, titleFor } from '../lib/route.ts';
 import type { Roster } from '../types.ts';
 import type { WorldMeta } from '../save/importWorld.ts';
 import type { FromWorker, ToWorker, WorldSummary } from '../save/import.worker.ts';
@@ -57,6 +58,24 @@ export default function Import({
 
   useEffect(() => () => worker.current?.terminate(), []);
 
+  // The import has its own address (/upload). Back from it returns to the landing page and stops
+  // whatever the importer was doing.
+  const toStart = (): void => {
+    worker.current?.terminate();
+    worker.current = null;
+    setStage({ kind: 'intro' });
+  };
+  useEffect(
+    () =>
+      onNavigate((pathname) => {
+        if (parseRoute(pathname)?.screen === 'home') toStart();
+      }),
+    [],
+  );
+  useEffect(() => {
+    document.title = stage.kind === 'intro' ? 'PalDoc' : titleFor(['Open your save']);
+  }, [stage.kind]);
+
   // Each new stage moves keyboard and screen-reader focus to its heading.
   useEffect(() => {
     if (stage.kind !== 'intro') focusTarget.current?.focus();
@@ -95,6 +114,7 @@ export default function Import({
     const files = await pickSaveFolder();
     if (!files) return;
     ensureWorker();
+    if (location.pathname !== '/upload') navigate('/upload', { fromLanding: true });
     setStage({ kind: 'scanning' });
     send({ type: 'scan', files });
   };
@@ -167,7 +187,17 @@ export default function Import({
             <button type="button" className="sc-btn" onClick={choose}>
               Choose a different folder
             </button>
-            <button type="button" className="sc-btn ghost" onClick={() => setStage({ kind: 'intro' })}>
+            <button
+              type="button"
+              className="sc-btn ghost"
+              onClick={() => {
+                if (current().fromLanding) historyBack();
+                else {
+                  navigate('/', { replace: true });
+                  toStart();
+                }
+              }}
+            >
               Back to the start
             </button>
           </div>

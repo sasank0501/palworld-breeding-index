@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useOverlayBack } from '../../lib/useOverlayBack.ts';
+
 import { SAVE_PATH_HINT, XBOX_SAVE_PATH_HINT } from '../../save/pick.ts';
 
 /**
@@ -15,6 +17,8 @@ export function UploadDialog({ open, onClose, onChoose }: { open: boolean; onClo
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const [copied, setCopied] = useState<'steam' | 'xbox' | null>(null);
+  // Back closes the dialog, not the page under it.
+  useOverlayBack(open, () => dialog.current?.close());
 
   useEffect(() => {
     const el = dialog.current;

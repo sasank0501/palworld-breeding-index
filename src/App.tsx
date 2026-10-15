@@ -1,9 +1,10 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
 import Import from './routes/Import.tsx';
 import Showcase from './routes/Showcase.tsx';
 import { BROWSE_ROSTER } from './lib/browse.ts';
 import { ISSUES_URL } from './lib/links.ts';
+import { current, goBack, navigate, onNavigate, parseRoute, type Route } from './lib/route.ts';
 import { clearCurrentWorld, loadCurrentWorld, saveWorld } from './save/store.ts';
 import type { WorldMeta } from './save/importWorld.ts';
 import type { Roster } from './types.ts';
@@ -34,7 +35,11 @@ type Load =
   | { state: 'loading' }
   | { state: 'import' }
   | { state: 'error'; message: string }
-  | { state: 'ready'; roster: Roster; source: 'saved' | 'dev' | 'demo' | 'browse'; justImported?: boolean };
+  | { state: 'ready'; roster: Roster; source: 'saved' | 'dev' | 'demo' | 'browse'; justImported?: boolean; route?: Route };
+
+/** A visit with no save may open the Paldex and its species pages (browse mode); anything else is the landing page. */
+const browsable = (r: Route | null): r is Extract<Route, { screen: 'app' }> =>
+  r?.screen === 'app' && r.section === 'dex' && (!r.page || r.page.kind === 'species');
 
 /**
  * public/roster.json is produced by `npm run import-save` and is gitignored, so a
@@ -54,22 +59,29 @@ const getRoster = async (file: string): Promise<Roster | null> => {
 
 export default function App() {
   const [load, setLoad] = useState<Load>({ state: 'loading' });
+  const loadNow = useRef(load);
+  loadNow.current = load;
 
   useEffect(() => {
     let cancelled = false;
     // Which roster opens: the world imported in this browser last, then a local
     // roster.json (development), then the demo for the portfolio build, else the
     // import screen.
-    (async () => {
+    // The address decides where in it: a page of the app, or (with no save) a species page to browse.
+    const route = parseRoute(location.pathname);
+    const at = route?.screen === 'app' ? route : undefined;
+    (async (): Promise<Load> => {
       const saved = await loadCurrentWorld();
-      if (saved) return { state: 'ready', roster: saved.roster, source: 'saved' } as const;
+      if (saved) return { state: 'ready', roster: saved.roster, source: 'saved', route: at };
       const dev = await getRoster('roster.json');
-      if (dev) return { state: 'ready', roster: dev, source: 'dev' } as const;
+      if (dev) return { state: 'ready', roster: dev, source: 'dev', route: at };
       if (import.meta.env.MODE === 'resume') {
         const demo = await getRoster('demo-roster.json');
-        if (demo) return { state: 'ready', roster: demo, source: 'demo' } as const;
+        if (demo) return { state: 'ready', roster: demo, source: 'demo', route: at };
       }
-      return { state: 'import' } as const;
+      if (browsable(route)) return { state: 'ready', roster: BROWSE_ROSTER, source: 'browse', route };
+      if (location.pathname !== '/') navigate('/', { replace: true });
+      return { state: 'import' };
     })()
       .then((next) => {
         if (!cancelled) setLoad(next);
@@ -82,18 +94,46 @@ export default function App() {
     };
   }, []);
 
-  /** Look around with no save (lib/browse.ts). Nothing is stored: a reload is the landing page again. */
-  const browse = () => setLoad({ state: 'ready', roster: BROWSE_ROSTER, source: 'browse' });
+  // Back and Forward between the landing page and browsing with no save. (With a save the app's own
+  // pages handle Back; the import screen handles leaving /upload.)
+  useEffect(
+    () =>
+      onNavigate((pathname) => {
+        const route = parseRoute(pathname);
+        const l = loadNow.current;
+        if (l.state === 'ready' && l.source === 'browse' && route?.screen !== 'app') setLoad({ state: 'import' });
+        else if (l.state === 'import' && browsable(route)) setLoad({ state: 'ready', roster: BROWSE_ROSTER, source: 'browse', route });
+      }),
+    [],
+  );
+
+  /** Look around with no save (lib/browse.ts). Nothing is stored: a reload of /paldex browses again. */
+  const browse = () => {
+    navigate('/paldex');
+    setLoad({ state: 'ready', roster: BROWSE_ROSTER, source: 'browse' });
+  };
 
   const imported = (roster: Roster, meta: WorldMeta | null) => {
     // Shown at once; storing it is a convenience for the next visit and may fail
     // (private windows), which only means importing again next time.
     void saveWorld({ roster, meta, importedAt: new Date().toISOString() });
-    setLoad({ state: 'ready', roster, source: 'saved', justImported: true });
+    const show = () => setLoad({ state: 'ready', roster, source: 'saved', justImported: true });
+    // The import's own entry (/upload) is gone once it is done: the app takes the landing page's
+    // place, so Back from the app doesn't land in a half-finished import.
+    if (current().fromLanding) {
+      goBack(() => {
+        navigate('/paldex', { replace: true });
+        show();
+      });
+    } else {
+      navigate('/paldex', { replace: true });
+      show();
+    }
   };
 
   const openAnother = () => {
     void clearCurrentWorld();
+    navigate('/');
     setLoad({ state: 'import' });
   };
 
@@ -170,7 +210,15 @@ export default function App() {
           {footer}
         </Suspense>
       ) : (
-        <Showcase roster={load.roster} onOpenSave={openAnother} justImported={load.justImported} notice={disclaimer} footer={footer} browse={load.source === 'browse'} />
+        <Showcase
+          roster={load.roster}
+          onOpenSave={openAnother}
+          justImported={load.justImported}
+          notice={disclaimer}
+          footer={footer}
+          browse={load.source === 'browse'}
+          initial={load.route}
+        />
       )}
     </div>
   );

@@ -2,10 +2,11 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { SiteNotice } from '../components/SiteNotice.tsx';
 import { BrowseContext } from '../lib/browse.ts';
+import { back as historyBack, current, formatRoute, navigate, onNavigate, parseRoute, sectionOf, titleFor, type Page, type Route } from '../lib/route.ts';
 import { SHOW_SUPPORT, SUPPORT_URL } from '../lib/links.ts';
 
 import type { Roster, RosterPal } from '../types.ts';
-import { nameOf, Chevron } from './showcase/shared.tsx';
+import { DEX, nameOf, Chevron } from './showcase/shared.tsx';
 import { Box } from './showcase/Box.tsx';
 import { Breeding } from './showcase/Breeding.tsx';
 import { Dex } from './showcase/Dex.tsx';
@@ -32,6 +33,10 @@ import '../design/showcase-views.css';
  *
  * A species or a pal opens *in place of* the section, on a stack, so Back (or Esc)
  * returns to exactly the list you came from, filters and scroll kept.
+ *
+ * Each tab and each opened page is also a browser history entry with its own address
+ * (src/lib/route.ts): the browser's Back, a mouse's back button, Esc and the "← Back" link
+ * all step back the same way, a refresh keeps the page, and a page can be linked to.
  */
 type Section = 'dex' | 'box' | 'breeding' | 'planner';
 const SECTIONS: Array<[Section, string]> = [
@@ -42,6 +47,22 @@ const SECTIONS: Array<[Section, string]> = [
 ];
 
 type Entry = { kind: 'species'; id: string } | { kind: 'pal'; pal: RosterPal; list: RosterPal[] } | { kind: 'plans' } | { kind: 'hidden' };
+/** What one history entry shows: a section, and the pages opened over it. */
+type Snapshot = { section: Section; stack: Entry[] };
+
+const SLUG_ID = new Map(Object.values(DEX).map((d) => [d.slug, d.id]));
+const pageOf = (e: Entry): Page =>
+  e.kind === 'species'
+    ? { kind: 'species', slug: DEX[e.id]?.slug ?? e.id }
+    : e.kind === 'pal'
+      ? { kind: 'pal', id: e.pal.instanceId }
+      : { kind: e.kind };
+const routeOf = (snap: Snapshot): Route => {
+  const top = snap.stack[snap.stack.length - 1];
+  return { screen: 'app', section: snap.section, page: top ? pageOf(top) : null };
+};
+const entryName = (e: Entry): string =>
+  e.kind === 'plans' ? 'Saved plans' : e.kind === 'hidden' ? 'Hidden from the spotlight' : e.kind === 'species' ? nameOf(e.id) : e.pal.nickname || nameOf(e.pal.palId ?? '');
 
 /** Focus the visible page's main heading (made focusable for this, not for Tab). */
 function focusHeading(): void {
@@ -58,8 +79,11 @@ export default function Showcase({
   notice,
   footer,
   browse = false,
+  initial,
 }: {
   roster: Roster;
+  /** The address the app opened at (a refresh or a link), or none for the Paldex. */
+  initial?: Route;
   /** Where "Open a different save" goes (and, in browse mode, "Upload save"). */
   onOpenSave?: () => void;
   /** Browse mode: a visit with no save. Only the Paldex and its species pages (lib/browse.ts). */
@@ -73,8 +97,34 @@ export default function Showcase({
 }) {
   const [skin, setSkin] = useSkin();
   const ctx = useCtx(roster);
-  const [section, setSection] = useState<Section>('dex');
-  const [stack, setStack] = useState<Entry[]>([]);
+  // A route to what it shows here: a species by its slug, a pal by its id in this save. An address
+  // that doesn't match (an unknown species, a pal from another save) falls back to its section.
+  // A visit with no save has only the Paldex and species pages.
+  const fromRoute = (route: Route | null): Snapshot => {
+    if (!route || route.screen !== 'app') return { section: 'dex', stack: [] };
+    const page = route.page;
+    const section: Section = browse ? 'dex' : page ? sectionOf(page) : route.section;
+    if (!page) return { section, stack: [] };
+    if (page.kind === 'species') {
+      const id = SLUG_ID.get(page.slug);
+      return { section, stack: id ? [{ kind: 'species', id }] : [] };
+    }
+    if (browse) return { section, stack: [] };
+    if (page.kind === 'pal') {
+      const pal = roster.pals.find((p) => p.instanceId === page.id);
+      return { section, stack: pal ? [{ kind: 'pal', pal, list: [pal] }] : [] };
+    }
+    return { section, stack: [page.kind === 'plans' ? { kind: 'plans' } : { kind: 'hidden' }] };
+  };
+  const [first] = useState(() => fromRoute(initial ?? null));
+  const [section, setSection] = useState<Section>(first.section);
+  const [stack, setStack] = useState<Entry[]>(first.stack);
+  /** What each history entry in this tab showed, by its index, so Back and Forward restore it exactly. */
+  const snaps = useRef(new Map<number, Snapshot>());
+  const now = useRef<Snapshot>(first);
+  now.current = { section, stack };
+  const record = (snap: Snapshot, replace: boolean): void =>
+    navigate(formatRoute(routeOf(snap)), { replace, then: (entry) => snaps.current.set(entry.i, snap) });
   const [planTarget, setPlanTarget] = useState('');
   const [checkMissing, setCheckMissing] = useState(justImported);
   useEffect(() => setCheckMissing(justImported), [justImported, roster]);
@@ -103,15 +153,50 @@ export default function Showcase({
 
   const push = useCallback((e: Entry) => {
     openers.current.push(document.activeElement instanceof HTMLElement ? document.activeElement : null);
-    setStack((s) => {
-      if (s.length === 0) savedScroll.current = page.current?.scrollTop ?? 0;
-      return [...s, e];
-    });
+    const { section: sec, stack: s } = now.current;
+    if (s.length === 0) savedScroll.current = page.current?.scrollTop ?? 0;
+    const next = [...s, e];
+    setStack(next);
+    record({ section: sec, stack: next }, false);
     page.current?.scrollTo({ top: 0 });
   }, []);
 
+  // The app's own Back (the "← Back" link, Esc) is the browser's Back, so all of them agree. A page
+  // opened straight from an address has nothing behind it in this tab: it closes in place instead.
   const back = useCallback(() => {
-    setStack((s) => s.slice(0, -1));
+    if (current().i > 0) {
+      historyBack();
+      return;
+    }
+    const { section: sec, stack: s } = now.current;
+    const next = s.slice(0, -1);
+    setStack(next);
+    record({ section: sec, stack: next }, true);
+  }, []);
+
+  // The address the app opened at is this entry's; Back and Forward restore what each entry showed.
+  useEffect(() => {
+    record(first, true);
+    return onNavigate((pathname, entry) => {
+      const route = parseRoute(pathname);
+      // An entry from before the save was opened (the landing page, the import): with a save, that is
+      // the Paldex. With no save, the app gives way to the landing page (App.tsx).
+      if (!route || route.screen !== 'app') {
+        if (browse) return;
+        navigate('/paldex', { replace: true });
+      }
+      const snap = snaps.current.get(entry.i) ?? fromRoute(route);
+      snaps.current.set(entry.i, snap);
+      if (snap.section !== now.current.section) {
+        setSection(snap.section);
+        openers.current = [];
+        depth.current = snap.stack.length;
+        savedScroll.current = 0;
+        page.current?.scrollTo({ top: 0 });
+        requestAnimationFrame(focusHeading);
+      }
+      setStack(snap.stack);
+    });
   }, []);
 
   // Back to the list: put the scroll where it was, once the list is visible again.
@@ -144,12 +229,14 @@ export default function Showcase({
   const openPal = useCallback((pal: RosterPal, list?: RosterPal[]) => push({ kind: 'pal', pal, list: list ?? [pal] }), [push]);
 
   const go = (s: Section): void => {
+    const same = s === section && stack.length === 0;
     setSection(s);
     openers.current = [];
     depth.current = 0;
     setStack([]);
     savedScroll.current = 0;
     page.current?.scrollTo({ top: 0 });
+    if (!same) record({ section: s, stack: [] }, false);
   };
 
   const plan = (id: string): void => {
@@ -158,19 +245,26 @@ export default function Showcase({
   };
 
   /** Previous / next within what you opened it from: the pal list, or dex order. */
+  // Previous and next replace the page's entry rather than adding one: Back goes to the list, not
+  // through every pal stepped past.
   const step = useCallback((delta: number) => {
-    setStack((s) => {
-      const t = s[s.length - 1];
-      if (!t || t.kind === 'plans' || t.kind === 'hidden') return s;
-      if (t.kind === 'pal') {
-        const i = t.list.findIndex((p) => p.instanceId === t.pal.instanceId);
-        const next = t.list[i + delta];
-        return next ? [...s.slice(0, -1), { ...t, pal: next }] : s;
-      }
+    const { section: sec, stack: s } = now.current;
+    const t = s[s.length - 1];
+    if (!t || t.kind === 'plans' || t.kind === 'hidden') return;
+    let swap: Entry | null = null;
+    if (t.kind === 'pal') {
+      const i = t.list.findIndex((p) => p.instanceId === t.pal.instanceId);
+      const next = t.list[i + delta];
+      if (next) swap = { ...t, pal: next };
+    } else {
       const i = DEX_ORDER.findIndex((d) => d.id === t.id);
       const next = DEX_ORDER[i + delta];
-      return next ? [...s.slice(0, -1), { kind: 'species', id: next.id }] : s;
-    });
+      if (next) swap = { kind: 'species', id: next.id };
+    }
+    if (!swap) return;
+    const stackNext = [...s.slice(0, -1), swap];
+    setStack(stackNext);
+    record({ section: sec, stack: stackNext }, true);
     page.current?.scrollTo({ top: 0 });
   }, []);
 
@@ -189,6 +283,11 @@ export default function Showcase({
   }, [top, back, step]);
 
   const sectionLabel = SECTIONS.find(([k]) => k === section)?.[1] ?? '';
+
+  // The title names the screen, so a screen reader, the tab and the history list all say where you are.
+  useEffect(() => {
+    document.title = top ? titleFor([entryName(top), top.kind === 'species' ? 'Paldex' : sectionLabel]) : titleFor([sectionLabel]);
+  }, [top, sectionLabel]);
 
   return (
     <BrowseContext.Provider value={browse}>
@@ -274,7 +373,7 @@ export default function Showcase({
               </button>
               <span className="sc-crumbs">
                 {stack.map((e, i) => (
-                  <span key={i}>{e.kind === 'plans' ? 'Saved plans' : e.kind === 'hidden' ? 'Hidden from the spotlight' : e.kind === 'species' ? nameOf(e.id) : e.pal.nickname ?? nameOf(e.pal.palId ?? '')}</span>
+                  <span key={i}>{entryName(e)}</span>
                 ))}
               </span>
               {top.kind !== 'plans' && top.kind !== 'hidden' && (

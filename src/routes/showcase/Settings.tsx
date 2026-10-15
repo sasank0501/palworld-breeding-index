@@ -13,6 +13,7 @@ import {
   type FileSyncState,
   type RestorePreview,
 } from '../../userdata/backup.ts';
+import { useOverlayBack } from '../../lib/useOverlayBack.ts';
 import { ArtSettings } from './Art.tsx';
 import { SKINS, type Skin } from './skins.ts';
 import '../../design/settings.css';
@@ -95,6 +96,9 @@ export function Settings({
     if (refocus) gear.current?.focus();
   };
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
+  // Back closes the panel (and the restore dialog over it) instead of leaving the page.
+  useOverlayBack(state === 'open', () => close());
+  useOverlayBack(!!preview, () => dialog.current?.close());
 
   // While the panel is up the page behind it can't scroll. The scrim alone wasn't
   // enough on iOS: a swipe that starts on the panel, when the panel has nothing to
