@@ -1,6 +1,6 @@
 # Handoff — 2026-10-14 (end of day)
 
-Branch `paldb-ranks-and-theme`, pushed to origin at the end of this wrap. `npx tsc -b`, 267 tests and
+Branch `paldb-ranks-and-theme`, pushed to origin at the end of this wrap. `npx tsc -b`, 283 tests and
 `npm run build` ("no game art except 16 silhouette screenshots for the homepage tour and 289 species
 silhouettes for browsing") pass; `npm run audit-a11y` on the dev server: no violations, no text under 12px.
 **The public site is live at https://paldoc.app** (Cloudflare Pages project `paldoc-app`, Direct Upload),
@@ -21,6 +21,11 @@ Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
 ## Pick up here
 
 **Waiting on the user**
+0. **Google Search Console** (SEO, 2026-10-14): add `paldoc.app` as a Domain property (a DNS TXT record in
+   Cloudflare), then submit `https://paldoc.app/sitemap.xml` and request indexing of `/`. Bing Webmaster
+   Tools can import it from Search Console. Until then a new site can take weeks to show up for its keywords.
+   Optional: purge Cloudflare's cache once (Caching → Purge Everything) to clear one stale HTML copy of an
+   old script (`index-CpSA0LSE.js`) that nothing links to any more (see Deploying).
 1. **Cloudflare bot detection's inline script is still blocked** on paldoc.app (one console error per visit).
    It is Cloudflare's "JavaScript detections" (`/cdn-cgi/challenge-platform/…/jsd/main.js`), inline and
    different on every request, so the CSP can't allow it safely. The owner can turn it off in the dashboard
@@ -65,13 +70,23 @@ Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
 ## Built on 2026-10-14 (details in WEBSITE-PLAN, Phase 8 "Also built 2026-10-14")
 
 - **Deployed**: `paldoc.app` (domain the owner bought), security headers, npm audit 0.
-- **Addresses and history** (`src/lib/route.ts`, `useOverlayBack.ts`; after the deploy, **not deployed yet**): every
+- **SEO** (deployed): `index.html` has the home title and description, Open Graph and Twitter tags, a
+  WebApplication JSON-LD block and a `<noscript>` summary; `src/lib/seo.ts` sets title, description and a
+  canonical `https://paldoc.app/...` per screen (only the landing page, `/paldex` and species pages, the ones
+  a visitor without a save can open; Google wants no canonical in the HTML when a script sets it);
+  `public/robots.txt`; `vite.config.ts` writes `sitemap.xml` (291 addresses, from `pals.json`);
+  `public/og-image.png` is our own egg and the name (`node scripts/build-og-image.mjs`). Checked live:
+  `scripts/.cache/planner-redesign/seo-check.mjs <url>`. Per-species pre-rendered pages: not started.
+- **Toggles glide like the nav** (deployed): `Seg` in `TabSlider.tsx` for every `.sc-seg` (Paldex view,
+  spotlight Party / Potential / Passives, My Pals Where and Sort); `scripts/.cache/home-mock/seg-glide.mjs`.
+- **Addresses and history** (`src/lib/route.ts`, `useOverlayBack.ts`; deployed): every
   tab and opened page has an address (`/paldex/anubis`, `/my-pals/<id>`, `/planner/saved`…); Back, Forward, a
   mouse's back button, Esc and the Back link agree; refresh keeps the page; Back closes overlays first; the
   import's `/upload` entry is cancelled by Back and gone once done. Checked: `scripts/.cache/planner-redesign/`
   `history.mjs` (saved / public), `esc-guard.mjs`, `import-history.mjs` (imports the owner's small world).
-- **Landing tour per theme** (not deployed yet): 16 screenshots, `<page>-<skin>.webp`, Breeding with its pair
-  calculator worked out and the Planner with a finished plan; `npm run capture-tour [skin…]`.
+- **Landing tour per theme** (deployed): 16 screenshots at 2×, `<page>-<skin>.avif` with a `.webp` fallback,
+  Breeding with its pair calculator worked out and the Planner with a finished plan; `npm run capture-tour [skin…]`.
+- **Pair calculator** keeps one layout with or without a pal chosen (deployed).
 - **Spotlight Party view** (`Dex.tsx`): Party / Potential / Passives, remembered per device, no Hide in Party.
 - **Hybrid planner** (`Planner.tsx`, `showcase-views.css`): set up beside the result, then a summary row
   with Edit once there is a plan; containers move and grow.
@@ -108,7 +123,10 @@ Chapter 24 is Phase 6. **Chapters for 6b, 7 and 8 are owed.**
 Public site: `npm run build`, then
 `npx wrangler@4 pages deploy dist --project-name paldoc-app --branch preview --commit-dirty=true`
 (→ https://preview.paldoc-app.pages.dev), check it (`node scripts/.cache/planner-redesign/smoke.mjs <url>`),
-then `--branch main` for https://paldoc.app. Portfolio: `npm run build:resume`, same command with
+then `--branch main` for https://paldoc.app, and check it with `mime-check.mjs https://paldoc.app/` (every
+script `application/javascript`). **No long cache rule on `/assets/*`**: on 2026-10-14 a request during
+the switch-over got the old deployment's HTML fallback for a new script, the `immutable` rule made Cloudflare's
+edge keep it, and the site was blank there until a rebuild changed the file names. Portfolio: `npm run build:resume`, same command with
 `dist-resume --project-name paldoc`. If `public/extractor/` exists, both builds copy it (43 MB); the
 portfolio doesn't use it, so delete it before `build:resume`. Deploying needs the owner's yes each time.
 
